@@ -1,0 +1,10 @@
+"""Data package."""
+
+{% if use_lightning -%}
+from {{ package_name }}.data.datamodule import LitDataModule
+
+__all__ = ["LitDataModule"]
+{% else -%}
+# Add your data imports here
+__all__ = []
+{% endif -%}

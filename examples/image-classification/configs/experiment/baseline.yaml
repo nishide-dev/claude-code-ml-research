@@ -1,0 +1,32 @@
+# @package _global_
+
+# Baseline experiment: Simple CNN, no augmentation, 10 epochs
+# Good for quick testing and debugging
+
+defaults:
+  - override /model: simple_cnn
+  - override /data: cifar10
+  - override /trainer: default
+  - override /logger: tensorboard
+
+# Experiment name
+name: baseline-experiment
+
+# Model settings
+model:
+  lr: 0.001
+  hidden_channels: 64
+
+# Data settings
+data:
+  batch_size: 128
+  augment_train: false
+  normalize: true
+
+# Trainer settings
+trainer:
+  max_epochs: 10
+  accelerator: auto
+
+# Tags
+tags: ["baseline", "simple-cnn", "no-augmentation"]

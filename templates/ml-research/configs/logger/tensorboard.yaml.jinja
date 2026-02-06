@@ -1,0 +1,13 @@
+# TensorBoard logger configuration
+
+{% if use_lightning and use_hydra -%}
+tensorboard:
+  _target_: pytorch_lightning.loggers.TensorBoardLogger
+  save_dir: ${paths.log_dir}
+  name: tensorboard
+  version: null
+  default_hp_metric: false
+{% else -%}
+# TensorBoard configuration
+save_dir: ./logs
+{% endif -%}

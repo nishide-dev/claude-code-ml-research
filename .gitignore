@@ -76,8 +76,8 @@ checkpoints/
 *.hdf5
 
 # Data
-data/
-datasets/
+# data/
+# datasets/
 *.csv
 *.tsv
 *.json

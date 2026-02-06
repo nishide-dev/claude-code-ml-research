@@ -1,0 +1,24 @@
+# Main configuration for {{ project_name }}
+
+{% if use_hydra -%}
+defaults:
+  - model: default
+  - data: default
+  - trainer: default
+  - logger: {{ logger_choice if logger_choice != 'none' else 'tensorboard' }}
+  - _self_
+
+name: {{ project_name }}
+seed: 42
+
+paths:
+  root_dir: ${oc.env:PWD}
+  data_dir: ${paths.root_dir}/data
+  log_dir: ${paths.root_dir}/logs
+  output_dir: ${paths.root_dir}/outputs
+
+tags: ["{{ template_type }}", "{{ dataset_choice if dataset_choice else 'custom' }}"]
+{% else -%}
+# Add your configuration here
+name: {{ project_name }}
+{% endif -%}

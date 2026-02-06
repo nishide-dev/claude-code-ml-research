@@ -1,0 +1,13 @@
+# MLflow logger configuration
+
+{% if use_lightning and use_hydra -%}
+mlflow:
+  _target_: pytorch_lightning.loggers.MLFlowLogger
+  experiment_name: {{ project_name }}
+  tracking_uri: file:./mlruns
+  tags: ${tags}
+{% else -%}
+# MLflow configuration
+experiment_name: {{ project_name }}
+tracking_uri: file:./mlruns
+{% endif -%}

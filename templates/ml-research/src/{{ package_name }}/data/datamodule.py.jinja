@@ -1,0 +1,196 @@
+"""Lightning DataModule for {{ project_name }}."""
+
+from pathlib import Path
+from typing import Optional
+
+{% if use_lightning -%}
+import pytorch_lightning as pl
+{% endif -%}
+from torch.utils.data import DataLoader, random_split
+from torchvision import datasets, transforms
+
+
+{% if use_lightning -%}
+class LitDataModule(pl.LightningDataModule):
+    """PyTorch Lightning DataModule for {{ dataset_choice if dataset_choice else 'custom dataset' }}.
+
+    {% if dataset_choice == 'mnist' -%}
+    MNIST dataset: 70,000 28x28 grayscale images of handwritten digits.
+    {% elif dataset_choice == 'cifar10' -%}
+    CIFAR-10 dataset: 60,000 32x32 color images in 10 classes.
+    {% elif dataset_choice == 'cifar100' -%}
+    CIFAR-100 dataset: 60,000 32x32 color images in 100 classes.
+    {% elif dataset_choice == 'fashion-mnist' -%}
+    Fashion-MNIST dataset: 70,000 28x28 grayscale images of fashion items.
+    {% else -%}
+    Custom dataset - modify this datamodule for your specific data.
+    {% endif -%}
+    """
+
+    def __init__(
+        self,
+        data_dir: str = "./data",
+        batch_size: int = 128,
+        num_workers: int = 4,
+        pin_memory: bool = True,
+        persistent_workers: bool = True,
+        normalize: bool = True,
+        augment_train: bool = False,
+        {% if dataset_choice -%}
+        dataset_name: str = "{{ dataset_choice.upper().replace('-', '') }}",
+        {% else -%}
+        dataset_name: str = "MNIST",
+        {% endif -%}
+    ) -> None:
+        """Initialize DataModule.
+
+        Args:
+            data_dir: Directory to store/load data
+            batch_size: Batch size
+            num_workers: Number of dataloader workers
+            pin_memory: Pin memory for faster GPU transfer
+            persistent_workers: Keep workers alive between epochs
+            normalize: Apply normalization
+            augment_train: Apply data augmentation to training set
+            dataset_name: Dataset name (MNIST, FashionMNIST, CIFAR10, etc.)
+        """
+        super().__init__()
+        self.save_hyperparameters()
+
+        self.data_dir = Path(data_dir)
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.pin_memory = pin_memory
+        self.persistent_workers = persistent_workers
+
+        # Setup transforms
+        self.transform_train = self._build_transform(augment=augment_train, normalize=normalize)
+        self.transform_test = self._build_transform(augment=False, normalize=normalize)
+
+        # Dataset class
+        self.dataset_class = getattr(datasets, dataset_name)
+
+        # Placeholders
+        self.train_dataset: Optional[datasets.VisionDataset] = None
+        self.val_dataset: Optional[datasets.VisionDataset] = None
+        self.test_dataset: Optional[datasets.VisionDataset] = None
+
+    def _build_transform(self, augment: bool = False, normalize: bool = True) -> transforms.Compose:
+        """Build transforms pipeline.
+
+        Args:
+            augment: Apply data augmentation
+            normalize: Apply normalization
+
+        Returns:
+            Composed transforms
+        """
+        transform_list = []
+
+        if augment:
+            {% if dataset_choice in ['cifar10', 'cifar100'] -%}
+            # Data augmentation for CIFAR
+            transform_list.extend([
+                transforms.RandomCrop(32, padding=4),
+                transforms.RandomHorizontalFlip(),
+            ])
+            {% else -%}
+            # Data augmentation for MNIST-like datasets
+            transform_list.extend([
+                transforms.RandomAffine(degrees=10, translate=(0.1, 0.1)),
+                transforms.RandomHorizontalFlip(),
+            ])
+            {% endif -%}
+
+        transform_list.append(transforms.ToTensor())
+
+        if normalize:
+            {% if dataset_choice == 'mnist' or dataset_choice == 'fashion-mnist' -%}
+            # MNIST/Fashion-MNIST normalization
+            transform_list.append(transforms.Normalize((0.1307,), (0.3081,)))
+            {% elif dataset_choice in ['cifar10', 'cifar100'] -%}
+            # CIFAR normalization
+            transform_list.append(
+                transforms.Normalize(
+                    mean=[0.4914, 0.4822, 0.4465],
+                    std=[0.2470, 0.2435, 0.2616]
+                )
+            )
+            {% else -%}
+            # Default normalization (ImageNet stats)
+            transform_list.append(
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225]
+                )
+            )
+            {% endif -%}
+
+        return transforms.Compose(transform_list)
+
+    def prepare_data(self) -> None:
+        """Download data if needed (called only once)."""
+        # Download train and test sets
+        self.dataset_class(self.data_dir, train=True, download=True)
+        self.dataset_class(self.data_dir, train=False, download=True)
+
+    def setup(self, stage: Optional[str] = None) -> None:
+        """Setup datasets (called on every GPU).
+
+        Args:
+            stage: fit, validate, test, or predict
+        """
+        if stage == "fit" or stage is None:
+            # Load full training set
+            full_train = self.dataset_class(
+                self.data_dir, train=True, transform=self.transform_train
+            )
+
+            # Split into train and validation (90/10)
+            train_size = int(0.9 * len(full_train))
+            val_size = len(full_train) - train_size
+
+            self.train_dataset, self.val_dataset = random_split(
+                full_train, [train_size, val_size]
+            )
+
+        if stage == "test" or stage is None:
+            self.test_dataset = self.dataset_class(
+                self.data_dir, train=False, transform=self.transform_test
+            )
+
+    def train_dataloader(self) -> DataLoader:
+        """Training dataloader."""
+        return DataLoader(
+            self.train_dataset,
+            batch_size=self.batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory,
+            persistent_workers=self.persistent_workers if self.num_workers > 0 else False,
+        )
+
+    def val_dataloader(self) -> DataLoader:
+        """Validation dataloader."""
+        return DataLoader(
+            self.val_dataset,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory,
+            persistent_workers=self.persistent_workers if self.num_workers > 0 else False,
+        )
+
+    def test_dataloader(self) -> DataLoader:
+        """Test dataloader."""
+        return DataLoader(
+            self.test_dataset,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory,
+        )
+{% else -%}
+# Without Lightning, implement your custom Dataset and DataLoader logic here
+pass
+{% endif -%}

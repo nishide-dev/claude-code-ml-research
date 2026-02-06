@@ -1,0 +1,180 @@
+# pyproject.toml - Python project configuration
+# Generated from ML Research Copier template
+
+{# Extract PyTorch/CUDA versions from preset #}
+{% if pytorch_cuda_preset == 'pytorch-2.9.0-cuda-12.6' %}
+  {% set pytorch_version = '2.9.0' %}
+  {% set cuda_version = '12.6' %}
+{% elif pytorch_cuda_preset == 'pytorch-2.9.0-cuda-13.0' %}
+  {% set pytorch_version = '2.9.0' %}
+  {% set cuda_version = '13.0' %}
+{% elif pytorch_cuda_preset == 'pytorch-2.8.0-cuda-12.6' %}
+  {% set pytorch_version = '2.8.0' %}
+  {% set cuda_version = '12.6' %}
+{% elif pytorch_cuda_preset == 'pytorch-2.8.0-cuda-12.8' %}
+  {% set pytorch_version = '2.8.0' %}
+  {% set cuda_version = '12.8' %}
+{% elif pytorch_cuda_preset == 'pytorch-2.7.1-cuda-12.6' %}
+  {% set pytorch_version = '2.7.1' %}
+  {% set cuda_version = '12.6' %}
+{% elif pytorch_cuda_preset == 'pytorch-2.7.1-cuda-11.8' %}
+  {% set pytorch_version = '2.7.1' %}
+  {% set cuda_version = '11.8' %}
+{% elif pytorch_cuda_preset == 'pytorch-2.6.0-cuda-12.4' %}
+  {% set pytorch_version = '2.6.0' %}
+  {% set cuda_version = '12.4' %}
+{% elif pytorch_cuda_preset == 'pytorch-2.5.1-cuda-12.1' %}
+  {% set pytorch_version = '2.5.1' %}
+  {% set cuda_version = '12.1' %}
+{% elif pytorch_cuda_preset == 'pytorch-2.4.1-cuda-11.8' %}
+  {% set pytorch_version = '2.4.1' %}
+  {% set cuda_version = '11.8' %}
+{# else: use custom values from user input #}
+{% endif %}
+
+[project]
+name = "{{ project_name }}"
+version = "0.1.0"
+description = "{{ description }}"
+readme = "README.md"
+authors = [
+    { name = "{{ author_name }}", email = "{{ author_email }}" }
+]
+requires-python = ">={{ python_version }}"
+dependencies = []
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Programming Language :: Python :: {{ python_version }}",
+{%- if python_version == "3.10" %}
+    "Programming Language :: Python :: 3.10",
+{%- endif %}
+{%- if python_version in ["3.10", "3.11"] %}
+    "Programming Language :: Python :: 3.11",
+{%- endif %}
+{%- if python_version in ["3.10", "3.11", "3.12"] %}
+    "Programming Language :: Python :: 3.12",
+{%- endif %}
+    "Programming Language :: Python :: 3.13",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+managed = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/{{ package_name }}"]
+
+# ============================================================================
+# PyTorch CUDA Index Configuration
+# ============================================================================
+# uvの公式ガイドに従ったPyTorchインデックス設定
+# https://docs.astral.sh/uv/guides/integration/pytorch/
+
+[[tool.uv.index]]
+name = "pytorch-cu{{ cuda_version | replace('.', '') }}"
+url = "https://download.pytorch.org/whl/cu{{ cuda_version | replace('.', '') }}"
+explicit = true
+
+{% if use_pytorch_geometric -%}
+# PyTorch Geometric のインデックス設定
+[[tool.uv.index]]
+name = "pytorch-geometric"
+url = "https://data.pyg.org/whl/torch-{{ pytorch_version }}+cu{{ cuda_version | replace('.', '') }}.html"
+explicit = true
+{% endif -%}
+
+# ============================================================================
+# Development tool configurations
+# ============================================================================
+
+{% if use_ty -%}
+[tool.ty]
+
+[tool.ty.environment]
+python-version = "{{ python_version }}"
+
+[tool.ty.terminal]
+output-format = "full"
+{% endif -%}
+
+{% if use_pytest -%}
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--showlocals",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+{% endif -%}
+
+# ============================================================================
+# Dependency Groups (PEP 735)
+# ============================================================================
+
+[dependency-groups]
+dev = [
+    # Core ML frameworks
+    "torch=={{ pytorch_version }}",
+{%- if use_torchvision %}
+    "torchvision",
+{%- endif %}
+{%- if use_torchaudio %}
+    "torchaudio",
+{%- endif %}
+{%- if use_lightning %}
+    "pytorch-lightning>={{ lightning_version }}",
+{%- endif %}
+{%- if use_hydra %}
+    "hydra-core>={{ hydra_version }}",
+{%- endif %}
+{%- if use_pytorch_geometric %}
+    "torch-geometric",
+    "torch-scatter",
+    "torch-sparse",
+    "torch-cluster",
+{%- endif %}
+    # Experiment tracking
+{%- if logger_choice == 'tensorboard' or logger_choice == 'both' %}
+    "tensorboard>=2.15",
+{%- endif %}
+{%- if logger_choice == 'wandb' or logger_choice == 'both' %}
+    "wandb>=0.16",
+{%- endif %}
+{%- if logger_choice == 'mlflow' %}
+    "mlflow>=2.9",
+{%- endif %}
+    # Development tools
+{%- if use_pytest %}
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+{%- endif %}
+{%- if use_ruff %}
+    "ruff>=0.6",
+{%- endif %}
+{%- if use_ty %}
+    "ty",
+{%- endif %}
+    # Additional ML utilities
+    "numpy>=1.24",
+    "matplotlib>=3.7",
+    "scikit-learn>=1.3",
+]

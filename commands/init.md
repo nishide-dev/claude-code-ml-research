@@ -1,261 +1,239 @@
 # ML Project Initialization
 
-Initialize a new machine learning research project with PyTorch Lightning, Hydra configuration, and modern Python tooling.
+Initialize a new machine learning research project using the ML Research Copier template with PyTorch Lightning, Hydra configuration, and modern Python tooling (uv).
 
 ## Process
 
-### 1. Project Setup Questions
+### 1. Explain the Template System
 
-Ask the user about project configuration:
-- Project name and description
-- Framework preference (PyTorch Lightning, vanilla PyTorch, or Transformers)
-- Package manager (pixi for ML dependencies with CUDA, uv for pure Python)
-- Task type (classification, regression, generation, GNN, etc.)
-- Experiment tracking (W&B, MLFlow, TensorBoard, local logs only)
-- Include PyTorch Geometric for graph neural networks?
+This command uses `uvx copier` to create projects from templates. The template supports:
 
-### 2. Directory Structure Creation
+- **PyTorch + CUDA**: Multiple version presets (2.4-2.9, CUDA 11.8-13.0)
+- **PyTorch Lightning**: For training infrastructure
+- **Hydra**: For configuration management
+- **Experiment Tracking**: TensorBoard, W&B, MLflow
+- **Modern Tooling**: uv (package manager), ruff (linter), ty (type checker)
+- **Multiple Templates**: Image classification, segmentation, GNN, etc.
 
-Create lightning-hydra-template inspired structure:
+### 2. Check Prerequisites
+
+Verify that `uvx` is available:
+```bash
+uvx --version
+```
+
+If not available, install uv:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+### 3. Run Copier Template
+
+Execute the copier command pointing to the ML research template:
+
+```bash
+uvx copier copy <plugin-dir>/templates/ml-research <project-directory>
+```
+
+Where:
+- `<plugin-dir>` is the absolute path to the claude-code-ml-research plugin directory
+- `<project-directory>` is where the new project will be created
+
+### 4. Interactive Configuration
+
+Copier will ask the user to configure:
+
+**Project Basics:**
+- Project name (defaults to directory name)
+- Package name (Python import name, auto-generated from project name)
+- Description
+- Author name and email
+- Python version (3.10-3.13)
+
+**Development Tools:**
+- Use ruff? (default: yes)
+- Use ty? (default: yes)
+- Use pytest? (default: yes)
+- Use GitHub Actions? (default: yes)
+- Use Nix + direnv? (default: no)
+
+**PyTorch/CUDA:**
+- PyTorch + CUDA preset (interactive dropdown with compatible combinations)
+  - PyTorch 2.8.0 + CUDA 12.6 (recommended)
+  - PyTorch 2.9.0 + CUDA 12.6 (latest)
+  - ... (many presets)
+  - Custom (manual version entry)
+- Include torchvision? (default: yes)
+- Include torchaudio? (default: no)
+
+**ML Frameworks:**
+- Use PyTorch Lightning? (default: yes)
+- Lightning version (if enabled)
+- Use Hydra? (default: yes)
+- Hydra version (if enabled)
+- Use PyTorch Geometric? (default: no)
+
+**Experiment Tracking:**
+- Logger choice: TensorBoard / W&B / MLflow / Both / None
+- W&B entity (if W&B selected)
+
+**Template Type:**
+- Image Classification (default)
+- Segmentation
+- Object Detection
+- Text Classification
+- GNN (Graph Neural Network)
+- Minimal (custom template)
+
+**Dataset:**
+- MNIST / CIFAR-10 / CIFAR-100 / Fashion-MNIST / Custom (for image classification)
+
+### 5. Post-Generation
+
+Copier automatically executes post-generation tasks:
+1. `git init -b main` - Initialize git repository
+2. `uv venv` - Create virtual environment
+3. `uv lock` - Lock dependencies
+4. `uv sync` - Install dependencies
+5. `ruff check . --fix` - Lint and auto-fix
+6. `ruff format .` - Format code
+7. `ty check` - Type check (if enabled)
+8. `pytest` - Run tests (if enabled)
+
+### 6. Project Structure
+
+The generated project will have:
 
 ```
 <project-name>/
-├── configs/
-│   ├── config.yaml          # Main config
-│   ├── model/               # Model configurations
-│   ├── data/                # Dataset configurations
-│   ├── trainer/             # Trainer configurations
-│   ├── logger/              # Logger configurations
-│   └── experiment/          # Experiment configs
 ├── src/
-│   ├── __init__.py
-│   ├── models/              # LightningModule definitions
-│   ├── data/                # DataModule and datasets
-│   ├── utils/               # Utility functions
-│   └── train.py             # Training entry point
+│   └── <package-name>/
+│       ├── __init__.py
+│       ├── train.py          # Main training script with Hydra
+│       ├── models/           # LightningModule definitions
+│       ├── data/             # DataModule and datasets
+│       └── utils/            # Utility functions
 ├── tests/
-│   ├── __init__.py
-│   └── test_model.py
-├── notebooks/               # Jupyter notebooks
-├── logs/                    # Training logs
-├── scripts/                 # Helper scripts
+│   └── test_<package_name>.py
+├── configs/                  # Hydra configuration
+│   ├── config.yaml
+│   ├── model/
+│   ├── data/
+│   ├── trainer/
+│   ├── logger/
+│   └── experiment/
+├── pyproject.toml           # uv + project config
+├── ruff.toml                # Ruff linting config
 ├── .gitignore
-├── pyproject.toml or pixi.toml
 ├── README.md
-└── ruff.toml
+└── .venv/                   # Virtual environment (created)
 ```
 
-### 3. Package Manager Configuration
+### 7. Verify Installation
 
-**If pixi selected (recommended for ML with GPU):**
-
-Create `pixi.toml`:
-```toml
-[project]
-name = "<project-name>"
-version = "0.1.0"
-channels = ["pytorch", "nvidia", "conda-forge"]
-platforms = ["linux-64", "osx-arm64", "osx-64"]
-
-[dependencies]
-python = ">=3.10"
-pytorch = ">=2.1"
-pytorch-lightning = ">=2.1"
-hydra-core = ">=1.3"
-wandb = "*"          # If W&B selected
-ruff = "*"
-pytest = "*"
-
-# Add PyTorch Geometric if requested
-# pytorch-geometric = "*"
-# torch-scatter = "*"
-# torch-sparse = "*"
-
-[tasks]
-train = "python src/train.py"
-test = "pytest tests/"
-lint = "ruff check ."
-format = "ruff format ."
-```
-
-**If uv selected:**
-
-Create `pyproject.toml`:
-```toml
-[project]
-name = "<project-name>"
-version = "0.1.0"
-requires-python = ">=3.10"
-dependencies = [
-    "torch>=2.1",
-    "pytorch-lightning>=2.1",
-    "hydra-core>=1.3",
-    "wandb",  # If W&B selected
-]
-
-[project.optional-dependencies]
-dev = ["pytest", "ruff", "typer"]
-
-[tool.ruff]
-line-length = 100
-select = ["E", "F", "I", "N", "W"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-```
-
-### 4. Configuration Files
-
-Generate Hydra configuration files in `configs/`:
-
-**config.yaml:**
-```yaml
-defaults:
-  - model: default
-  - data: default
-  - trainer: default
-  - logger: wandb  # or tensorboard/mlflow
-  - _self_
-
-seed: 42
-work_dir: ${hy dra:runtime.cwd}
-
-hydra:
-  run:
-    dir: logs/${now:%Y-%m-%d}/${now:%H-%M-%S}
-```
-
-**configs/model/default.yaml** - based on task type
-**configs/data/default.yaml** - dataset configuration
-**configs/trainer/default.yaml** - Lightning trainer settings
-
-### 5. Starter Code
-
-Generate `src/train.py` with:
-- Hydra decorator for configuration
-- Lightning Trainer setup
-- Proper logging initialization
-- Seed setting for reproducibility
-- W&B integration if selected
-
-Generate `src/models/base_model.py` with:
-- LightningModule template
-- training_step, validation_step, test_step
-- configure_optimizers
-- Proper typing annotations
-
-Generate `src/data/datamodule.py` with:
-- LightningDataModule template
-- setup(), train_dataloader(), val_dataloader(), test_dataloader()
-
-### 6. Tooling Configuration
-
-Create `ruff.toml`:
-```toml
-line-length = 100
-target-version = "py310"
-
-[lint]
-select = [
-    "E",   # pycodestyle errors
-    "F",   # pyflakes
-    "I",   # isort
-    "N",   # pep8-naming
-    "UP",  # pyupgrade
-    "ANN", # flake8-annotations
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "ANN101",  # Missing type annotation for self
-    "ANN102",  # Missing type annotation for cls
-]
-
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]  # Unused imports
-"tests/*" = ["ANN"]       # No annotations in tests
-```
-
-Create `.gitignore`:
-```
-# Python
-__pycache__/
-*.py[cod]
-*.so
-.Python
-*.egg-info/
-dist/
-build/
-
-# ML specific
-logs/
-wandb/
-lightning_logs/
-checkpoints/
-*.ckpt
-*.pth
-*.pt
-
-# Data
-data/
-*.csv
-*.h5
-*.hdf5
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-
-# Environment
-.env
-.pixi/
-.venv/
-```
-
-### 7. Documentation
-
-Generate `README.md` with:
-- Project description
-- Installation instructions (pixi install or uv sync)
-- Usage examples (training commands)
-- Project structure explanation
-- Configuration guide
-
-### 8. Initialize Tools
-
-Run commands:
-```bash
-pixi install  # or uv sync
-ruff check .
-ruff format .
-```
-
-### 9. Git Initialization (if not already a repo)
+After project creation, verify the setup:
 
 ```bash
-git init
-git add .
-git commit -m "feat: initialize ML project with Lightning + Hydra
+cd <project-name>
 
-- Setup project structure
-- Configure Hydra for experiments
-- Add Lightning boilerplate
-- Setup ruff linting and formatting"
+# Verify CUDA availability
+uv run python -c "import torch; print(f'CUDA: {torch.cuda.is_available()}')"
+
+# Run a quick test
+uv run pytest tests/ -v
+
+# Check code quality
+uv run ruff check .
+```
+
+### 8. Next Steps
+
+Guide the user:
+
+```bash
+# Start training (with Hydra defaults)
+uv run python src/<package-name>/train.py
+
+# Override configuration
+uv run python src/<package-name>/train.py trainer.max_epochs=20 data.batch_size=64
+
+# Run specific experiment
+uv run python src/<package-name>/train.py experiment=baseline
+
+# Start TensorBoard (if using TensorBoard)
+tensorboard --logdir logs/
+
+# Login to W&B (if using W&B)
+wandb login
+```
+
+## Alternative: Manual Template Selection
+
+If the user wants a specific template variant without interactive prompts, they can use:
+
+```bash
+# Use defaults with --defaults flag
+uvx copier copy --defaults <plugin-dir>/templates/ml-research <project-directory>
+
+# Use data flags for non-interactive
+uvx copier copy \
+  --data project_name="my-project" \
+  --data pytorch_cuda_preset="pytorch-2.8.0-cuda-12.6" \
+  --data use_lightning=true \
+  --data logger_choice="wandb" \
+  <plugin-dir>/templates/ml-research <project-directory>
+```
+
+## Troubleshooting
+
+### copier not found
+
+```bash
+# Install uv first
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Then uvx will be available
+```
+
+### CUDA version mismatch
+
+Check available CUDA on system:
+```bash
+nvidia-smi
+```
+
+Select matching preset or custom CUDA version during copier prompts.
+
+### Import errors after generation
+
+Ensure virtual environment is activated or use `uv run`:
+```bash
+uv run python src/<package-name>/train.py
 ```
 
 ## Success Criteria
 
-- [ ] All directories created
-- [ ] Package manager configured correctly
-- [ ] Hydra configs generated
-- [ ] Starter code compiles without errors
+- [ ] Copier template executes without errors
+- [ ] All dependencies installed successfully
+- [ ] CUDA detection works (if GPU available)
+- [ ] Tests pass
 - [ ] Ruff checks pass
-- [ ] README documentation complete
-- [ ] Git repository initialized (if applicable)
+- [ ] README generated with correct instructions
+- [ ] Git repository initialized
 
-Project is ready for ML research and experimentation!
+Project is ready for ML research!
+
+## Example Usage
+
+```bash
+# Get plugin directory
+PLUGIN_DIR=$(pwd)
+
+# Create new project in ~/projects
+cd ~/projects
+uvx copier copy $PLUGIN_DIR/templates/ml-research my-cifar10-project
+
+# Follow interactive prompts, then:
+cd my-cifar10-project
+uv run python src/my_cifar10_project/train.py
+```

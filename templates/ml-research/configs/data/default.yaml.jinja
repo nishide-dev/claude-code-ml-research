@@ -1,0 +1,30 @@
+# Data configuration
+
+{% if use_lightning and use_hydra -%}
+_target_: {{ package_name }}.data.datamodule.LitDataModule
+
+# Paths
+data_dir: ${paths.data_dir}
+
+# DataLoader settings
+batch_size: 128
+num_workers: 4
+pin_memory: true
+persistent_workers: true
+
+# Data preprocessing
+normalize: true
+augment_train: false  # Set to true for better generalization
+
+# Dataset
+{% if dataset_choice -%}
+dataset_name: {{ dataset_choice.upper().replace('-', '') }}
+{% else -%}
+dataset_name: MNIST
+{% endif -%}
+{% else -%}
+# Add your data configuration here
+data_dir: ./data
+batch_size: 128
+num_workers: 4
+{% endif -%}

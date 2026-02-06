@@ -1,0 +1,10 @@
+# Weights & Biases logger configuration
+
+wandb:
+  _target_: pytorch_lightning.loggers.WandbLogger
+  project: cifar10-classification
+  name: ${name}
+  save_dir: ${paths.log_dir}
+  offline: false
+  log_model: false  # Set to true to log model checkpoints to W&B
+  tags: ${tags}

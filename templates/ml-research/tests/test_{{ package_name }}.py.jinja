@@ -1,0 +1,74 @@
+"""Test {{ package_name }} module."""
+
+import torch
+
+{% if use_lightning -%}
+from {{ package_name }}.models.base_model import LitModel
+from {{ package_name }}.data.datamodule import LitDataModule
+
+
+def test_model_instantiation():
+    """Test model can be instantiated."""
+    model = LitModel()
+    assert model is not None
+
+
+def test_model_forward():
+    """Test model forward pass."""
+    model = LitModel(input_dim=784, hidden_dim=128, output_dim=10)
+    batch_size = 32
+    {% if dataset_choice in ['cifar10', 'cifar100'] -%}
+    x = torch.randn(batch_size, 3, 32, 32)
+    {% else -%}
+    x = torch.randn(batch_size, 28, 28)
+    {% endif -%}
+
+    logits = model(x)
+
+    assert logits.shape == (batch_size, 10)
+    assert not torch.isnan(logits).any()
+
+
+def test_datamodule_instantiation():
+    """Test datamodule can be instantiated."""
+    dm = LitDataModule(data_dir="./data")
+    assert dm is not None
+
+
+def test_training_step():
+    """Test training step."""
+    model = LitModel(input_dim=784, hidden_dim=128, output_dim=10)
+    batch_size = 16
+    {% if dataset_choice in ['cifar10', 'cifar100'] -%}
+    x = torch.randn(batch_size, 3, 32, 32)
+    {% else -%}
+    x = torch.randn(batch_size, 28, 28)
+    {% endif -%}
+    y = torch.randint(0, 10, (batch_size,))
+
+    loss = model.training_step((x, y), batch_idx=0)
+
+    assert loss is not None
+    assert loss.requires_grad
+    assert not torch.isnan(loss)
+{% else -%}
+from {{ package_name }}.models.base_model import Model
+
+
+def test_model_instantiation():
+    """Test model can be instantiated."""
+    model = Model()
+    assert model is not None
+
+
+def test_model_forward():
+    """Test model forward pass."""
+    model = Model(input_dim=784, hidden_dim=128, output_dim=10)
+    batch_size = 32
+    x = torch.randn(batch_size, 28, 28)
+
+    logits = model(x)
+
+    assert logits.shape == (batch_size, 10)
+    assert not torch.isnan(logits).any()
+{% endif -%}

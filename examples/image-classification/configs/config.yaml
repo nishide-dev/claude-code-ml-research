@@ -1,0 +1,24 @@
+# Main configuration file for CIFAR-10 image classification
+
+defaults:
+  - model: simple_cnn
+  - data: cifar10
+  - trainer: default
+  - logger: tensorboard
+  - _self_
+
+# Project name
+name: cifar10-classification
+
+# Random seed for reproducibility
+seed: 42
+
+# Paths
+paths:
+  root_dir: ${oc.env:PWD}
+  data_dir: ${paths.root_dir}/data
+  log_dir: ${paths.root_dir}/logs
+  output_dir: ${paths.root_dir}/outputs
+
+# Experiment tracking
+tags: ["cifar10", "image-classification"]

@@ -1,0 +1,37 @@
+# @package _global_
+
+# Baseline experiment for quick testing
+
+{% if use_hydra -%}
+defaults:
+  - override /model: default
+  - override /data: default
+  - override /trainer: default
+  {% if logger_choice == 'tensorboard' or logger_choice == 'both' -%}
+  - override /logger: tensorboard
+  {% elif logger_choice == 'wandb' -%}
+  - override /logger: wandb
+  {% elif logger_choice == 'mlflow' -%}
+  - override /logger: mlflow
+  {% endif -%}
+
+name: baseline-experiment
+
+# Model settings
+model:
+  lr: 0.001
+
+# Data settings
+data:
+  batch_size: 128
+  augment_train: false
+
+# Trainer settings
+trainer:
+  max_epochs: 10
+
+tags: ["baseline", "{{ template_type }}"]
+{% else -%}
+# Baseline experiment configuration
+name: baseline-experiment
+{% endif -%}

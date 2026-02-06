@@ -1,0 +1,191 @@
+"""Base Lightning model for {{ project_name }}."""
+
+from typing import Any
+
+{% if use_lightning -%}
+import pytorch_lightning as pl
+{% endif -%}
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+{% if use_lightning -%}
+class LitModel(pl.LightningModule):
+    """Base PyTorch Lightning model.
+
+    A simple feedforward neural network for {{ template_type }} tasks.
+    Customize this for your specific use case.
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 784,
+        hidden_dim: int = 256,
+        output_dim: int = 10,
+        lr: float = 0.001,
+        weight_decay: float = 0.0001,
+        optimizer: dict[str, Any] | None = None,
+        scheduler: dict[str, Any] | None = None,
+    ) -> None:
+        """Initialize model.
+
+        Args:
+            input_dim: Input feature dimension
+            hidden_dim: Hidden layer dimension
+            output_dim: Output dimension (number of classes)
+            lr: Learning rate
+            weight_decay: Weight decay
+            optimizer: Optimizer config (Hydra instantiation dict)
+            scheduler: Scheduler config (Hydra instantiation dict)
+        """
+        super().__init__()
+        self.save_hyperparameters()
+
+        # Model architecture - customize for your task
+        self.model = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(hidden_dim, output_dim),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass.
+
+        Args:
+            x: Input tensor
+
+        Returns:
+            Output logits
+        """
+        # Flatten input if needed
+        if x.dim() > 2:
+            x = x.view(x.size(0), -1)
+        return self.model(x)
+
+    def training_step(self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
+        """Training step.
+
+        Args:
+            batch: Input batch (x, y)
+            batch_idx: Batch index
+
+        Returns:
+            Loss tensor
+        """
+        x, y = batch
+        logits = self(x)
+        loss = F.cross_entropy(logits, y)
+
+        # Calculate accuracy
+        preds = torch.argmax(logits, dim=1)
+        acc = (preds == y).float().mean()
+
+        # Log metrics
+        self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+
+        return loss
+
+    def validation_step(self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> None:
+        """Validation step.
+
+        Args:
+            batch: Input batch (x, y)
+            batch_idx: Batch index
+        """
+        x, y = batch
+        logits = self(x)
+        loss = F.cross_entropy(logits, y)
+
+        # Calculate accuracy
+        preds = torch.argmax(logits, dim=1)
+        acc = (preds == y).float().mean()
+
+        # Log metrics
+        self.log("val/loss", loss, prog_bar=True)
+        self.log("val/acc", acc, prog_bar=True)
+
+    def test_step(self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> None:
+        """Test step.
+
+        Args:
+            batch: Input batch (x, y)
+            batch_idx: Batch index
+        """
+        x, y = batch
+        logits = self(x)
+        loss = F.cross_entropy(logits, y)
+
+        # Calculate accuracy
+        preds = torch.argmax(logits, dim=1)
+        acc = (preds == y).float().mean()
+
+        # Log metrics
+        self.log("test/loss", loss)
+        self.log("test/acc", acc)
+
+    def configure_optimizers(self) -> dict[str, Any]:
+        """Configure optimizers and learning rate schedulers.
+
+        Returns:
+            Dictionary with optimizer and optional scheduler
+        """
+        {% if use_hydra -%}
+        from hydra.utils import instantiate
+
+        # Instantiate optimizer
+        if self.hparams.optimizer is not None:
+            optimizer = instantiate(self.hparams.optimizer, params=self.parameters())
+        else:
+            optimizer = torch.optim.AdamW(
+                self.parameters(),
+                lr=self.hparams.lr,
+                weight_decay=self.hparams.weight_decay,
+            )
+
+        # No scheduler
+        if self.hparams.scheduler is None:
+            return {"optimizer": optimizer}
+
+        # Instantiate scheduler
+        scheduler = instantiate(self.hparams.scheduler, optimizer=optimizer)
+
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "interval": "epoch",
+                "frequency": 1,
+            },
+        }
+        {% else -%}
+        return torch.optim.AdamW(
+            self.parameters(),
+            lr=self.hparams.lr,
+            weight_decay=self.hparams.weight_decay,
+        )
+        {% endif -%}
+{% else -%}
+class Model(nn.Module):
+    """Base PyTorch model for {{ project_name }}."""
+
+    def __init__(self, input_dim: int = 784, hidden_dim: int = 256, output_dim: int = 10) -> None:
+        """Initialize model."""
+        super().__init__()
+        self.model = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass."""
+        if x.dim() > 2:
+            x = x.view(x.size(0), -1)
+        return self.model(x)
+{% endif -%}

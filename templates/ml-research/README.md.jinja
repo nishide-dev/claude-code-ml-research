@@ -1,0 +1,61 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Setup
+
+```bash
+# Install dependencies
+uv sync
+
+# Verify CUDA
+uv run python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
+```
+
+## Training
+
+```bash
+{% if use_hydra -%}
+# Train with default config
+uv run python src/{{ package_name }}/train.py
+
+# Override config
+uv run python src/{{ package_name }}/train.py trainer.max_epochs=20 data.batch_size=64
+{% else -%}
+# Train
+uv run python src/{{ package_name }}/train.py
+{% endif -%}
+```
+
+## Testing
+
+```bash
+uv run pytest tests/ -v
+```
+
+## Development
+
+```bash
+# Format code
+uv run ruff format .
+
+# Lint
+uv run ruff check .
+
+{% if use_ty -%}
+# Type check
+uv run ty check
+{% endif -%}
+```
+
+## Stack
+
+- **PyTorch**: {{ pytorch_version }} + CUDA {{ cuda_version }}
+{% if use_lightning -%}
+- **Lightning**: {{ lightning_version }}
+{% endif -%}
+{% if use_hydra -%}
+- **Hydra**: {{ hydra_version }}
+{% endif -%}
+- **Logger**: {{ logger_choice }}
+- **Python**: {{ python_version }}+

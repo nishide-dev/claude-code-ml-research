@@ -1,0 +1,38 @@
+# Model configuration
+
+{% if use_lightning -%}
+_target_: {{ package_name }}.models.base_model.LitModel
+
+# Model architecture
+{% if dataset_choice in ['cifar10', 'cifar100'] -%}
+input_dim: 3072  # 32x32x3 for CIFAR
+{% else -%}
+input_dim: 784  # 28x28 for MNIST
+{% endif -%}
+hidden_dim: 256
+{% if dataset_choice == 'cifar100' -%}
+output_dim: 100
+{% else -%}
+output_dim: 10
+{% endif -%}
+
+# Optimizer settings
+lr: 0.001
+weight_decay: 0.0001
+
+# Optional: Custom optimizer (uncomment to use)
+# optimizer:
+#   _target_: torch.optim.Adam
+#   lr: ${model.lr}
+#   weight_decay: ${model.weight_decay}
+
+# Optional: Learning rate scheduler (uncomment to use)
+# scheduler:
+#   _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+#   T_max: 10
+{% else -%}
+# Add your model configuration here
+input_dim: 784
+hidden_dim: 256
+output_dim: 10
+{% endif -%}

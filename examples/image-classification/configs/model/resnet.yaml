@@ -1,0 +1,17 @@
+# ResNet-18 variant for CIFAR-10
+
+_target_: src.models.resnet.ResNetCIFAR
+
+# Model architecture
+num_classes: 10
+blocks: [2, 2, 2, 2]  # ResNet-18 configuration
+
+# Optimizer settings
+lr: 0.0001  # Lower LR for deeper network
+weight_decay: 0.0005
+
+# Learning rate scheduler
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: 50
+  eta_min: 0.00001

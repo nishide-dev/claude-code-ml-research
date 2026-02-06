@@ -1,0 +1,10 @@
+"""Models package."""
+
+{% if use_lightning -%}
+from {{ package_name }}.models.base_model import LitModel
+
+__all__ = ["LitModel"]
+{% else -%}
+# Add your model imports here
+__all__ = []
+{% endif -%}
