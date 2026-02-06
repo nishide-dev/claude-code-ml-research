@@ -69,6 +69,7 @@ Skills are knowledge bases stored in subdirectories. Each skill has a `SKILL.md`
 - `ml-hydra-config/SKILL.md`: Hydra configuration management
 - `ml-pytorch-geometric/SKILL.md`: Graph Neural Network implementations
 - `ml-wandb-tracking/SKILL.md`: Experiment tracking with W&B
+- `ml-cli-tools/SKILL.md`: Building CLIs with Typer and Rich
 - `tool-pixi/SKILL.md`: Pixi package manager for ML projects
 
 Skills are NOT invoked as commands—they provide context when referenced in conversation.

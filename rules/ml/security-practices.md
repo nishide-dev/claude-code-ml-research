@@ -42,20 +42,40 @@ These security practices must be followed when working with machine learning cod
   *_token.txt
   ```
 
-### Use Environment Variables
+### Use Pydantic Settings (Recommended)
 
-- **Store credentials in environment variables**:
+- **Use `pydantic-settings` for type-safe environment variable management**:
+
+  Create centralized configuration in `src/{{project_name}}/config/settings.py`:
 
   ```python
-  import os
+  from pydantic_settings import BaseSettings, SettingsConfigDict
+  from pathlib import Path
 
-  # Good - use environment variables
-  api_key = os.getenv("WANDB_API_KEY")
-  if not api_key:
-      raise ValueError("WANDB_API_KEY environment variable not set")
+  class Settings(BaseSettings):
+      """Application settings loaded from environment variables."""
 
-  # Bad - hardcoded credentials
-  api_key = "abc123xyz"
+      # API Keys and credentials
+      wandb_api_key: str
+      hf_token: str | None = None
+
+      # Optional settings with defaults
+      wandb_project: str = "my-ml-project"
+      log_level: str = "INFO"
+
+      # Paths
+      data_dir: Path = Path("data")
+      output_dir: Path = Path("outputs")
+
+      model_config = SettingsConfigDict(
+          env_file=".env",
+          env_file_encoding="utf-8",
+          case_sensitive=False,
+          extra="ignore"
+      )
+
+  # Global settings instance
+  settings = Settings()
   ```
 
 - **Use `.env` files for local development**:
@@ -64,16 +84,32 @@ These security practices must be followed when working with machine learning cod
   # .env (never commit this)
   WANDB_API_KEY=your_key_here
   HF_TOKEN=your_token_here
+  WANDB_PROJECT=my-experiment
+  LOG_LEVEL=DEBUG
   ```
 
-- **Load environment variables with `python-dotenv`**:
+- **Access settings throughout your application**:
 
   ```python
-  from dotenv import load_dotenv
+  # In your training code
+  from my_project.config.settings import settings
 
-  load_dotenv()  # Load .env file
-  api_key = os.getenv("WANDB_API_KEY")
+  # Type-safe access with autocomplete
+  wandb.init(
+      project=settings.wandb_project,
+      api_key=settings.wandb_api_key
+  )
   ```
+
+**Why Pydantic Settings:**
+
+- ✅ **Type safety**: Fields are type-checked at runtime
+- ✅ **Validation**: Automatic validation of required fields
+- ✅ **IDE support**: Autocomplete and type hints
+- ✅ **Defaults**: Easy to specify default values
+- ✅ **Multiple sources**: Loads from `.env`, environment variables, and system environment
+
+**Alternative (python-dotenv)**: For simpler projects, you can use `python-dotenv`, but it lacks type safety and validation.
 
 ## Logging and Tracking
 

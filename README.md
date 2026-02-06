@@ -60,6 +60,7 @@ Skills provide comprehensive guides and best practices. Access them by referenci
 - **ml-hydra-config** (742 lines): Hydra configuration management - hierarchical configs, composition, `_target_` instantiation, multirun, Optuna integration, Lightning-Hydra-Template patterns
 - **ml-pytorch-geometric** (686 lines): PyTorch Geometric for Graph Neural Networks - message passing, GCN/GAT/GraphSAGE layers, large-scale distributed graph learning, Lightning integration
 - **ml-wandb-tracking** (801 lines): Weights & Biases experiment tracking - WandbLogger, hyperparameter sweeps (Grid/Random/Bayes), artifacts, model registry, SLURM cluster patterns
+- **ml-cli-tools** (1000+ lines): Building professional CLIs with Typer and Rich - type-safe argument parsing, progress bars, model visualization, Hydra integration, logging patterns, multi-process handling
 
 ### Supported Frameworks
 

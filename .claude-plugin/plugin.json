@@ -20,6 +20,7 @@
     "wandb"
   ],
   "skills": [
+    "./skills/ml-cli-tools/",
     "./skills/",
     "./commands/"
   ],

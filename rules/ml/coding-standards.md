@@ -156,6 +156,139 @@ These coding standards must be followed when writing machine learning code in th
   trainer = Trainer(precision="16-mixed")
   ```
 
+## CLI Tool Creation
+
+When building command-line interfaces for ML workflows (training scripts, data preprocessing, model evaluation), use **Typer + Rich** for type-safe, user-friendly CLIs.
+
+### Use Typer for CLI Definition
+
+- **Leverage type hints with `Annotated`** for automatic argument parsing and validation:
+
+  ```python
+  import typer
+  from typing_extensions import Annotated
+  from pathlib import Path
+
+  app = typer.Typer()
+
+  @app.command()
+  def train(
+      data_path: Annotated[Path, typer.Argument(exists=True, dir_okay=True)],
+      epochs: Annotated[int, typer.Option(min=1, max=1000)] = 50,
+      lr: Annotated[float, typer.Option("--learning-rate")] = 1e-3,
+  ):
+      """Train the model with specified parameters."""
+      typer.echo(f"Training with {epochs} epochs...")
+  ```
+
+- **Use `Enum` for restricted choices**:
+
+  ```python
+  from enum import Enum
+
+  class ModelArch(str, Enum):
+      resnet50 = "resnet50"
+      vit_b_16 = "vit_b_16"
+      efficientnet_b0 = "efficientnet_b0"
+
+  @app.command()
+  def train(
+      model: Annotated[ModelArch, typer.Option()] = ModelArch.resnet50
+  ):
+      print(f"Training {model.value}")
+  ```
+
+- **Organize with subcommands** for complex workflows:
+
+  ```python
+  # main.py
+  from ml_project.commands import data, train, evaluate
+
+  app = typer.Typer()
+  app.add_typer(data.app, name="data")
+  app.add_typer(train.app, name="train")
+  app.add_typer(evaluate.app, name="eval")
+  ```
+
+### Use Rich for Output Formatting
+
+- **Create a shared console** for consistent output:
+
+  ```python
+  from rich.console import Console
+
+  console = Console()
+  err_console = Console(stderr=True, style="bold red")
+  ```
+
+- **Use Progress bars for training loops**:
+
+  ```python
+  from rich.progress import Progress, SpinnerColumn, BarColumn, TaskProgressColumn
+
+  with Progress(
+      SpinnerColumn(),
+      BarColumn(),
+      TaskProgressColumn(),
+      console=console
+  ) as progress:
+      task = progress.add_task("[cyan]Training...", total=epochs)
+      for epoch in range(epochs):
+          # training logic
+          progress.update(task, advance=1)
+  ```
+
+- **Display model architectures with Tree**:
+
+  ```python
+  from rich.tree import Tree
+
+  def show_model_tree(module: nn.Module) -> Tree:
+      tree = Tree(f"[bold blue]{module.__class__.__name__}[/]")
+      for name, child in module.named_children():
+          branch = tree.add(f"[green]{name}[/]: [yellow]{child.__class__.__name__}[/]")
+      return tree
+
+  console.print(show_model_tree(model))
+  ```
+
+- **Use RichHandler for logging** to prevent progress bar flicker:
+
+  ```python
+  import logging
+  from rich.logging import RichHandler
+
+  logging.basicConfig(
+      level="INFO",
+      format="%(message)s",
+      handlers=[RichHandler(console=console)]
+  )
+  ```
+
+### Integrate with Hydra for Configuration
+
+- **Use Hydra Compose API inside Typer commands** for flexible config management:
+
+  ```python
+  from hydra import compose, initialize
+  from omegaconf import DictConfig
+
+  def load_config(config_name: str, overrides: list[str]) -> DictConfig:
+      with initialize(version_base=None, config_path="../configs"):
+          cfg = compose(config_name=config_name, overrides=overrides)
+      return cfg
+
+  @app.command()
+  def train(
+      config: str = "config",
+      overrides: list[str] = None,
+  ):
+      cfg = load_config(config, overrides or [])
+      # Use cfg for training
+  ```
+
+**See the `ml-cli-tools` skill** for comprehensive patterns and best practices.
+
 ## Documentation
 
 - **Every model must have a docstring** explaining:
