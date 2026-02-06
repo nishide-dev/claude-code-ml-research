@@ -32,6 +32,17 @@ repos:
         types: [python]
         pass_filenames: false
 
+  # Markdownlint - Markdown formatting
+  - repo: local
+    hooks:
+      - id: markdownlint
+        name: Markdown linting
+        entry: npx markdownlint-cli2
+        language: system
+        types: [markdown]
+        pass_filenames: false
+        args: ["agents/**/*.md", "commands/**/*.md", "skills/**/*.md", "README.md", "CLAUDE.md", "--config", ".markdownlint.json"]
+
   # Basic file checks (using system commands)
   - repo: local
     hooks:

@@ -110,6 +110,7 @@ uv run python scripts/validate_plugin.py
 ### CI
 
 GitHub Actions runs:
+
 - **Lint job**: Ruff format/check, ty type checking, markdownlint
 - **Test job**: pytest, plugin validation, coverage upload (Python 3.12, 3.13)
 
@@ -164,6 +165,7 @@ These scripts use Typer for CLI and are tested with pytest. Coverage target: `sc
 Configuration: `.markdownlint.json`
 
 Disabled rules:
+
 - `MD013`: Line length (no limit)
 - `MD033`: HTML allowed
 - `MD041`: First line doesn't need to be top-level heading
@@ -187,9 +189,11 @@ Note: `ty` version must be `>=0.0.15` (not `>=0.2.0`, which doesn't exist).
 All hooks use `language: system` to avoid virtualenv creation issues on shared filesystems. This requires dependencies to be installed via `uv sync --all-extras --dev` before running hooks.
 
 Hooks run on commit:
+
 - Ruff linter (auto-fix)
 - Ruff formatter
 - ty type check
+- Markdownlint
 - YAML validation
 - Python AST check
 - Trailing whitespace removal
