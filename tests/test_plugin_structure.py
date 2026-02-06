@@ -173,8 +173,19 @@ class TestCommandFiles:
             content = cmd_file.read_text()
             lines = content.split("\n")
 
-            # Find first non-empty line
-            first_line = next((line for line in lines if line.strip()), "")
+            # Skip YAML frontmatter if present
+            start_idx = 0
+            if lines and lines[0].strip() == "---":
+                # Find end of frontmatter
+                for i, line in enumerate(lines[1:], start=1):
+                    if line.strip() == "---":
+                        start_idx = i + 1
+                        break
+
+            # Find first non-empty line after frontmatter
+            first_line = next(
+                (line for line in lines[start_idx:] if line.strip()), ""
+            )
 
             assert first_line.startswith("#"), (
                 f"Command {cmd_file.name} missing title (should start with #)"
