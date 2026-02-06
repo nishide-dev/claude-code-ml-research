@@ -81,6 +81,11 @@ checkpoints/
 *.csv
 *.tsv
 *.json
+!.markdownlint.json
+!.claude-plugin/**/*.json
+!package.json
+!tsconfig.json
+!**/pyproject.json
 *.jsonl
 *.parquet
 *.arrow
