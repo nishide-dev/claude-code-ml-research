@@ -6,26 +6,51 @@ Comprehensive Claude Code plugin for machine learning research and experimentati
 
 ### Commands
 
-This plugin provides slash commands for ML workflows:
+This plugin provides slash commands for ML workflows. Commands support **arguments** for flexible invocation:
 
 - `/project-init` - Initialize new ML project with PyTorch Lightning + Hydra structure
 - `/ml-config` - Generate and manage Hydra configuration files
 - `/train` - Execute training with monitoring and debugging
-- `/experiment` - Manage experiments, track results, and compare performance
-- `/debug` - Debug training issues (NaN loss, OOM, convergence problems)
+- `/experiment [experiment_name] [action]` - Manage experiments, track results, and compare performance
+  - `experiment_name`: Name of experiment to manage
+  - `action`: create, list, compare, clean (default: list)
+- `/debug [log_file] [issue_type]` - Debug training issues (NaN loss, OOM, convergence problems)
+  - `log_file`: Path to training log file
+  - `issue_type`: loss, memory, performance, convergence
 - `/data` - Create and manage data pipelines and preprocessing
 - `/setup` - Set up development environment with package managers
 - `/validate` - Validate model and data configurations
-- `/profile` - Profile model performance and memory usage
+- `/profile [profiler_type] [profile_duration]` - Profile model performance and memory usage
+  - `profiler_type`: pytorch, py-spy, memory_profiler (default: pytorch)
+  - `profile_duration`: Duration in seconds (default: 60)
 - `/model-export` - Export models for deployment
 
 ### Agents
 
-- **ml-architect**: Design ML system architectures and model designs
-- **config-generator**: Generate and validate Hydra configurations
-- **training-debugger**: Diagnose and fix training issues
-- **pytorch-expert**: Write efficient PyTorch code and optimize performance
-- **geometric-specialist**: Implement Graph Neural Networks with PyTorch Geometric
+Specialized sub-agents with visual color coding for easy identification:
+
+- **ml-architect** 🔵 (Opus): Design ML system architectures and model designs
+- **training-debugger** 🔴 (Sonnet): Diagnose and fix training issues
+- **config-generator** 🟣 (Sonnet): Generate and validate Hydra configurations
+- **pytorch-expert** 🟠 (Sonnet): Write efficient PyTorch code and optimize performance
+- **geometric-specialist** 🔷 (Sonnet): Implement Graph Neural Networks with PyTorch Geometric
+
+### Rules
+
+Automatically enforced best practices for ML development:
+
+- **coding-standards**: Deterministic operations, type hints, tensor shape documentation, PyTorch Lightning patterns
+- **security-practices**: API key protection, environment variables, file path sanitization, sensitive data handling
+- **workflow-constraints**: Config validation, checkpointing requirements, experiment tracking, reproducibility
+
+### Hooks
+
+Event-driven automation for code quality:
+
+- **Auto-format Python files** with Ruff after Write/Edit
+- **Validate YAML configs** after writing Hydra configs
+- **Remind dependencies installation** after package config changes
+- **Welcome message** on session start with available commands
 
 ### Skills
 
@@ -67,9 +92,14 @@ claude plugin install ml-research
 git clone https://github.com/nishide-dev/claude-code-ml-research.git
 cd claude-code-ml-research
 
+# Install ML-specific rules (recommended for all ML projects)
+cp -r rules/ml/* ~/.claude/rules/
+
 # Test plugin locally
 claude --plugin-dir . code
 ```
+
+**Rules Installation**: Rules are organized in `rules/ml/` to coexist with rules from other plugins (e.g., `everything-claude-code/rules/common/`, `everything-claude-code/rules/python/`). Install them to your global Claude rules directory for consistent ML development practices across all projects.
 
 ### Prerequisites
 
@@ -572,6 +602,22 @@ mkdir skills/my-skill
 echo "# My Skill\n\nSkill content..." > skills/my-skill/SKILL.md
 ```
 
+### Adding New Rules
+
+```bash
+# Create rule file in ml subdirectory
+echo "# My Rule\n\nRule content..." > rules/ml/my-rule.md
+
+# Reference in plugin.json
+# Add "./rules/ml/my-rule.md" to the "rules" array
+```
+
+**Rules Organization**: Keep rules in `rules/ml/` subdirectory for compatibility with other plugins. Users can install them with:
+
+```bash
+cp -r rules/ml/* ~/.claude/rules/
+```
+
 ### Pre-commit Hooks
 
 This project uses pre-commit hooks to ensure code quality before commits.
@@ -723,14 +769,25 @@ For general software development workflows (TDD, verification loops, continuous 
 
 # Install rules manually (required - plugins cannot distribute rules automatically)
 git clone https://github.com/affaan-m/everything-claude-code.git
+
+# Install common rules (recommended for all projects)
 cp -r everything-claude-code/rules/common/* ~/.claude/rules/
-# Install language-specific rules as needed:
-# cp -r everything-claude-code/rules/python/* ~/.claude/rules/
+
+# Install language-specific rules as needed
+cp -r everything-claude-code/rules/python/* ~/.claude/rules/  # For Python projects
+# cp -r everything-claude-code/rules/typescript/* ~/.claude/rules/  # For TypeScript
+# cp -r everything-claude-code/rules/golang/* ~/.claude/rules/  # For Go
+
+# Combine with ML Research Plugin rules
+git clone https://github.com/nishide-dev/claude-code-ml-research.git
+cp -r claude-code-ml-research/rules/ml/* ~/.claude/rules/  # ML-specific rules
 ```
+
+**Rules Organization**: Both plugins organize rules in subdirectories (`common/`, `python/`, `ml/`) to allow seamless coexistence in `~/.claude/rules/`.
 
 **Usage:**
 
-Use commands like `/plan`, `/tdd`, `/code-review` for development workflows and best practices.
+Use commands like `/plan`, `/tdd`, `/code-review` for development workflows and best practices. Combine with `/train`, `/debug`, `/experiment` from ML Research Plugin for comprehensive ML development.
 
 ---
 

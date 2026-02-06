@@ -53,5 +53,11 @@
         "python"
       ]
     }
+  ],
+  "hooks": "./hooks/hooks.json",
+  "rules": [
+    "./rules/ml/coding-standards.md",
+    "./rules/ml/security-practices.md",
+    "./rules/ml/workflow-constraints.md"
   ]
 }

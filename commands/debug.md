@@ -1,6 +1,13 @@
 ---
 name: debug
 description: Debug common ML training issues (NaN loss, OOM, slow training, convergence problems) and provide solutions
+arguments:
+  - name: log_file
+    description: Path to training log file to analyze
+    required: false
+  - name: issue_type
+    description: Type of issue to debug (loss, memory, performance, convergence)
+    required: false
 ---
 
 # ML Training Debugging

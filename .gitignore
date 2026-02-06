@@ -83,6 +83,7 @@ checkpoints/
 *.json
 !.markdownlint.json
 !.claude-plugin/**/*.json
+!hooks/hooks.json
 !package.json
 !tsconfig.json
 !**/pyproject.json

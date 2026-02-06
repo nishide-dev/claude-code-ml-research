@@ -1,6 +1,13 @@
 ---
 name: experiment
 description: Manage ML experiments, track results, and compare performance across different configurations (W&B, TensorBoard, MLflow)
+arguments:
+  - name: experiment_name
+    description: Name of the experiment to manage or compare
+    required: false
+  - name: action
+    description: Action to perform (create, list, compare, clean)
+    default: "list"
 ---
 
 # ML Experiment Management

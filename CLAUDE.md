@@ -9,10 +9,12 @@ This is a **Claude Code plugin** for machine learning research. It is NOT a Pyth
 - **Commands** (`commands/*.md`): Slash commands like `/train`, `/debug`, `/ml-config` that users invoke
 - **Agents** (`agents/*.md`): Specialized sub-agents for ML architecture, debugging, configuration generation
 - **Skills** (`skills/*/SKILL.md`): Knowledge bases (Lightning, Hydra, PyTorch Geometric, W&B, Pixi) that provide context
+- **Rules** (`rules/*.md`): Coding standards and workflow constraints enforced automatically
+- **Hooks** (`hooks/hooks.json`): Event-driven automation (auto-format Python files, validate YAML configs)
 
 **Plugin manifest**: `.claude-plugin/plugin.json` defines the plugin structure. The `name` field is just an identifier—commands are invoked directly (e.g., `/train`, not `/ml-research:train`).
 
-## Architecture: Three Component Types
+## Architecture: Four Component Types
 
 ### 1. Commands (commands/*.md)
 
@@ -33,18 +35,29 @@ Commands are referenced in `plugin.json` via `"skills": ["./commands/"]` (note: 
 
 ### 2. Agents (agents/*.md)
 
-Agent files have YAML frontmatter specifying tools, model, and role:
+Agent files have YAML frontmatter specifying tools, model, role, and optional color:
 
 ```markdown
 ---
 name: ml-architect
 description: Design ML system architectures
 tools: ["Read", "Write", "Glob", "Grep"]
-model: sonnet
+model: opus
+color: "#4A90E2"
 ---
 
 You are an expert ML architect...
 ```
+
+**Model aliases**: Use simple aliases (`opus`, `sonnet`, `haiku`) instead of full version names. These automatically point to the latest versions (Opus 4.6, Sonnet 4.5, Haiku 4.5).
+
+**Color field** (optional): Hex color code for visual distinction in Claude Code UI. Each agent has a semantic color:
+
+- ml-architect: `#4A90E2` (blue - strategic)
+- training-debugger: `#E74C3C` (red - debugging)
+- config-generator: `#9B59B6` (purple - configuration)
+- pytorch-expert: `#F39C12` (orange - implementation)
+- geometric-specialist: `#16A085` (teal - specialized)
 
 Agents are explicitly listed in `plugin.json` under `"agents"`.
 
@@ -59,6 +72,18 @@ Skills are knowledge bases stored in subdirectories. Each skill has a `SKILL.md`
 - `tool-pixi/SKILL.md`: Pixi package manager for ML projects
 
 Skills are NOT invoked as commands—they provide context when referenced in conversation.
+
+### 4. Rules (rules/ml/*.md)
+
+Rules enforce coding standards and workflow constraints automatically. They are organized by category and referenced in `plugin.json` under `"rules"`:
+
+- `rules/ml/coding-standards.md`: ML coding best practices (deterministic operations, type hints, tensor shape documentation)
+- `rules/ml/security-practices.md`: Security guidelines (never log API keys, use environment variables, sanitize file paths)
+- `rules/ml/workflow-constraints.md`: Workflow enforcement (validate configs before training, use checkpointing, tag experiments)
+
+**Directory structure**: Rules are organized in subdirectories (`ml/`) to allow coexistence with rules from other plugins when installing to `~/.claude/rules/`.
+
+Rules are automatically applied to guide Claude's behavior when writing code or suggesting workflows.
 
 ## Development Commands
 

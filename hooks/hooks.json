@@ -1,0 +1,94 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "tool == \"Write\" && tool_input.file_path matches \"\\.py$\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["-e", "console.log(JSON.stringify({type: 'info', message: 'Python file will be formatted with ruff after write'}))"],
+            "description": "Notify about auto-formatting"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "tool == \"Write\" && tool_input.file_path matches \"\\.py$\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "file_path=\"$FILE_PATH\"; if [ -f \"$file_path\" ]; then uvx ruff format \"$file_path\" 2>/dev/null || echo 'Ruff not available'; fi"],
+            "env": {
+              "FILE_PATH": "${tool_input.file_path}"
+            },
+            "description": "Auto-format Python files with ruff"
+          },
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "file_path=\"$FILE_PATH\"; if [ -f \"$file_path\" ]; then uvx ruff check \"$file_path\" --fix 2>/dev/null || true; fi"],
+            "env": {
+              "FILE_PATH": "${tool_input.file_path}"
+            },
+            "description": "Auto-fix linting issues with ruff"
+          }
+        ]
+      },
+      {
+        "matcher": "tool == \"Edit\" && tool_input.file_path matches \"\\.py$\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "file_path=\"$FILE_PATH\"; if [ -f \"$file_path\" ]; then uvx ruff format \"$file_path\" 2>/dev/null || echo 'Ruff not available'; fi"],
+            "env": {
+              "FILE_PATH": "${tool_input.file_path}"
+            },
+            "description": "Auto-format edited Python files"
+          }
+        ]
+      },
+      {
+        "matcher": "tool == \"Write\" && tool_input.file_path matches \"(pixi\\.toml|pyproject\\.toml)$\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["-e", "console.log(JSON.stringify({type: 'success', message: 'Package configuration updated. Run `pixi install` or `uv sync` to install dependencies.'}))"],
+            "description": "Remind to install dependencies"
+          }
+        ]
+      },
+      {
+        "matcher": "tool == \"Write\" && tool_input.file_path matches \"configs/.*\\.yaml$\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "file_path=\"$FILE_PATH\"; if command -v python3 &> /dev/null; then python3 -c \"import yaml; yaml.safe_load(open('$file_path'))\" 2>&1 || echo 'YAML syntax error detected!'; fi"],
+            "env": {
+              "FILE_PATH": "${tool_input.file_path}"
+            },
+            "description": "Validate YAML syntax in config files"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "true",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["-e", "console.log(JSON.stringify({type: 'info', message: 'ML Research Plugin loaded. Available commands: /project-init, /ml-config, /train, /experiment, /debug, /data, /profile, /setup, /validate, /model-export'}))"],
+            "description": "Welcome message"
+          }
+        ]
+      }
+    ]
+  }
+}
