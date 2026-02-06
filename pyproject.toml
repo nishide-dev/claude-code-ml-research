@@ -43,7 +43,7 @@ dev = [
     "pytest-cov>=4.1.0",
     "pytest-xdist>=3.3.0",
     "ruff>=0.1.0",
-    "ty>=0.2.0",
+    "ty>=0.0.15",
 ]
 
 [project.urls]
@@ -105,7 +105,7 @@ select = ["E", "F", "I"]
 
 [dependency-groups]
 dev = [
-    "ty>=0.2.0",
+    "ty>=0.0.15",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "pytest-xdist>=3.8.0",
