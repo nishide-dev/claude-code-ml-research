@@ -572,6 +572,49 @@ mkdir skills/my-skill
 echo "# My Skill\n\nSkill content..." > skills/my-skill/SKILL.md
 ```
 
+### Pre-commit Hooks
+
+This project uses pre-commit hooks to ensure code quality before commits.
+
+**Setup:**
+
+```bash
+# Install dependencies (includes pre-commit)
+uv sync --all-extras --dev
+
+# Install pre-commit hooks
+uv run pre-commit install
+
+# Run hooks manually on all files
+uv run pre-commit run --all-files
+```
+
+**Hooks included:**
+
+- ✅ **Ruff**: Auto-fix linting issues and format code
+- ✅ **ty**: Type checking
+- ✅ **YAML validation**: Check YAML syntax
+- ✅ **Python AST check**: Verify Python syntax
+- ✅ **Trailing whitespace**: Remove trailing spaces
+- ✅ **Merge conflict detection**: Prevent accidental commits with conflicts
+- ✅ **Plugin validation**: Validate `plugin.json` structure
+
+**Run tests manually:**
+
+```bash
+# Run only fast hooks (recommended for commits)
+uv run pre-commit run --all-files
+
+# Run including slow tests
+uv run pre-commit run --all-files --hook-stage manual
+```
+
+**Skip hooks (not recommended):**
+
+```bash
+git commit --no-verify -m "message"
+```
+
 ## Contributing
 
 Contributions are welcome! Please:

@@ -1,0 +1,79 @@
+# Pre-commit hooks for code quality
+# Install: uv run pre-commit install
+# Run manually: uv run pre-commit run --all-files
+#
+# Note: All hooks use 'system' language to avoid virtualenv creation issues
+# This requires dependencies to be installed via: uv sync --all-extras --dev
+
+repos:
+  # Ruff - Python linting and formatting
+  - repo: local
+    hooks:
+      - id: ruff
+        name: Ruff linter (auto-fix)
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: ruff-format
+        name: Ruff formatter
+        entry: uv run ruff format
+        language: system
+        types: [python]
+        pass_filenames: false
+
+  # ty - Type checking
+  - repo: local
+    hooks:
+      - id: ty
+        name: Type check with ty
+        entry: uv run ty check scripts/
+        language: system
+        types: [python]
+        pass_filenames: false
+
+  # Basic file checks (using system commands)
+  - repo: local
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+        entry: bash -c 'for file in "$@"; do sed -i "s/[[:space:]]*$//" "$file"; done' --
+        language: system
+        types: [text]
+      - id: check-yaml
+        name: Check YAML syntax
+        entry: python -c 'import sys, yaml; [yaml.safe_load(open(f)) for f in sys.argv[1:]]'
+        language: system
+        types: [yaml]
+        exclude: ^\.claude-plugin/plugin\.json$
+      - id: check-ast
+        name: Check Python AST
+        entry: python -m py_compile
+        language: system
+        types: [python]
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+        entry: bash -c 'for file in "$@"; do if grep -q "<<<<<<< HEAD" "$file" 2>/dev/null; then echo "Merge conflict in $file"; exit 1; fi; done; exit 0' --
+        language: system
+        types: [text]
+        exclude: ^\.pre-commit-config\.yaml$
+
+  # Plugin validation (fast)
+  - repo: local
+    hooks:
+      - id: validate-plugin-json
+        name: Validate plugin.json
+        entry: python -c "import json; json.load(open('.claude-plugin/plugin.json'))"
+        language: system
+        pass_filenames: false
+        files: ^\.claude-plugin/plugin\.json$
+
+  # Tests (optional, can be slow - manual only)
+  - repo: local
+    hooks:
+      - id: pytest
+        name: Run tests
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        stages: [manual]  # Only run with: pre-commit run --hook-stage manual pytest
