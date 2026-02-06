@@ -6,9 +6,8 @@ CUDA/GPU dependencies. Pixi uses conda channels for better ML package management
 """
 
 import logging
-import subprocess
-import sys
 from pathlib import Path
+import subprocess
 
 import typer
 

@@ -90,8 +90,7 @@ def add_ml_dependencies(project_dir: Path, cuda: bool = True) -> bool:
         if cuda:
             # Add PyTorch with CUDA
             subprocess.run(
-                ["uv", "add", "torch", "--index-url",
-                 "https://download.pytorch.org/whl/cu121"],
+                ["uv", "add", "torch", "--index-url", "https://download.pytorch.org/whl/cu121"],
                 cwd=project_dir,
                 check=True,
             )

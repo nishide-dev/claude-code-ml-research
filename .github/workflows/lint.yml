@@ -25,7 +25,7 @@ jobs:
         with:
           args: "format --check ."
 
-  mypy:
+  ty:
     name: Type Checking
     runs-on: ubuntu-latest
 
@@ -37,16 +37,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-          cache: "pip"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - name: Install ty
+        run: pip install ty
 
-      - name: Run mypy
+      - name: Run ty
         run: |
-          mypy scripts/ --strict
+          ty check scripts/
 
   markdown-lint:
     name: Markdown Linting
