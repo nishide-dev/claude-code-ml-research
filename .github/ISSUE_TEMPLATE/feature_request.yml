@@ -1,0 +1,129 @@
+name: Feature Request
+description: Suggest a new feature for the ML Research plugin
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide as much detail as possible.
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature are you requesting?
+      options:
+        - New Command (slash command like /train, /debug)
+        - New Agent (specialized sub-agent)
+        - New Skill (knowledge base guide)
+        - New Rule (coding standard or constraint)
+        - New Hook (automation trigger)
+        - Template Enhancement (project scaffolding)
+        - Framework Support (new ML framework)
+        - Tool Integration (new tool/library)
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What is the use case?
+      placeholder: "As a researcher working on [...], I need to [...] because [...]"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this feature to work?
+      placeholder: Describe your ideal solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternative solutions or workarounds have you considered?
+      placeholder: Describe any alternative approaches
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Usage Examples
+      description: If applicable, provide examples of how you would use this feature
+      placeholder: |
+        Example command usage:
+        ```bash
+        /new-command --option value
+        ```
+
+        Example code pattern:
+        ```python
+        # Your code here
+        ```
+
+  - type: dropdown
+    id: ml-framework
+    attributes:
+      label: Related ML Framework
+      description: Which ML framework is this feature related to? (if applicable)
+      options:
+        - PyTorch Lightning
+        - Hugging Face Transformers
+        - PyTorch Geometric
+        - Hydra
+        - Weights & Biases
+        - Generic/Framework-agnostic
+        - Other
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Critical - Blocking my work
+        - High - Would significantly improve my workflow
+        - Medium - Nice to have
+        - Low - Minor improvement
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or references about the feature request
+      placeholder: Links to similar features in other tools, research papers, etc.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be willing to contribute?
+      options:
+        - label: I am willing to implement this feature and submit a PR
+          required: false
+        - label: I can help with documentation for this feature
+          required: false
+        - label: I can help test this feature
+          required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues and PRs to avoid duplicates
+          required: true
+        - label: This feature aligns with the plugin's ML research focus
+          required: true
