@@ -38,14 +38,14 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install ty and dependencies
+      - name: Install dependencies and ty
         run: |
+          pip install typer pyyaml types-pyyaml
           pip install ty
-          pip install typer pyyaml
 
       - name: Run ty
         run: |
-          ty check scripts/
+          ty check scripts/ --python-executable python
 
   markdown-lint:
     name: Markdown Linting
