@@ -57,7 +57,8 @@ You are an expert ML architect...
 - training-debugger: `#E74C3C` (red - debugging)
 - config-generator: `#9B59B6` (purple - configuration)
 - pytorch-expert: `#F39C12` (orange - implementation)
-- geometric-specialist: `#16A085` (teal - specialized)
+- geometric-specialist: `#16A085` (teal - graph domain)
+- transformers-specialist: `#8B5CF6` (violet - NLP/LLM domain)
 
 Agents are explicitly listed in `plugin.json` under `"agents"`.
 
@@ -70,6 +71,7 @@ Skills are knowledge bases stored in subdirectories. Each skill has a `SKILL.md`
 - `ml-pytorch-geometric/SKILL.md`: Graph Neural Network implementations
 - `ml-wandb-tracking/SKILL.md`: Experiment tracking with W&B
 - `ml-cli-tools/SKILL.md`: Building CLIs with Typer and Rich
+- `ml-transformers/SKILL.md`: Hugging Face Transformers + PyTorch Lightning integration
 - `tool-pixi/SKILL.md`: Pixi package manager for ML projects
 
 Skills are NOT invoked as commands—they provide context when referenced in conversation.

@@ -289,6 +289,130 @@ When building command-line interfaces for ML workflows (training scripts, data p
 
 **See the `ml-cli-tools` skill** for comprehensive patterns and best practices.
 
+## Hugging Face Transformers Integration
+
+When integrating Hugging Face Transformers with PyTorch Lightning, follow these patterns for correctness and reproducibility.
+
+### Always Use save_hyperparameters()
+
+- **Call in `__init__`** to save all hyperparameters to checkpoints:
+
+  ```python
+  class TransformerClassifier(pl.LightningModule):
+      def __init__(self, model_name_or_path: str, learning_rate: float = 2e-5):
+          super().__init__()
+          self.save_hyperparameters()  # Critical for reproducibility
+          self.model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path)
+  ```
+
+- **Why**: Enables loading from checkpoint without manually specifying arguments
+- **Benefits**: Experiment reproducibility, automatic W&B logging
+
+### Delegate Loss Calculation to HF Models
+
+- **Let HF models compute loss** by passing `labels` argument:
+
+  ```python
+  # Good - HF handles loss internally
+  def training_step(self, batch, batch_idx):
+      outputs = self.model(**batch)  # batch contains labels
+      loss = outputs.loss
+      return loss
+
+  # Bad - manual loss calculation (prone to errors)
+  def training_step(self, batch, batch_idx):
+      logits = self.model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]).logits
+      loss = F.cross_entropy(logits, batch["labels"])  # Risk of double softmax, wrong ignore_index
+      return loss
+  ```
+
+- **Prevents**: Double softmax, incorrect ignore_index, task-specific loss errors
+
+### Weight Decay Exclusion Pattern
+
+- **Exclude bias and LayerNorm** from weight decay (standard for transformers):
+
+  ```python
+  def configure_optimizers(self):
+      no_decay = ["bias", "LayerNorm.weight", "LayerNorm.bias"]
+      optimizer_grouped_parameters = [
+          {
+              "params": [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)],
+              "weight_decay": 0.01,
+          },
+          {
+              "params": [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)],
+              "weight_decay": 0.0,
+          },
+      ]
+      optimizer = torch.optim.AdamW(optimizer_grouped_parameters, lr=self.hparams.learning_rate)
+      return optimizer
+  ```
+
+### Use estimated_stepping_batches for Schedulers
+
+- **Never manually calculate** total training steps:
+
+  ```python
+  from transformers import get_linear_schedule_with_warmup
+
+  def configure_optimizers(self):
+      optimizer = torch.optim.AdamW(self.model.parameters(), lr=2e-5)
+
+      # Good - auto-calculated total steps
+      scheduler = get_linear_schedule_with_warmup(
+          optimizer,
+          num_warmup_steps=500,
+          num_training_steps=self.trainer.estimated_stepping_batches
+      )
+
+      return {
+          "optimizer": optimizer,
+          "lr_scheduler": {
+              "scheduler": scheduler,
+              "interval": "step",
+              "frequency": 1,
+          },
+      }
+  ```
+
+- **Why**: Accounts for gradient accumulation, multi-GPU, and number of epochs
+
+### Enable Gradient Checkpointing for Large Models
+
+- **Use for models >1B parameters** to reduce memory:
+
+  ```python
+  def __init__(self, model_name_or_path: str):
+      super().__init__()
+      self.save_hyperparameters()
+      self.model = AutoModelForCausalLM.from_pretrained(model_name_or_path)
+
+      # Enable gradient checkpointing
+      self.model.gradient_checkpointing_enable()
+  ```
+
+- **Trade-off**: 30% slower, but 2-3x less memory usage
+
+### Use Dynamic Padding with DataCollatorWithPadding
+
+- **Always use** for variable-length sequences:
+
+  ```python
+  from transformers import DataCollatorWithPadding
+
+  def train_dataloader(self):
+      return DataLoader(
+          self.train_dataset,
+          batch_size=32,
+          collate_fn=DataCollatorWithPadding(tokenizer=self.tokenizer),
+      )
+  ```
+
+- **Benefits**: 2x speedup on variable-length datasets
+
+**See the `ml-transformers` skill** for comprehensive integration patterns, distributed training strategies, and PEFT (LoRA) implementations.
+
 ## Documentation
 
 - **Every model must have a docstring** explaining:

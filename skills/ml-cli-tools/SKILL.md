@@ -1,3 +1,8 @@
+---
+name: ml-cli-tools
+description: Building professional CLIs with Typer and Rich - type-safe argument parsing, progress bars, model visualization, Hydra integration, RichHandler logging, and multi-process handling for ML workflows
+---
+
 # ML CLI Tools with Typer and Rich
 
 Building professional command-line interfaces for machine learning workflows using Typer and Rich.

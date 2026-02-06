@@ -21,6 +21,7 @@
   ],
   "skills": [
     "./skills/ml-cli-tools/",
+    "./skills/ml-transformers/",
     "./skills/",
     "./commands/"
   ],
@@ -29,7 +30,8 @@
     "./agents/config-generator.md",
     "./agents/training-debugger.md",
     "./agents/pytorch-expert.md",
-    "./agents/geometric-specialist.md"
+    "./agents/geometric-specialist.md",
+    "./agents/transformers-specialist.md"
   ],
   "lspServers": [
     {

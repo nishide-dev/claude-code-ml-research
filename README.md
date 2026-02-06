@@ -34,6 +34,7 @@ Specialized sub-agents with visual color coding for easy identification:
 - **config-generator** 🟣 (Sonnet): Generate and validate Hydra configurations
 - **pytorch-expert** 🟠 (Sonnet): Write efficient PyTorch code and optimize performance
 - **geometric-specialist** 🔷 (Sonnet): Implement Graph Neural Networks with PyTorch Geometric
+- **transformers-specialist** 💜 (Sonnet): Hugging Face Transformers expert for LLM fine-tuning, PEFT (LoRA/QLoRA), tokenization, and NLP tasks
 
 ### Rules
 
@@ -61,6 +62,7 @@ Skills provide comprehensive guides and best practices. Access them by referenci
 - **ml-pytorch-geometric** (686 lines): PyTorch Geometric for Graph Neural Networks - message passing, GCN/GAT/GraphSAGE layers, large-scale distributed graph learning, Lightning integration
 - **ml-wandb-tracking** (801 lines): Weights & Biases experiment tracking - WandbLogger, hyperparameter sweeps (Grid/Random/Bayes), artifacts, model registry, SLURM cluster patterns
 - **ml-cli-tools** (1000+ lines): Building professional CLIs with Typer and Rich - type-safe argument parsing, progress bars, model visualization, Hydra integration, logging patterns, multi-process handling
+- **ml-transformers** (1500+ lines): Hugging Face Transformers + PyTorch Lightning integration - LightningModule patterns, distributed training (FSDP/DeepSpeed), PEFT (LoRA/QLoRA), data pipelines, evaluation metrics, common NLP tasks
 
 ### Supported Frameworks
 
