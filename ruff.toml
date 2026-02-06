@@ -42,8 +42,6 @@ select = [
 
 ignore = [
     # Type annotation
-    "ANN101",  # Missing type annotation for self in method
-    "ANN102",  # Missing type annotation for cls in classmethod
     "ANN401",  # Dynamically typed expressions (Any) are allowed in some cases
 
     # Documentation

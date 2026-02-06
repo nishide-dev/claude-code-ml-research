@@ -8,6 +8,7 @@ CUDA/GPU dependencies. Pixi uses conda channels for better ML package management
 import logging
 from pathlib import Path
 import subprocess
+from typing import Annotated
 
 import typer
 
@@ -22,9 +23,10 @@ def check_pixi_installed() -> bool:
     """Check if pixi is installed."""
     try:
         subprocess.run(["pixi", "--version"], capture_output=True, check=True)
-        return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
+    else:
+        return True
 
 
 def install_pixi() -> bool:
@@ -45,16 +47,17 @@ def install_pixi() -> bool:
             ).stdout,
             check=True,
         )
+    except subprocess.CalledProcessError:
+        logger.exception("Failed to install pixi")
+        return False
+    else:
         logger.info("✓ pixi installed successfully")
         return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to install pixi: {e}")
-        return False
 
 
 def initialize_pixi_project(project_dir: Path, project_name: str) -> bool:
     """Initialize pixi project with pixi.toml."""
-    logger.info(f"Initializing pixi project: {project_name}")
+    logger.info("Initializing pixi project: %s", project_name)
 
     pixi_toml = f"""[project]
 name = "{project_name}"
@@ -103,7 +106,6 @@ target-version = "py310"
 
 [lint]
 select = ["E", "F", "I", "N", "UP", "ANN", "B", "LOG", "G"]
-ignore = ["ANN101", "ANN102"]
 
 [lint.per-file-ignores]
 "__init__.py" = ["F401"]
@@ -171,12 +173,18 @@ def create_project_structure(project_dir: Path) -> bool:
 
 @app.command()
 def setup(
-    project_dir: Path = typer.Option(Path.cwd(), help="Project directory"),
-    project_name: str = typer.Option("ml-project", help="Project name"),
-    skip_install: bool = typer.Option(False, help="Skip pixi installation check"),
+    project_dir: Annotated[Path | None, typer.Option(help="Project directory")] = None,
+    project_name: Annotated[str | None, typer.Option(help="Project name")] = None,
+    skip_install: Annotated[bool, typer.Option(help="Skip pixi installation check")] = False,
 ) -> None:
     """Setup ML project with pixi."""
-    logger.info(f"Setting up ML project with pixi: {project_name}")
+    # Set defaults within function to avoid B008
+    if project_dir is None:
+        project_dir = Path.cwd()
+    if project_name is None:
+        project_name = "ml-project"
+
+    logger.info("Setting up ML project with pixi: %s", project_name)
 
     # Check/install pixi
     if not skip_install and not check_pixi_installed():
@@ -201,13 +209,14 @@ def setup(
     logger.info("Installing dependencies with pixi...")
     try:
         subprocess.run(["pixi", "install"], cwd=project_dir, check=True)
+    except subprocess.CalledProcessError:
+        logger.exception("Failed to install dependencies")
+        raise typer.Exit(1) from None
+    else:
         logger.info("✓ Dependencies installed")
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to install dependencies: {e}")
-        raise typer.Exit(1)
 
     logger.info("\n✓ ML project setup complete!")
-    logger.info(f"  Project directory: {project_dir}")
+    logger.info("  Project directory: %s", project_dir)
     logger.info("\nNext steps:")
     logger.info("  1. cd into project directory")
     logger.info("  2. Run: pixi run python -c 'import torch; print(torch.cuda.is_available())'")

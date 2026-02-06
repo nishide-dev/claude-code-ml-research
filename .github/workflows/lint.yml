@@ -38,8 +38,10 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install ty
-        run: pip install ty
+      - name: Install ty and dependencies
+        run: |
+          pip install ty
+          pip install typer pyyaml
 
       - name: Run ty
         run: |
@@ -59,4 +61,3 @@ jobs:
           files: .
           config_file: ".markdownlint.json"
           ignore_files: "node_modules/"
-          rules: "~MD013,~MD033,~MD041"
