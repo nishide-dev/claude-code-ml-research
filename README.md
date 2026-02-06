@@ -39,8 +39,8 @@ Comprehensive Claude Code plugin for machine learning research and experimentati
 
 ### Supported Tools
 
-- **pixi**: Package manager for ML dependencies (CUDA, PyTorch)
-- **uv**: Fast Python package manager
+- **pixi**: Conda-based package manager with PyPI integration (recommended for GPU/CUDA projects)
+- **uv**: Fast Python package manager with pip compatibility (recommended for CPU or simple projects)
 - **ruff**: Linting and formatting
 - **ty**: Type checking
 
@@ -63,7 +63,71 @@ cd claude-code-ml-research
 claude --plugin-dir . code
 ```
 
+### Prerequisites
+
+This plugin uses `copier` (via `uvx`) to generate projects from templates. Ensure you have `uv` installed:
+
+```bash
+# Check if uv is installed
+uvx --version
+
+# If not installed, install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
 ## Quick Start
+
+### Choosing a Package Manager
+
+The template supports two package managers with different strengths:
+
+#### Pixi (Recommended for GPU/ML Research)
+
+**Best for:**
+- Projects requiring CUDA/GPU support
+- Complex ML dependencies (PyTorch, PyTorch Geometric)
+- Reproducible environments across platforms
+- Teams using conda ecosystems
+
+**Architecture:**
+- Python from conda (base environment)
+- ML packages from PyPI via `[pypi-dependencies]` (faster, latest versions)
+- PyTorch includes bundled CUDA (no separate CUDA installation needed)
+- Automatic dependency resolution and locking
+
+**Installation:**
+```bash
+curl -fsSL https://pixi.sh/install.sh | sh
+pixi --version  # Should show v0.63+
+```
+
+**Commands:**
+```bash
+pixi install          # Install all dependencies
+pixi run train        # Run training
+pixi run test         # Run tests
+pixi run format       # Format code
+```
+
+#### UV (Recommended for Simple/CPU Projects)
+
+**Best for:**
+- CPU-only projects
+- Simple dependencies
+- Fast iteration and prototyping
+- Projects without complex CUDA requirements
+
+**Architecture:**
+- Pure Python packages from PyPI
+- Fast dependency resolution
+- pip-compatible workflows
+
+**Commands:**
+```bash
+uv sync                                      # Install dependencies
+uv run python src/my_project/train.py       # Run training
+uv run pytest tests/                        # Run tests
+```
 
 ### 1. Initialize New ML Project
 
@@ -71,13 +135,45 @@ claude --plugin-dir . code
 /ml:init
 ```
 
-This will:
-- Ask about project requirements (framework, task type, package manager)
-- Create lightning-hydra-template style directory structure
-- Generate pixi.toml or pyproject.toml with dependencies
-- Create Hydra configuration files
-- Setup ruff and ty configuration
-- Generate starter code (LightningModule, DataModule)
+This command uses `uvx copier copy` to create a project from the ML Research template.
+
+**Interactive Configuration:**
+
+The template will ask you to configure:
+- **Package Manager:** uv (fast, pip-compatible) or pixi (conda-based, automatic CUDA)
+- **Python Version:** 3.10, 3.11, 3.12, or 3.13
+- **PyTorch + CUDA:** Choose from presets (PyTorch 2.4-2.9, CUDA 11.8-13.0)
+- **ML Frameworks:** PyTorch Lightning, Hydra, PyTorch Geometric
+- **Experiment Tracking:** TensorBoard, Weights & Biases, MLflow
+- **Template Type:** Image classification, segmentation, GNN, text classification
+- **Dataset:** MNIST, CIFAR-10, CIFAR-100, Fashion-MNIST (for vision tasks)
+
+**What it creates:**
+- `src/{{ package_name }}/` directory with your Python package
+- Complete Hydra configuration structure
+- PyTorch Lightning model and data module templates
+- Test suite with pytest
+- Development tools: ruff, ty, pytest configured
+- Git repository initialized with proper .gitignore
+- Virtual environment with all dependencies installed
+
+**Manual Usage:**
+
+```bash
+# From the plugin directory
+cd /path/to/claude-code-ml-research
+
+# Create new project
+uvx copier copy --trust templates/ml-research ~/projects/my-ml-project
+
+# Follow the interactive prompts
+# cd to your new project
+cd ~/projects/my-ml-project
+
+# Start training
+uv run python src/my_ml_project/train.py  # if using uv
+pixi run train  # if using pixi
+```
 
 ### 2. Generate Configuration
 
@@ -115,60 +211,127 @@ Diagnose and fix:
 
 ## Example Project Structure
 
+Projects generated from the template have this structure:
+
 ```
 my-ml-project/
-├── configs/
-│   ├── config.yaml              # Main config
-│   ├── model/
-│   │   ├── default.yaml
-│   │   ├── resnet50.yaml
-│   │   └── gnn.yaml
-│   ├── data/
-│   │   ├── default.yaml
-│   │   └── imagenet.yaml
-│   ├── trainer/
-│   │   ├── gpu_single.yaml
-│   │   └── gpu_ddp.yaml
-│   ├── logger/
-│   │   └── wandb.yaml
-│   └── experiment/
-│       ├── baseline.yaml
-│       └── hp_sweep.yaml
 ├── src/
-│   ├── models/
-│   │   └── base_model.py
+│   └── my_ml_project/           # Package name auto-generated from project name
+│       ├── __init__.py
+│       ├── train.py             # Main training script with Hydra
+│       ├── models/
+│       │   ├── __init__.py
+│       │   └── base_model.py    # LightningModule template
+│       ├── data/
+│       │   ├── __init__.py
+│       │   └── datamodule.py    # LightningDataModule template
+│       ├── utils/
+│       │   └── __init__.py
+│       └── py.typed             # PEP 561 type hint marker
+├── configs/                     # Hydra configurations
+│   ├── config.yaml              # Main config with defaults
+│   ├── model/
+│   │   └── default.yaml         # Model architecture config
 │   ├── data/
-│   │   └── datamodule.py
-│   ├── utils/
-│   └── train.py
+│   │   └── default.yaml         # Dataset config
+│   ├── trainer/
+│   │   └── default.yaml         # Lightning Trainer config
+│   ├── logger/
+│   │   ├── tensorboard.yaml     # TensorBoard logger
+│   │   ├── wandb.yaml           # W&B logger
+│   │   └── mlflow.yaml          # MLflow logger
+│   └── experiment/
+│       └── baseline.yaml        # Experiment configuration
 ├── tests/
-├── notebooks/
-├── logs/
-├── pixi.toml or pyproject.toml
-├── ruff.toml
-└── README.md
+│   ├── __init__.py
+│   └── test_my_ml_project.py    # Model and data tests
+├── .venv/                       # Virtual environment (if using uv)
+├── .pixi/                       # Pixi environment (if using pixi)
+├── pyproject.toml               # Python project config (if using uv)
+├── pixi.toml                    # Pixi config (if using pixi)
+├── ruff.toml                    # Ruff linting config
+├── .gitignore                   # Git ignore rules
+├── .python-version              # Python version
+├── README.md                    # Project documentation
+└── uv.lock or pixi.lock         # Lock file
 ```
+
+**Key Features:**
+- `src/{{ package_name }}/` structure for proper Python packaging
+- Complete Hydra configuration with composition support
+- Lightning callbacks (checkpointing, early stopping, progress bar)
+- Multiple logger options (TensorBoard/W&B/MLflow)
+- Comprehensive tests with pytest
+- Type hints throughout (validated by ty)
+- Ruff-compliant code (no print statements, proper logging)
 
 ## Training Commands
 
+Generated projects use the `src/{{ package_name }}/train.py` structure:
+
+### Using Pixi (Recommended for GPU)
+
 ```bash
 # Basic training
-python src/train.py
+pixi run train
+
+# Quick test (1 batch per epoch)
+pixi run train-debug
+
+# CPU-only training
+pixi run train-cpu
+
+# GPU training (explicit)
+pixi run train-gpu
+
+# Override Hydra parameters
+pixi run train trainer.max_epochs=50 model.lr=0.001
 
 # With specific experiment
-python src/train.py experiment=baseline
-
-# Override parameters
-python src/train.py model.lr=0.001 data.batch_size=128
+pixi run train experiment=baseline
 
 # Multi-GPU training
-python src/train.py trainer.devices=4 trainer.strategy=ddp
+pixi run train trainer.devices=4 trainer.strategy=ddp
+
+# Development tasks
+pixi run test           # Run tests
+pixi run test-cov       # Run tests with coverage
+pixi run lint           # Check code style
+pixi run format         # Format code
+pixi run typecheck      # Type check with ty
+
+# TensorBoard
+pixi run tensorboard    # Launch TensorBoard (if configured)
+```
+
+### Using UV
+
+```bash
+# Basic training
+uv run python src/my_ml_project/train.py
+
+# With specific experiment
+uv run python src/my_ml_project/train.py experiment=baseline
+
+# Override parameters
+uv run python src/my_ml_project/train.py model.lr=0.001 data.batch_size=128
+
+# Multi-GPU training
+uv run python src/my_ml_project/train.py trainer.devices=4 trainer.strategy=ddp
 
 # Hyperparameter sweep
-python src/train.py --multirun model.lr=0.001,0.01,0.1
+uv run python src/my_ml_project/train.py --multirun model.lr=0.001,0.01,0.1
 
 # Resume from checkpoint
-python src/train.py ckpt_path=checkpoints/best.ckpt
+uv run python src/my_ml_project/train.py ckpt_path=checkpoints/best.ckpt
+
+# Quick test (1 batch per epoch)
+uv run python src/my_ml_project/train.py trainer.fast_dev_run=true
+
+# Development tasks
+uv run pytest tests/ -v              # Run tests
+uv run ruff check src/ tests/        # Lint
+uv run ruff format src/ tests/       # Format
 ```
 
 ## Configuration Examples
@@ -297,6 +460,8 @@ python scripts/generate_report.py --output report.md
 
 ## Best Practices
 
+### General ML Practices
+
 1. **Always use `self.save_hyperparameters()`** in LightningModule
 2. **Use DataModule** for all data loading logic
 3. **Enable mixed precision** for faster training
@@ -305,6 +470,43 @@ python scripts/generate_report.py --output report.md
 6. **Use callbacks** for checkpointing and early stopping
 7. **Test with `fast_dev_run`** before long training
 8. **Monitor GPU utilization** (should be >80%)
+
+### Package Manager Best Practices
+
+#### For Pixi Projects
+
+1. **Use `pixi.toml` tasks** instead of remembering long commands
+   ```bash
+   pixi run train-debug  # Instead of: pixi run python src/...
+   ```
+
+2. **Lock file is critical** - Always commit `pixi.lock`
+   ```bash
+   git add pixi.lock  # Ensures reproducible environments
+   ```
+
+3. **PyPI packages in `[pypi-dependencies]`** - ML packages install faster from PyPI
+   - Template already optimized: PyTorch, Lightning from PyPI
+   - CUDA is bundled with PyTorch (no separate installation)
+
+4. **Platform-specific environments** - Pixi handles this automatically
+   ```toml
+   platforms = ["linux-64", "osx-arm64"]  # Intel macOS not supported by PyTorch 2.5+
+   ```
+
+5. **Feature environments** for optional dependencies
+   ```bash
+   pixi run --environment dev test  # Dev environment with extra tools
+   ```
+
+#### For UV Projects
+
+1. **Use `uv.lock` for reproducibility** - Commit lock files
+2. **Leverage uv's speed** - `uv sync` is much faster than pip
+3. **Use extras for optional features**
+   ```bash
+   uv pip install -e ".[dev,wandb]"
+   ```
 
 ## Development
 
@@ -361,12 +563,25 @@ MIT License - see LICENSE file for details
 
 ## Resources
 
+### Documentation
+
 - [Claude Code Documentation](https://code.claude.com/docs)
 - [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/)
 - [Hydra](https://hydra.cc/)
 - [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/)
 - [Weights & Biases](https://docs.wandb.ai/)
 - [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template)
+
+### Package Managers
+
+- [Pixi Documentation](https://pixi.sh/)
+- [UV Documentation](https://docs.astral.sh/uv/)
+- [Pixi PyPI Integration Guide](https://pixi.sh/latest/features/pypi_packages/)
+
+### Templates
+
+- [uv-torch-nix-template](https://github.com/nishide-dev/uv-torch-nix-template) - UV-based PyTorch template
+- [uv-pyg-nix-template](https://github.com/nishide-dev/uv-pyg-nix-template) - UV-based PyTorch Geometric template
 
 ## Citation
 
