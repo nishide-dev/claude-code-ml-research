@@ -1,3 +1,8 @@
+---
+name: profile
+description: Profile ML training performance to identify bottlenecks (data loading, compute, memory usage) and optimize GPU utilization
+---
+
 # ML Training Performance Profiling
 
 Profile ML training performance to identify bottlenecks in data loading, model forward/backward pass, and optimization steps.

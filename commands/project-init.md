@@ -1,3 +1,8 @@
+---
+name: project-init
+description: Initialize a new ML research project using the ML Research template with PyTorch Lightning, Hydra, and modern Python tooling
+---
+
 # ML Project Initialization
 
 Initialize a new machine learning research project using the ML Research Copier template with PyTorch Lightning, Hydra configuration, and modern Python tooling (uv).

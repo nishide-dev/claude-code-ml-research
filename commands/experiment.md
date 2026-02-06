@@ -1,3 +1,8 @@
+---
+name: experiment
+description: Manage ML experiments, track results, and compare performance across different configurations (W&B, TensorBoard, MLflow)
+---
+
 # ML Experiment Management
 
 Manage machine learning experiments, track results, and compare performance across different configurations.

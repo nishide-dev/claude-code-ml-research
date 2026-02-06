@@ -1,3 +1,8 @@
+---
+name: debug
+description: Debug common ML training issues (NaN loss, OOM, slow training, convergence problems) and provide solutions
+---
+
 # ML Training Debugging
 
 Debug common machine learning training issues, diagnose problems, and provide solutions.

@@ -1,3 +1,8 @@
+---
+name: data
+description: Create and manage data loading, preprocessing, and augmentation pipelines (DataModule, transforms, data loaders)
+---
+
 # ML Data Pipeline Management
 
 Create and manage data loading, preprocessing, and augmentation pipelines for machine learning projects.

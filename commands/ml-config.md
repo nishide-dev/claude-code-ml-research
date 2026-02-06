@@ -1,3 +1,8 @@
+---
+name: ml-config
+description: Generate and manage Hydra configuration files for machine learning experiments (model, data, trainer, logger, experiment configs)
+---
+
 # ML Configuration Management
 
 Generate and manage Hydra configuration files for machine learning experiments.

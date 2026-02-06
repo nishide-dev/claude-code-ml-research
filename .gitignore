@@ -122,3 +122,6 @@ templates/*/checkpoints/
 
 # UV
 uv.lock
+
+# tmp
+_tmp/

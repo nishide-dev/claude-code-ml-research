@@ -6,12 +6,18 @@ Comprehensive Claude Code plugin for machine learning research and experimentati
 
 ### Commands
 
-- `/ml:init` - Initialize new ML project with PyTorch Lightning + Hydra structure
-- `/ml:config` - Generate and manage Hydra configuration files
-- `/ml:train` - Execute training with monitoring and debugging
-- `/ml:experiment` - Manage experiments, track results, and compare performance
-- `/ml:debug` - Debug training issues (NaN loss, OOM, convergence problems)
-- `/ml:data` - Create and manage data pipelines and preprocessing
+This plugin provides slash commands for ML workflows:
+
+- `/project-init` - Initialize new ML project with PyTorch Lightning + Hydra structure
+- `/ml-config` - Generate and manage Hydra configuration files
+- `/train` - Execute training with monitoring and debugging
+- `/experiment` - Manage experiments, track results, and compare performance
+- `/debug` - Debug training issues (NaN loss, OOM, convergence problems)
+- `/data` - Create and manage data pipelines and preprocessing
+- `/setup` - Set up development environment with package managers
+- `/validate` - Validate model and data configurations
+- `/profile` - Profile model performance and memory usage
+- `/model-export` - Export models for deployment
 
 ### Agents
 
@@ -23,10 +29,12 @@ Comprehensive Claude Code plugin for machine learning research and experimentati
 
 ### Skills
 
-- **lightning-basics**: PyTorch Lightning fundamentals and best practices
-- **hydra-config**: Hydra configuration management
-- **pytorch-geometric**: Graph Neural Network implementation
-- **wandb-tracking**: Weights & Biases experiment tracking
+Skills provide comprehensive guides and best practices. Access them by referencing in conversation:
+
+- **ml-lightning-basics** (300+ lines): PyTorch Lightning fundamentals - LightningModule, Trainer, DataModule, distributed training, callbacks, and best practices
+- **ml-hydra-config** (742 lines): Hydra configuration management - hierarchical configs, composition, `_target_` instantiation, multirun, Optuna integration, Lightning-Hydra-Template patterns
+- **ml-pytorch-geometric** (686 lines): PyTorch Geometric for Graph Neural Networks - message passing, GCN/GAT/GraphSAGE layers, large-scale distributed graph learning, Lightning integration
+- **ml-wandb-tracking** (801 lines): Weights & Biases experiment tracking - WandbLogger, hyperparameter sweeps (Grid/Random/Bayes), artifacts, model registry, SLURM cluster patterns
 
 ### Supported Frameworks
 
@@ -132,7 +140,7 @@ uv run pytest tests/                        # Run tests
 ### 1. Initialize New ML Project
 
 ```bash
-/ml:init
+/project-init
 ```
 
 This command uses `uvx copier copy` to create a project from the ML Research template.
@@ -178,7 +186,7 @@ pixi run train  # if using pixi
 ### 2. Generate Configuration
 
 ```bash
-/ml:config
+/ml-config
 ```
 
 Create new model, data, trainer, or experiment configurations with proper Hydra structure.
@@ -186,7 +194,7 @@ Create new model, data, trainer, or experiment configurations with proper Hydra 
 ### 3. Train Model
 
 ```bash
-/ml:train
+/train
 ```
 
 Execute training with:
@@ -199,7 +207,7 @@ Execute training with:
 ### 4. Debug Issues
 
 ```bash
-/ml:debug
+/debug
 ```
 
 Diagnose and fix:
@@ -385,7 +393,7 @@ trainer:
 
 ```bash
 # Initialize GNN project
-/ml:init
+/project-init
 # Select: PyTorch Geometric, Graph ML task
 
 # Train node classification
@@ -404,7 +412,7 @@ python src/train.py model=gnn data=ogbn-products data.use_sampling=true
 
 ```bash
 # Run debug command
-/ml:debug
+/debug
 
 # Common fixes:
 # 1. Lower learning rate
@@ -582,6 +590,87 @@ MIT License - see LICENSE file for details
 
 - [uv-torch-nix-template](https://github.com/nishide-dev/uv-torch-nix-template) - UV-based PyTorch template
 - [uv-pyg-nix-template](https://github.com/nishide-dev/uv-pyg-nix-template) - UV-based PyTorch Geometric template
+
+## Recommended Plugins
+
+This plugin focuses on ML-specific workflows. For Python development tools, we recommend installing the official Astral plugin:
+
+### Astral Plugin (UV, Ruff, Ty)
+
+The official Astral plugin provides skills for:
+- **uv**: Python package and project manager
+- **ruff**: Linter and formatter
+- **ty**: Type checker
+
+**Installation:**
+
+```bash
+# Add Astral marketplace
+/plugin marketplace add astral-sh/claude-code-plugins
+
+# Install Astral plugin
+/plugin install astral@astral-sh
+```
+
+**Team Installation:**
+
+Add to your project's `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "astral-sh": {
+      "source": {
+        "source": "github",
+        "repo": "astral-sh/claude-code-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "astral@astral-sh": true
+  }
+}
+```
+
+**What it provides:**
+
+Skills for uv, ruff, and ty best practices. Claude will automatically reference these skills when working with Python development tasks.
+
+For more information, see: https://github.com/astral-sh/claude-code-plugins
+
+### Everything Claude Code
+
+For general software development workflows (TDD, verification loops, continuous learning), install the comprehensive plugin by Anthropic hackathon winner:
+
+- **Plugin**: `everything-claude-code`
+- **Repository**: https://github.com/affaan-m/everything-claude-code
+- **Agents**: 13 agents including architect, code-reviewer, planner, tdd-guide, security-reviewer
+- **Commands**: 30+ commands including `/plan`, `/tdd`, `/code-review`, `/verify`, `/learn`, and more
+- **Skills**: 29 skills including coding-standards, tdd-workflow, verification-loop, continuous-learning
+- **Languages**: TypeScript, Python, Go, Java, Django, Spring Boot patterns
+- **License**: MIT
+
+**Installation:**
+
+```bash
+# Add marketplace
+/plugin marketplace add affaan-m/everything-claude-code
+
+# Install plugin
+/plugin install everything-claude-code@everything-claude-code
+
+# Install rules manually (required - plugins cannot distribute rules automatically)
+git clone https://github.com/affaan-m/everything-claude-code.git
+cp -r everything-claude-code/rules/common/* ~/.claude/rules/
+# Install language-specific rules as needed:
+# cp -r everything-claude-code/rules/python/* ~/.claude/rules/
+```
+
+**Usage:**
+
+Use commands like `/plan`, `/tdd`, `/code-review` for development workflows and best practices.
+
+---
 
 ## Citation
 
