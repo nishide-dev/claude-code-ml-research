@@ -14,6 +14,7 @@ Execute training runs with proper monitoring, checkpointing, and experiment trac
 Before starting training, verify:
 
 **Environment Check:**
+
 ```bash
 # Check Python version
 python --version  # Should be >= 3.10
@@ -26,6 +27,7 @@ python -c "import pytorch_lightning as pl; print(f'Lightning: {pl.__version__}')
 ```
 
 **Configuration Check:**
+
 ```bash
 # Validate config without training
 python src/train.py --cfg job
@@ -35,22 +37,26 @@ python src/train.py trainer.fast_dev_run=true
 ```
 
 **Disk Space:**
+
 - Verify sufficient space for checkpoints and logs
-- Estimate: (model_size_mb * save_top_k * num_epochs / checkpoint_freq)
+- Estimate: (model_size_mb *save_top_k* num_epochs / checkpoint_freq)
 
 ### 2. Training Execution Options
 
 **Basic Training:**
+
 ```bash
 python src/train.py
 ```
 
 **With Specific Config:**
+
 ```bash
 python src/train.py experiment=my_experiment
 ```
 
 **With CLI Overrides:**
+
 ```bash
 python src/train.py \
   model.hidden_dims=[1024,512,256] \
@@ -60,12 +66,14 @@ python src/train.py \
 ```
 
 **Resume from Checkpoint:**
+
 ```bash
 python src/train.py \
   ckpt_path="checkpoints/epoch_42.ckpt"
 ```
 
 **Multi-GPU Training:**
+
 ```bash
 # DDP (Distributed Data Parallel)
 python src/train.py \
@@ -82,11 +90,13 @@ python src/train.py \
 ### 3. Training Monitoring
 
 **Real-time Monitoring:**
+
 - Lightning automatically shows progress bar with metrics
 - Monitor GPU usage: `watch -n 1 nvidia-smi`
 - Check W&B dashboard: `wandb sync` (if using W&B)
 
 **Key Metrics to Watch:**
+
 - Training loss (should decrease steadily)
 - Validation loss (should decrease without diverging from train)
 - Learning rate (check scheduler is working)
@@ -94,6 +104,7 @@ python src/train.py \
 - Training speed (samples/sec or batches/sec)
 
 **Red Flags:**
+
 - Loss is NaN or inf → Check learning rate, gradient clipping
 - Validation loss increasing while train decreasing → Overfitting
 - Very slow training → Check data loading bottleneck (num_workers)
@@ -105,12 +116,14 @@ python src/train.py \
 If using Weights & Biases:
 
 **Initialize:**
+
 ```bash
 wandb login
 export WANDB_PROJECT="my-ml-project"
 ```
 
 **Track Custom Metrics:**
+
 ```python
 # In LightningModule
 def training_step(self, batch, batch_idx):
@@ -125,6 +138,7 @@ def training_step(self, batch, batch_idx):
 ```
 
 **Log Artifacts:**
+
 - Model checkpoints (automatic with log_model=true)
 - Confusion matrices
 - Sample predictions
@@ -133,6 +147,7 @@ def training_step(self, batch, batch_idx):
 ### 5. Hyperparameter Sweeps
 
 **Grid Search:**
+
 ```bash
 python src/train.py --multirun \
   model.hidden_dims="[512,256],[1024,512,256]" \
@@ -141,6 +156,7 @@ python src/train.py --multirun \
 ```
 
 **Random Search:**
+
 ```bash
 # Using Hydra Optuna plugin
 python src/train.py \
@@ -151,6 +167,7 @@ python src/train.py \
 ```
 
 **Bayesian Optimization:**
+
 ```yaml
 # configs/sweep/bayesian.yaml
 hydra:
@@ -162,6 +179,7 @@ hydra:
 ### 6. Debugging Training Issues
 
 **Gradient Issues:**
+
 ```python
 # Check for NaN/inf gradients
 from pytorch_lightning.callbacks import GradientAccumulationScheduler
@@ -174,6 +192,7 @@ trainer = Trainer(
 ```
 
 **Memory Issues:**
+
 ```python
 # Reduce memory usage
 trainer = Trainer(
@@ -187,6 +206,7 @@ def configure_model(self):
 ```
 
 **Slow Data Loading:**
+
 ```python
 # Profile data loading
 from pytorch_lightning.profilers import SimpleProfiler
@@ -195,6 +215,7 @@ trainer = Trainer(profiler="simple")
 ```
 
 **Overfitting:**
+
 ```python
 # Add regularization
 trainer = Trainer(
@@ -212,6 +233,7 @@ model:
 ### 7. PyTorch Geometric Specific
 
 **For GNN Training:**
+
 ```bash
 # Node classification
 python src/train.py \
@@ -235,6 +257,7 @@ python src/train.py \
 ```
 
 **Monitoring GNN-Specific Metrics:**
+
 - Node-level accuracy
 - Graph-level accuracy
 - Over-smoothing (node representations becoming too similar)
@@ -243,11 +266,13 @@ python src/train.py \
 ### 8. Advanced Training Techniques
 
 **Mixed Precision Training:**
+
 ```bash
 python src/train.py trainer.precision=16-mixed
 ```
 
 **Gradient Checkpointing (for large models):**
+
 ```python
 # In model
 def __init__(self):
@@ -256,6 +281,7 @@ def __init__(self):
 ```
 
 **Learning Rate Finding:**
+
 ```python
 # Find optimal learning rate
 trainer = Trainer()
@@ -264,6 +290,7 @@ fig = lr_finder.plot(suggest=True)
 ```
 
 **Stochastic Weight Averaging:**
+
 ```python
 from pytorch_lightning.callbacks import StochasticWeightAveraging
 
@@ -275,6 +302,7 @@ trainer = Trainer(callbacks=[StochasticWeightAveraging(swa_lrs=1e-2)])
 After training completes:
 
 **Load Best Checkpoint:**
+
 ```python
 # From checkpoint callback
 best_model_path = trainer.checkpoint_callback.best_model_path
@@ -282,16 +310,19 @@ model = MyModel.load_from_checkpoint(best_model_path)
 ```
 
 **Evaluate on Test Set:**
+
 ```python
 trainer.test(model, datamodule=dm, ckpt_path="best")
 ```
 
 **Generate Predictions:**
+
 ```python
 predictions = trainer.predict(model, datamodule=dm)
 ```
 
 **Analyze Results:**
+
 - Plot training curves
 - Generate confusion matrix
 - Calculate per-class metrics

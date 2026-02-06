@@ -10,6 +10,7 @@ Export trained PyTorch models to various formats for deployment (ONNX, TorchScri
 ## Overview
 
 Model export enables:
+
 - Cross-platform deployment (ONNX)
 - Production serving (TorchScript)
 - Optimized inference (TensorRT, OpenVINO)
@@ -21,12 +22,14 @@ Model export enables:
 ### 1. ONNX (Open Neural Network Exchange)
 
 **Benefits:**
+
 - Cross-framework compatibility (PyTorch → TensorFlow, etc.)
 - Hardware optimization (CPUs, GPUs, NPUs)
 - Industry standard for model interchange
 - Supported by ONNX Runtime, TensorRT, OpenVINO
 
 **Export to ONNX:**
+
 ```python
 import torch
 from pathlib import Path
@@ -75,6 +78,7 @@ def export_to_onnx(
 ```
 
 **Validate ONNX Export:**
+
 ```python
 import onnx
 import onnxruntime as ort
@@ -108,6 +112,7 @@ def validate_onnx(onnx_path: Path, pytorch_model: torch.nn.Module):
 ```
 
 **Optimize ONNX:**
+
 ```python
 import onnx
 from onnxruntime.transformers import optimizer
@@ -156,6 +161,7 @@ def optimize_onnx(input_path: Path, output_path: Path):
 ### 2. TorchScript
 
 **Benefits:**
+
 - Native PyTorch format
 - C++ deployment without Python
 - Mobile deployment (iOS, Android)
@@ -163,6 +169,7 @@ def optimize_onnx(input_path: Path, output_path: Path):
 - No external dependencies
 
 **Export with Tracing:**
+
 ```python
 import torch
 
@@ -188,6 +195,7 @@ def export_torchscript_trace(
 ```
 
 **Export with Scripting:**
+
 ```python
 def export_torchscript_script(
     model: torch.nn.Module,
@@ -208,6 +216,7 @@ def export_torchscript_script(
 ```
 
 **Load and Use TorchScript:**
+
 ```python
 def load_torchscript(model_path: Path):
     """Load TorchScript model for inference."""
@@ -224,6 +233,7 @@ def load_torchscript(model_path: Path):
 ```
 
 **TorchScript Mobile:**
+
 ```python
 from torch.utils.mobile_optimizer import optimize_for_mobile
 
@@ -250,12 +260,14 @@ def export_torchscript_mobile(
 ### 3. TensorRT (NVIDIA GPUs)
 
 **Benefits:**
+
 - Optimized inference on NVIDIA GPUs
 - Up to 10x speedup
 - Automatic kernel fusion and precision calibration
 - Supports FP32, FP16, INT8
 
 **Export to TensorRT (via ONNX):**
+
 ```python
 import tensorrt as trt
 
@@ -303,6 +315,7 @@ def convert_onnx_to_tensorrt(
 ### 4. Hugging Face Hub Upload
 
 **Upload to Hub:**
+
 ```python
 from huggingface_hub import HfApi, create_repo
 
@@ -350,6 +363,7 @@ def upload_to_huggingface_hub(
 ```
 
 **Create Model Card:**
+
 ```python
 def generate_model_card(
     model_name: str,
@@ -405,12 +419,13 @@ output = model(input_tensor)
   url = {{https://huggingface.co/...}}
 }}
 ```
+
 """
-```
 
 ### 5. MLflow Model Registry
 
 **Log Model to MLflow:**
+
 ```python
 import mlflow
 import mlflow.pytorch
@@ -533,6 +548,7 @@ python scripts/upload_to_hub.py \
 ## Deployment Examples
 
 **ONNX Runtime Inference:**
+
 ```python
 import onnxruntime as ort
 import numpy as np
@@ -546,6 +562,7 @@ outputs = session.run(None, {"input": input_data})
 ```
 
 **TorchScript Inference:**
+
 ```python
 import torch
 

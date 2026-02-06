@@ -10,6 +10,7 @@ description: Complete guide for PyTorch Geometric (PyG) - graph neural networks,
 PyTorch Geometric (PyG) is the standard library for geometric deep learning with PyTorch. It provides optimized implementations of Graph Neural Networks (GNNs), efficient data structures for graph data, and scalable solutions for large-scale graph learning.
 
 **Key Capabilities:**
+
 - Efficient sparse tensor operations for graphs
 - 100+ pre-implemented GNN layers (GCN, GAT, GraphSAGE, etc.)
 - Scalable data loaders with neighbor sampling
@@ -18,9 +19,10 @@ PyTorch Geometric (PyG) is the standard library for geometric deep learning with
 - Integration with PyTorch Lightning
 
 **Resources:**
-- Official docs: https://pytorch-geometric.readthedocs.io/
-- Stanford CS224W: http://web.stanford.edu/class/cs224w/
-- GitHub: https://github.com/pyg-team/pytorch_geometric
+
+- Official docs: <https://pytorch-geometric.readthedocs.io/>
+- Stanford CS224W: <http://web.stanford.edu/class/cs224w/>
+- GitHub: <https://github.com/pyg-team/pytorch_geometric>
 
 ---
 
@@ -31,6 +33,7 @@ PyTorch Geometric (PyG) is the standard library for geometric deep learning with
 PyG uses a tensor-centric approach. Each graph is represented by a `Data` object containing node features, edge indices, and optional attributes.
 
 **Basic Data object:**
+
 ```python
 import torch
 from torch_geometric.data import Data
@@ -56,6 +59,7 @@ print(f"Directed: {data.is_directed()}")  # True
 ```
 
 **Common Data attributes:**
+
 | Attribute | Shape | Type | Description |
 |-----------|-------|------|-------------|
 | `data.x` | `[num_nodes, num_node_features]` | float | Node feature matrix |
@@ -70,6 +74,7 @@ print(f"Directed: {data.is_directed()}")  # True
 GNNs work through message passing: nodes aggregate information from neighbors to update their representations.
 
 **MessagePassing base class:**
+
 ```python
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
@@ -107,6 +112,7 @@ class GCNConv(MessagePassing):
 ```
 
 **Message passing steps:**
+
 1. **message()**: Constructs messages from source nodes to target nodes
 2. **aggregate()**: Aggregates messages (sum, mean, max)
 3. **update()**: Updates node embeddings based on aggregated messages
@@ -116,6 +122,7 @@ class GCNConv(MessagePassing):
 PyG provides 100+ pre-implemented layers. Here are the most important:
 
 **GCN (Graph Convolutional Network):**
+
 ```python
 from torch_geometric.nn import GCNConv
 
@@ -134,6 +141,7 @@ class GCN(torch.nn.Module):
 ```
 
 **GAT (Graph Attention Networks):**
+
 ```python
 from torch_geometric.nn import GATConv
 
@@ -152,6 +160,7 @@ class GAT(torch.nn.Module):
 ```
 
 **GraphSAGE (inductive learning):**
+
 ```python
 from torch_geometric.nn import SAGEConv
 
@@ -178,6 +187,7 @@ class GraphSAGE(torch.nn.Module):
 Aggregate node representations to classify entire graphs (molecules, social networks, etc.).
 
 **Complete example:**
+
 ```python
 import torch
 import torch.nn.functional as F
@@ -236,6 +246,7 @@ for epoch in range(200):
 ```
 
 **Graph pooling layers:**
+
 - `global_mean_pool`: Average node features
 - `global_max_pool`: Max pooling over nodes
 - `global_add_pool`: Sum node features
@@ -251,6 +262,7 @@ for epoch in range(200):
 Classify nodes within a single large graph.
 
 **Node classification example:**
+
 ```python
 from torch_geometric.datasets import Planetoid
 import torch.nn.functional as F
@@ -301,6 +313,7 @@ print(f'Accuracy: {acc:.4f}')
 For massive graphs, load only k-hop neighborhoods instead of the entire graph.
 
 **NeighborLoader:**
+
 ```python
 from torch_geometric.loader import NeighborLoader
 
@@ -419,11 +432,13 @@ trainer.fit(model, datamodule)
 PyG 2.5+ supports distributed training for billion-scale graphs using DDP + RPC.
 
 **Architecture:**
+
 1. **Graph Partitioning**: Split graph using METIS to minimize edge cuts
 2. **DDP**: Replicate model across GPUs with gradient synchronization
 3. **RPC**: Fetch features/structure from remote partitions
 
 **Partition graph:**
+
 ```bash
 # Use METIS to partition graph
 python -m torch_geometric.distributed.partition \
@@ -433,6 +448,7 @@ python -m torch_geometric.distributed.partition \
 ```
 
 **Distributed training script:**
+
 ```python
 import torch.distributed as dist
 from torch_geometric.distributed import DistNeighborLoader
@@ -473,6 +489,7 @@ if __name__ == '__main__':
 Use `FeatureStore` and `GraphStore` for data that doesn't fit in memory.
 
 **Custom FeatureStore:**
+
 ```python
 from torch_geometric.data import FeatureStore, GraphStore
 import rocksdb
@@ -506,6 +523,7 @@ loader = NeighborLoader(
 Handle graphs with multiple node and edge types (e.g., knowledge graphs).
 
 **HeteroData:**
+
 ```python
 from torch_geometric.data import HeteroData
 
@@ -529,6 +547,7 @@ print(data)
 ```
 
 **Heterogeneous GNN:**
+
 ```python
 from torch_geometric.nn import HeteroConv, GCNConv, Linear
 
@@ -657,19 +676,22 @@ print(f'Edge mask: {explanation.edge_mask}')
 ## Essential Resources
 
 ### Official Documentation
-- **PyG Docs**: https://pytorch-geometric.readthedocs.io/
-- **API Reference**: https://pytorch-geometric.readthedocs.io/en/latest/modules/root.html
-- **Examples**: https://github.com/pyg-team/pytorch_geometric/tree/master/examples
+
+- **PyG Docs**: <https://pytorch-geometric.readthedocs.io/>
+- **API Reference**: <https://pytorch-geometric.readthedocs.io/en/latest/modules/root.html>
+- **Examples**: <https://github.com/pyg-team/pytorch_geometric/tree/master/examples>
 
 ### Learning Resources
-- **Stanford CS224W**: http://web.stanford.edu/class/cs224w/ (Machine Learning with Graphs)
-- **UvA Deep Learning**: https://lightning.ai/docs/pytorch/stable/notebooks/course_UvA-DL/06-graph-neural-networks.html
-- **Distill.pub GNN Article**: https://distill.pub/2021/gnn-intro/
+
+- **Stanford CS224W**: <http://web.stanford.edu/class/cs224w/> (Machine Learning with Graphs)
+- **UvA Deep Learning**: <https://lightning.ai/docs/pytorch/stable/notebooks/course_UvA-DL/06-graph-neural-networks.html>
+- **Distill.pub GNN Article**: <https://distill.pub/2021/gnn-intro/>
 
 ### Advanced Topics
-- **Distributed Training**: https://pytorch-geometric.readthedocs.io/en/latest/tutorial/distributed_pyg.html
-- **Remote Backends**: https://pytorch-geometric.readthedocs.io/en/latest/advanced/remote.html
-- **Heterogeneous Graphs**: https://pytorch-geometric.readthedocs.io/en/latest/tutorial/heterogeneous.html
+
+- **Distributed Training**: <https://pytorch-geometric.readthedocs.io/en/latest/tutorial/distributed_pyg.html>
+- **Remote Backends**: <https://pytorch-geometric.readthedocs.io/en/latest/advanced/remote.html>
+- **Heterogeneous Graphs**: <https://pytorch-geometric.readthedocs.io/en/latest/tutorial/heterogeneous.html>
 
 ---
 

@@ -12,6 +12,7 @@ Create and manage data loading, preprocessing, and augmentation pipelines for ma
 ### 1. Data Pipeline Type Selection
 
 Ask user about data type and task:
+
 - **Computer Vision**: Image classification, object detection, segmentation
 - **NLP**: Text classification, generation, translation
 - **Graph ML**: Node classification, graph classification, link prediction
@@ -24,6 +25,7 @@ Ask user about data type and task:
 Generate PyTorch Lightning DataModule based on task type:
 
 **Computer Vision DataModule:**
+
 ```python
 # src/data/vision_datamodule.py
 from typing import Optional
@@ -137,6 +139,7 @@ class VisionDataModule(pl.LightningDataModule):
 ```
 
 **Graph ML DataModule (PyTorch Geometric):**
+
 ```python
 # src/data/graph_datamodule.py
 import pytorch_lightning as pl
@@ -234,6 +237,7 @@ class GraphDataModule(pl.LightningDataModule):
 ### 3. Data Augmentation Strategies
 
 **Computer Vision Augmentations:**
+
 ```python
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
@@ -269,6 +273,7 @@ def training_step(self, batch, batch_idx):
 ```
 
 **Graph Augmentations:**
+
 ```python
 from torch_geometric.transforms import (
     RandomNodeSplit,
@@ -286,6 +291,7 @@ graph_aug = PyGCompose([
 ### 4. Data Preprocessing Pipeline
 
 **Create Preprocessing Script:**
+
 ```python
 # scripts/preprocess_data.py
 import argparse
@@ -360,6 +366,7 @@ if __name__ == "__main__":
 ### 5. Data Validation
 
 **Create Data Validation Script:**
+
 ```python
 # scripts/validate_data.py
 import torch
@@ -466,6 +473,7 @@ if __name__ == "__main__":
 ### 6. Efficient Data Loading
 
 **Use LMDB for Fast Loading:**
+
 ```python
 import lmdb
 import pickle
@@ -497,6 +505,7 @@ class LMDBDataset(Dataset):
 ```
 
 **Create LMDB from Dataset:**
+
 ```python
 # scripts/create_lmdb.py
 import lmdb
@@ -531,6 +540,7 @@ def create_lmdb(dataset, output_path: str, write_frequency: int = 5000):
 ### 7. Data Configuration
 
 Generate Hydra config for data:
+
 ```yaml
 # configs/data/custom.yaml
 _target_: src.data.custom_datamodule.CustomDataModule
@@ -570,11 +580,13 @@ cache_in_memory: false  # Set to true if dataset fits in RAM
 ### 8. Data Analysis Tools
 
 **Generate Data Report:**
+
 ```bash
 python scripts/analyze_data.py data/ --output data_report.html
 ```
 
 **Visualize Data Distribution:**
+
 ```python
 # In notebook or script
 import matplotlib.pyplot as plt

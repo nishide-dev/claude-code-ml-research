@@ -21,6 +21,7 @@ You are a PyTorch Geometric (PyG) expert specializing in Graph Neural Networks, 
 ### 1. Data Structures
 
 **PyG Data Object:**
+
 ```python
 from torch_geometric.data import Data
 
@@ -55,6 +56,7 @@ print(f"Is undirected: {data.is_undirected()}")
 ### 2. GNN Model Implementation
 
 **Basic GNN with Lightning:**
+
 ```python
 import pytorch_lightning as pl
 import torch
@@ -165,6 +167,7 @@ class GNNModel(pl.LightningModule):
 ### 3. Graph DataModule
 
 **PyG with Lightning:**
+
 ```python
 from torch_geometric.datasets import Planetoid, TUDataset
 from torch_geometric.transforms import NormalizeFeatures
@@ -240,6 +243,7 @@ class GraphDataModule(pl.LightningDataModule):
 ### 4. Advanced GNN Patterns
 
 **Graph Attention with Edge Features:**
+
 ```python
 from torch_geometric.nn import GATv2Conv
 
@@ -269,6 +273,7 @@ class GATWithEdgeFeatures(torch.nn.Module):
 ```
 
 **Jumping Knowledge Networks:**
+
 ```python
 from torch_geometric.nn import JumpingKnowledge
 
@@ -305,6 +310,7 @@ class JKNetGNN(torch.nn.Module):
 ### 5. Large Graph Training
 
 **Mini-Batch Training with Sampling:**
+
 ```python
 from torch_geometric.loader import NeighborLoader
 
@@ -345,6 +351,7 @@ class LargeGraphDataModule(pl.LightningDataModule):
 ```
 
 **Cluster-GCN for Massive Graphs:**
+
 ```python
 from torch_geometric.loader import ClusterData, ClusterLoader
 
@@ -363,6 +370,7 @@ train_loader = ClusterLoader(
 ### 6. Graph Transformations
 
 **Common Transforms:**
+
 ```python
 from torch_geometric.transforms import (
     Compose,
@@ -384,6 +392,7 @@ dataset = Planetoid(root="data", name="Cora", transform=transform)
 ```
 
 **Custom Transform:**
+
 ```python
 class AddNodeDegree:
     """Add node degree as a feature."""
@@ -409,6 +418,7 @@ dataset = TUDataset(root="data", name="PROTEINS", transform=AddNodeDegree())
 ### 7. Heterogeneous Graphs
 
 **Handling Multiple Node/Edge Types:**
+
 ```python
 from torch_geometric.nn import HeteroConv, SAGEConv, to_hetero
 import torch_geometric.transforms as T
@@ -436,6 +446,7 @@ out = model(data.x_dict, data.edge_index_dict)
 ### 8. Common GNN Issues
 
 **Over-Smoothing:**
+
 ```python
 # Problem: After many layers, all node representations become similar
 
@@ -460,6 +471,7 @@ dropout = 0.5
 ```
 
 **Graph Connectivity:**
+
 ```python
 # Check graph properties
 from torch_geometric.utils import (
@@ -489,6 +501,7 @@ if contains_isolated_nodes(edge_index, data.num_nodes):
 ### 9. Graph Visualization
 
 **Visualize Graph:**
+
 ```python
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -523,6 +536,7 @@ visualize_graph(data, color=data.y.numpy())
 ## Best Practices
 
 **Graph Data:**
+
 - [ ] Check graph connectivity and isolated nodes
 - [ ] Add self-loops for better message passing
 - [ ] Normalize node features
@@ -530,6 +544,7 @@ visualize_graph(data, color=data.y.numpy())
 - [ ] Use appropriate data splits
 
 **Model Architecture:**
+
 - [ ] Start with 2-3 layers (avoid over-smoothing)
 - [ ] Use skip connections for deep GNNs
 - [ ] Choose appropriate aggregation (mean, max, add)
@@ -537,6 +552,7 @@ visualize_graph(data, color=data.y.numpy())
 - [ ] Match pooling to task (global for graphs, none for nodes)
 
 **Training:**
+
 - [ ] Use neighbor sampling for large graphs
 - [ ] Monitor for over-smoothing
 - [ ] Appropriate learning rate (often 0.01)

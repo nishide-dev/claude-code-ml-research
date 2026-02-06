@@ -24,6 +24,7 @@ This command performs multiple validation checks to ensure your ML project is pr
 ### 1. Project Structure Validation
 
 **Required Directories:**
+
 ```bash
 # Check standard ML project structure
 test -d src || echo "❌ Missing src/ directory"
@@ -36,6 +37,7 @@ test -d src/data || echo "❌ Missing src/data/"
 ```
 
 **Required Files:**
+
 ```bash
 # Core files
 test -f src/train.py || echo "❌ Missing src/train.py"
@@ -49,6 +51,7 @@ test -f pyproject.toml -o -f pixi.toml || echo "❌ No package manager config fo
 ### 2. Configuration Validation
 
 **Hydra Config Syntax:**
+
 ```bash
 # Validate YAML syntax
 python -c "
@@ -68,6 +71,7 @@ if config_dir.exists():
 ```
 
 **Check Config Composition:**
+
 ```python
 # Validate Hydra config can be composed
 from hydra import compose, initialize_config_dir
@@ -94,6 +98,7 @@ except Exception as e:
 ```
 
 **Validate _target_ Paths:**
+
 ```python
 # Check that all _target_ paths are importable
 import importlib
@@ -125,6 +130,7 @@ check_target(cfg)
 ### 3. Code Quality Validation
 
 **Ruff Linting:**
+
 ```bash
 # Run ruff checks
 if command -v ruff &> /dev/null; then
@@ -136,6 +142,7 @@ fi
 ```
 
 **Type Checking:**
+
 ```bash
 # Run mypy
 if command -v mypy &> /dev/null; then
@@ -147,6 +154,7 @@ fi
 ```
 
 **Import Validation:**
+
 ```python
 # Check that all source files can be imported
 import sys
@@ -177,6 +185,7 @@ if errors:
 ### 4. Dependency Validation
 
 **Check Required Packages:**
+
 ```python
 # Verify ML dependencies are installed
 required_packages = [
@@ -213,6 +222,7 @@ for package in optional_packages:
 ```
 
 **CUDA Availability (if applicable):**
+
 ```python
 import torch
 
@@ -230,6 +240,7 @@ else:
 ### 5. Data Pipeline Validation
 
 **Check Data Directory:**
+
 ```bash
 # Verify data paths in config
 python -c "
@@ -250,6 +261,7 @@ else:
 ```
 
 **Test DataModule:**
+
 ```python
 # Try to instantiate DataModule
 from hydra import compose, initialize_config_dir
@@ -282,6 +294,7 @@ except Exception as e:
 ### 6. Model Validation
 
 **Test Model Instantiation:**
+
 ```python
 # Try to create model
 from hydra import compose, initialize_config_dir
@@ -312,6 +325,7 @@ except Exception as e:
 ```
 
 **Test Forward Pass:**
+
 ```python
 # Try a forward pass with dummy data
 import torch
@@ -337,6 +351,7 @@ except Exception as e:
 ### 7. Training Readiness
 
 **Fast Dev Run:**
+
 ```bash
 # Try a quick training run
 echo "Running fast_dev_run..."
@@ -350,6 +365,7 @@ fi
 ```
 
 **Check Logging:**
+
 ```python
 # Verify logger configuration
 from hydra import compose, initialize_config_dir

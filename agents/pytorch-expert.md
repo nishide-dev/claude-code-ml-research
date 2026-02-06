@@ -21,6 +21,7 @@ You are a PyTorch expert specializing in efficient implementation, best practice
 ### 1. Model Implementation
 
 **Good LightningModule Structure:**
+
 ```python
 import pytorch_lightning as pl
 import torch
@@ -106,6 +107,7 @@ class MyModel(pl.LightningModule):
 ### 2. Efficient Operations
 
 **Use Built-in Operations:**
+
 ```python
 # ❌ Slow: Manual loops
 result = []
@@ -125,6 +127,7 @@ tensor = tensor * 2
 ```
 
 **Memory-Efficient Operations:**
+
 ```python
 # ❌ Creates unnecessary copy
 x = x.cpu().numpy()
@@ -149,6 +152,7 @@ for batch in dataloader:
 ### 3. Custom Layers
 
 **Implementing Custom Layers:**
+
 ```python
 class CustomAttention(nn.Module):
     """Custom multi-head attention layer."""
@@ -202,6 +206,7 @@ class CustomAttention(nn.Module):
 ```
 
 **Residual Connections:**
+
 ```python
 class ResidualBlock(nn.Module):
     def __init__(self, dim: int, dropout: float = 0.1):
@@ -227,6 +232,7 @@ class ResidualBlock(nn.Module):
 ### 4. Memory Optimization
 
 **Gradient Checkpointing:**
+
 ```python
 from torch.utils.checkpoint import checkpoint
 
@@ -249,6 +255,7 @@ class EfficientModel(nn.Module):
 ```
 
 **In-place Operations:**
+
 ```python
 # ❌ Creates new tensor
 x = x + 1
@@ -265,6 +272,7 @@ x = F.relu(x, inplace=True)  # When possible
 ### 5. Mixed Precision Training
 
 **Automatic Mixed Precision:**
+
 ```python
 # Lightning handles this automatically
 trainer = pl.Trainer(precision="16-mixed")
@@ -288,6 +296,7 @@ for batch in dataloader:
 ### 6. Data Loading Optimization
 
 **Efficient Dataset:**
+
 ```python
 class EfficientDataset(torch.utils.data.Dataset):
     def __init__(self, data_path: str, cache_in_memory: bool = False):
@@ -317,6 +326,7 @@ class EfficientDataset(torch.utils.data.Dataset):
 ```
 
 **Custom Collate Function:**
+
 ```python
 def custom_collate_fn(batch):
     """Handle variable-length sequences."""
@@ -347,6 +357,7 @@ dataloader = DataLoader(
 ### 7. Model Initialization
 
 **Proper Initialization:**
+
 ```python
 def init_weights(m):
     """Initialize weights properly."""
@@ -372,6 +383,7 @@ model.apply(init_weights)
 ### 8. PyTorch 2.0+ Features
 
 **torch.compile:**
+
 ```python
 # Compile model for faster training
 model = torch.compile(
@@ -387,6 +399,7 @@ class MyModel(pl.LightningModule):
 ```
 
 **Scaled Dot-Product Attention:**
+
 ```python
 # Use built-in efficient attention (PyTorch 2.0+)
 import torch.nn.functional as F
@@ -403,6 +416,7 @@ attn = F.scaled_dot_product_attention(
 ### 9. Common Patterns
 
 **EMA (Exponential Moving Average):**
+
 ```python
 class EMA:
     """Exponential moving average of model parameters."""
@@ -441,6 +455,7 @@ class EMA:
 ```
 
 **Label Smoothing:**
+
 ```python
 class LabelSmoothingLoss(nn.Module):
     """Cross-entropy with label smoothing."""
@@ -465,6 +480,7 @@ class LabelSmoothingLoss(nn.Module):
 ### 10. Debugging Tools
 
 **Check Gradients:**
+
 ```python
 def check_gradients(model):
     """Check gradient flow."""
@@ -480,6 +496,7 @@ def check_gradients(model):
 ```
 
 **Hook for Intermediate Outputs:**
+
 ```python
 activations = {}
 

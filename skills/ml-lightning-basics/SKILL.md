@@ -10,6 +10,7 @@ description: Comprehensive guide for PyTorch Lightning - LightningModule, Traine
 PyTorch Lightning is the industry-standard framework that organizes PyTorch code to decouple research from engineering. It eliminates boilerplate while maintaining full PyTorch flexibility, enabling researchers to focus on model logic rather than training infrastructure.
 
 **Key Benefits:**
+
 - Eliminates 90% of boilerplate code
 - Automatic distributed training (DDP, FSDP, DeepSpeed)
 - Hardware agnostic (CPU, GPU, TPU, MPS)
@@ -18,9 +19,10 @@ PyTorch Lightning is the industry-standard framework that organizes PyTorch code
 - Production-ready code from day one
 
 **Resources:**
-- Official docs: https://lightning.ai/docs/pytorch/stable/
-- Style guide: https://lightning.ai/docs/pytorch/stable/starter/style_guide.html
-- Performance guide: https://lightning.ai/docs/pytorch/stable/advanced/training_tricks.html
+
+- Official docs: <https://lightning.ai/docs/pytorch/stable/>
+- Style guide: <https://lightning.ai/docs/pytorch/stable/starter/style_guide.html>
+- Performance guide: <https://lightning.ai/docs/pytorch/stable/advanced/training_tricks.html>
 
 ---
 
@@ -31,6 +33,7 @@ PyTorch Lightning is the industry-standard framework that organizes PyTorch code
 The `LightningModule` encapsulates model + training logic in a self-contained class.
 
 **Complete example:**
+
 ```python
 import lightning as L
 import torch
@@ -118,6 +121,7 @@ class ImageClassifier(L.LightningModule):
 ```
 
 **Key methods:**
+
 | Method | Purpose | Required |
 |--------|---------|----------|
 | `__init__` | Model architecture, hyperparameters | Yes |
@@ -275,7 +279,8 @@ PyTorch 2.0's `torch.compile` provides massive speedups (40%+ on average) throug
 
 ### Using torch.compile with Lightning
 
-**Method 1: Compile the entire model**
+#### Method 1: Compile the entire model
+
 ```python
 class MyModel(L.LightningModule):
     def __init__(self):
@@ -286,7 +291,8 @@ class MyModel(L.LightningModule):
         )
 ```
 
-**Method 2: Configure in Trainer (recommended)**
+#### Method 2: Configure in Trainer (recommended)
+
 ```python
 model = MyModel()
 
@@ -305,6 +311,7 @@ trainer.fit(compiled_model, datamodule=dm)
 | `max-autotune` | Maximum performance | Slow | Production, long training runs |
 
 **Performance example:**
+
 ```python
 import torch
 
@@ -317,12 +324,14 @@ compiled_model = torch.compile(model, mode="max-autotune")
 ### Compilation Best Practices
 
 **DO:**
+
 - Use `mode="default"` during development
 - Use `mode="max-autotune"` for production
 - Profile first to identify bottlenecks
 - Keep model architecture static (no dynamic shapes)
 
 **DON'T:**
+
 - Compile with highly dynamic models (RNNs with variable length)
 - Expect speedups on CPU (torch.compile is GPU-focused)
 - Mix compiled and non-compiled modules
@@ -345,6 +354,7 @@ def training_step(self, batch, batch_idx):
 ```
 
 **Check graph breaks:**
+
 ```python
 import torch._dynamo as dynamo
 
@@ -365,6 +375,7 @@ Lightning makes distributed training trivial - change one argument.
 ### DDP (Distributed Data Parallel)
 
 **Standard multi-GPU training:**
+
 ```python
 # Single GPU
 trainer = Trainer(accelerator="gpu", devices=1)
@@ -377,6 +388,7 @@ trainer = Trainer(accelerator="gpu", devices="auto", strategy="ddp")
 ```
 
 **DDP spawn (Windows compatibility):**
+
 ```python
 trainer = Trainer(accelerator="gpu", devices=4, strategy="ddp_spawn")
 ```
@@ -418,6 +430,7 @@ trainer = Trainer(
 ```
 
 **DeepSpeed config file:**
+
 ```json
 {
   "zero_optimization": {
@@ -450,6 +463,7 @@ Fabric is Lightning's lightweight abstraction - more control than Trainer, less 
 - Research requiring fine-grained control
 
 **Example:**
+
 ```python
 import lightning as L
 from lightning.fabric import Fabric
@@ -721,29 +735,34 @@ datamodule = MyDataModule(num_workers=8)  # Match CPU cores
 ## Essential Resources
 
 ### Official Documentation
-- **Lightning Docs**: https://lightning.ai/docs/pytorch/stable/
-- **API Reference**: https://lightning.ai/docs/pytorch/stable/api_references.html
-- **Style Guide**: https://lightning.ai/docs/pytorch/stable/starter/style_guide.html
+
+- **Lightning Docs**: <https://lightning.ai/docs/pytorch/stable/>
+- **API Reference**: <https://lightning.ai/docs/pytorch/stable/api_references.html>
+- **Style Guide**: <https://lightning.ai/docs/pytorch/stable/starter/style_guide.html>
 
 ### Tutorials
-- **15min to Lightning**: https://lightning.ai/docs/pytorch/stable/starter/introduction.html
-- **From PyTorch to Lightning**: https://lightning.ai/docs/pytorch/stable/starter/converting.html
-- **Distributed Training**: https://lightning.ai/docs/pytorch/stable/accelerators/gpu_intermediate.html
+
+- **15min to Lightning**: <https://lightning.ai/docs/pytorch/stable/starter/introduction.html>
+- **From PyTorch to Lightning**: <https://lightning.ai/docs/pytorch/stable/starter/converting.html>
+- **Distributed Training**: <https://lightning.ai/docs/pytorch/stable/accelerators/gpu_intermediate.html>
 
 ### PyTorch 2.0
-- **torch.compile Overview**: https://pytorch.org/get-started/pytorch-2-0/
-- **torch.compile Tutorial**: https://pytorch.org/tutorials/intermediate/torch_compile_tutorial.html
-- **Performance Tips**: https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html
+
+- **torch.compile Overview**: <https://pytorch.org/get-started/pytorch-2-0/>
+- **torch.compile Tutorial**: <https://pytorch.org/tutorials/intermediate/torch_compile_tutorial.html>
+- **Performance Tips**: <https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html>
 
 ### Community
-- **Lightning Bolts**: https://lightning-bolts.readthedocs.io/ (Model implementations)
-- **GitHub Discussions**: https://github.com/Lightning-AI/pytorch-lightning/discussions
+
+- **Lightning Bolts**: <https://lightning-bolts.readthedocs.io/> (Model implementations)
+- **GitHub Discussions**: <https://github.com/Lightning-AI/pytorch-lightning/discussions>
 
 ---
 
 ## Quick Reference
 
 **Minimal working example:**
+
 ```python
 import lightning as L
 import torch

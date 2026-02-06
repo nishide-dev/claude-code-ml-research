@@ -25,6 +25,7 @@ ls requirements.txt 2>/dev/null && echo "Found requirements.txt (pip)"
 If no package manager is configured, ask the user:
 
 **Package Manager Choice:**
+
 - **uv** (recommended for pure Python projects)
   - Fast dependency resolution
   - Compatible with pip/PyPI
@@ -42,6 +43,7 @@ If no package manager is configured, ask the user:
 ### 3. Install Package Manager (if needed)
 
 **For uv:**
+
 ```bash
 # Install uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -51,6 +53,7 @@ uv --version
 ```
 
 **For pixi:**
+
 ```bash
 # Install pixi
 curl -fsSL https://pixi.sh/install.sh | sh
@@ -62,6 +65,7 @@ pixi --version
 ### 4. Initialize Project Dependencies
 
 **With uv:**
+
 ```bash
 # Initialize pyproject.toml if not exists
 uv init --name ml-project
@@ -75,6 +79,7 @@ uv sync
 ```
 
 **With pixi:**
+
 ```bash
 # Initialize pixi.toml if not exists
 pixi init
@@ -90,6 +95,7 @@ pixi install
 ### 5. Configure Development Tools
 
 **Setup ruff (linting and formatting):**
+
 ```bash
 # Create ruff.toml if not exists
 cat > ruff.toml << 'EOF'
@@ -107,6 +113,7 @@ EOF
 ```
 
 **Setup mypy (type checking):**
+
 ```bash
 # Add mypy config to pyproject.toml
 cat >> pyproject.toml << 'EOF'
@@ -119,6 +126,7 @@ EOF
 ```
 
 **Setup pytest:**
+
 ```bash
 # Add pytest config to pyproject.toml
 cat >> pyproject.toml << 'EOF'
@@ -258,12 +266,14 @@ uv run python src/train.py  # or: pixi run python src/train.py
 ### CUDA/GPU Setup
 
 **With pixi (automatic):**
+
 ```bash
 pixi add pytorch pytorch-cuda=12.1
 # CUDA toolkit and drivers are handled automatically
 ```
 
 **With uv (manual):**
+
 ```bash
 # Install PyTorch with CUDA
 uv add torch --index-url https://download.pytorch.org/whl/cu121
@@ -299,6 +309,7 @@ pixi add pytorch pytorch-cuda=12.1
 ### Issue: "command not found: uv"
 
 **Solution:** Add uv to PATH
+
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
@@ -307,12 +318,14 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 ### Issue: "CUDA not available"
 
 **Solution:** Verify CUDA installation
+
 ```bash
 nvidia-smi  # Check GPU
 python -c "import torch; print(torch.cuda.is_available())"
 ```
 
 If using uv, install correct CUDA version:
+
 ```bash
 uv add torch --index-url https://download.pytorch.org/whl/cu121
 ```
@@ -320,6 +333,7 @@ uv add torch --index-url https://download.pytorch.org/whl/cu121
 ### Issue: "Permission denied" during installation
 
 **Solution:** Run without sudo (install to user directory)
+
 ```bash
 # Don't use sudo with uv/pixi installers
 curl -LsSf https://astral.sh/uv/install.sh | sh

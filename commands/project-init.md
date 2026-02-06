@@ -23,11 +23,13 @@ This command uses `uvx copier` to create projects from templates. The template s
 ### 2. Check Prerequisites
 
 Verify that `uvx` is available:
+
 ```bash
 uvx --version
 ```
 
 If not available, install uv:
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
@@ -41,6 +43,7 @@ uvx copier copy <plugin-dir>/templates/ml-research <project-directory>
 ```
 
 Where:
+
 - `<plugin-dir>` is the absolute path to the claude-code-ml-research plugin directory
 - `<project-directory>` is where the new project will be created
 
@@ -49,6 +52,7 @@ Where:
 Copier will ask the user to configure:
 
 **Project Basics:**
+
 - Project name (defaults to directory name)
 - Package name (Python import name, auto-generated from project name)
 - Description
@@ -56,6 +60,7 @@ Copier will ask the user to configure:
 - Python version (3.10-3.13)
 
 **Development Tools:**
+
 - Use ruff? (default: yes)
 - Use ty? (default: yes)
 - Use pytest? (default: yes)
@@ -63,6 +68,7 @@ Copier will ask the user to configure:
 - Use Nix + direnv? (default: no)
 
 **PyTorch/CUDA:**
+
 - PyTorch + CUDA preset (interactive dropdown with compatible combinations)
   - PyTorch 2.8.0 + CUDA 12.6 (recommended)
   - PyTorch 2.9.0 + CUDA 12.6 (latest)
@@ -72,6 +78,7 @@ Copier will ask the user to configure:
 - Include torchaudio? (default: no)
 
 **ML Frameworks:**
+
 - Use PyTorch Lightning? (default: yes)
 - Lightning version (if enabled)
 - Use Hydra? (default: yes)
@@ -79,10 +86,12 @@ Copier will ask the user to configure:
 - Use PyTorch Geometric? (default: no)
 
 **Experiment Tracking:**
+
 - Logger choice: TensorBoard / W&B / MLflow / Both / None
 - W&B entity (if W&B selected)
 
 **Template Type:**
+
 - Image Classification (default)
 - Segmentation
 - Object Detection
@@ -91,11 +100,13 @@ Copier will ask the user to configure:
 - Minimal (custom template)
 
 **Dataset:**
+
 - MNIST / CIFAR-10 / CIFAR-100 / Fashion-MNIST / Custom (for image classification)
 
 ### 5. Post-Generation
 
 Copier automatically executes post-generation tasks:
+
 1. `git init -b main` - Initialize git repository
 2. `uv venv` - Create virtual environment
 3. `uv lock` - Lock dependencies
@@ -109,7 +120,7 @@ Copier automatically executes post-generation tasks:
 
 The generated project will have:
 
-```
+```text
 <project-name>/
 ├── src/
 │   └── <package-name>/
@@ -203,6 +214,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ### CUDA version mismatch
 
 Check available CUDA on system:
+
 ```bash
 nvidia-smi
 ```
@@ -212,6 +224,7 @@ Select matching preset or custom CUDA version during copier prompts.
 ### Import errors after generation
 
 Ensure virtual environment is activated or use `uv run`:
+
 ```bash
 uv run python src/<package-name>/train.py
 ```

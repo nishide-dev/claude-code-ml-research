@@ -10,6 +10,7 @@ description: Complete guide for Weights & Biases (W&B) - experiment tracking, hy
 Weights & Biases (W&B) is the industry-standard platform for ML experiment tracking, visualization, and model management. It provides cloud-based (or self-hosted) infrastructure for logging experiments, running hyperparameter sweeps, managing artifacts, and tracking model lineage from research to production.
 
 **Key Capabilities:**
+
 - Automatic experiment tracking (metrics, hyperparameters, system resources)
 - Hyperparameter optimization with W&B Sweeps
 - Data and model versioning with Artifacts
@@ -18,9 +19,10 @@ Weights & Biases (W&B) is the industry-standard platform for ML experiment track
 - Seamless PyTorch Lightning integration
 
 **Resources:**
-- Official docs: https://docs.wandb.ai/
-- Lightning integration: https://docs.wandb.ai/models/integrations/lightning
-- Sweeps guide: https://docs.wandb.ai/models/sweeps
+
+- Official docs: <https://docs.wandb.ai/>
+- Lightning integration: <https://docs.wandb.ai/models/integrations/lightning>
+- Sweeps guide: <https://docs.wandb.ai/models/sweeps>
 
 ---
 
@@ -120,6 +122,7 @@ trainer.fit(model, datamodule=datamodule)
 ### WandbLogger Configuration
 
 **Important parameters:**
+
 | Parameter | Description | Recommended Value |
 |-----------|-------------|-------------------|
 | `project` | Project name (groups related runs) | Use consistent naming convention |
@@ -131,6 +134,7 @@ trainer.fit(model, datamodule=datamodule)
 | `config` | Additional config dict | Supplement Lightning's auto-logging |
 
 **Example with full configuration:**
+
 ```python
 wandb_logger = WandbLogger(
     project="image-classification",
@@ -154,6 +158,7 @@ wandb_logger = WandbLogger(
 ### Logging Custom Media
 
 **Images:**
+
 ```python
 import wandb
 
@@ -171,6 +176,7 @@ class LitModel(L.LightningModule):
 ```
 
 **Confusion Matrix:**
+
 ```python
 def validation_epoch_end(self, outputs):
     # Collect all predictions
@@ -189,6 +195,7 @@ def validation_epoch_end(self, outputs):
 ```
 
 **Custom Charts:**
+
 ```python
 # ROC curve
 self.logger.experiment.log({
@@ -221,6 +228,7 @@ W&B Sweeps automate hyperparameter search with minimal code changes.
 ### Sweep Configuration (YAML)
 
 **Complete sweep config:**
+
 ```yaml
 # sweep_config.yaml
 program: train.py
@@ -281,7 +289,8 @@ early_terminate:
 
 ### Running Sweeps
 
-**Step 1: Initialize sweep**
+#### Step 1: Initialize sweep
+
 ```bash
 # Creates sweep on W&B server, returns sweep ID
 wandb sweep sweep_config.yaml
@@ -290,7 +299,8 @@ wandb sweep sweep_config.yaml
 # Output: wandb: View sweep at: https://wandb.ai/user/project/sweeps/abc123xyz
 ```
 
-**Step 2: Launch agents**
+#### Step 2: Launch agents
+
 ```bash
 # Single agent (runs forever until stopped)
 wandb agent user/project/abc123xyz
@@ -299,9 +309,10 @@ wandb agent user/project/abc123xyz
 wandb agent user/project/abc123xyz --count 10
 ```
 
-**Step 3: Parallel execution**
+#### Step 3: Parallel execution
 
 **Single machine, multiple GPUs:**
+
 ```bash
 # Terminal 1 (GPU 0)
 CUDA_VISIBLE_DEVICES=0 wandb agent SWEEP_ID
@@ -314,6 +325,7 @@ CUDA_VISIBLE_DEVICES=2 wandb agent SWEEP_ID
 ```
 
 **SLURM cluster:**
+
 ```bash
 #!/bin/bash
 #SBATCH --job-name=wandb-sweep
@@ -414,6 +426,7 @@ command:
 ```
 
 **Training script with Hydra:**
+
 ```python
 import hydra
 from hydra.utils import instantiate
@@ -455,6 +468,7 @@ W&B Artifacts provide versioning and lineage tracking for datasets and models.
 ### Logging Artifacts
 
 **Dataset artifact:**
+
 ```python
 import wandb
 
@@ -484,6 +498,7 @@ run.finish()
 ```
 
 **Model artifact (automatic with Lightning):**
+
 ```python
 # WandbLogger automatically logs model checkpoints as artifacts
 wandb_logger = WandbLogger(
@@ -499,6 +514,7 @@ trainer.fit(model, datamodule=datamodule)
 ### Using Artifacts
 
 **Load dataset artifact:**
+
 ```python
 run = wandb.init(project="my-project", job_type="training")
 
@@ -511,6 +527,7 @@ artifact = run.use_artifact("cifar10-processed:latest")
 ```
 
 **Load model artifact:**
+
 ```python
 run = wandb.init(project="my-project", job_type="evaluation")
 
@@ -593,6 +610,7 @@ predictions = model(new_data)
 ### Registry Workflow
 
 **Typical lifecycle:**
+
 1. **Training**: Models logged as artifacts during training
 2. **Evaluation**: Best model identified from sweep/experiments
 3. **Staging**: Link to registry with "staging" alias
@@ -733,7 +751,8 @@ for seed in [42, 123, 456, 789, 999]:
 
 ### Common Issues
 
-**Issue: Slow logging**
+#### Issue: Slow logging
+
 ```python
 # Solution: Reduce logging frequency
 trainer = L.Trainer(
@@ -741,7 +760,8 @@ trainer = L.Trainer(
 )
 ```
 
-**Issue: Runs not finishing**
+#### Issue: Runs not finishing
+
 ```python
 # Solution: Always call finish()
 try:
@@ -750,14 +770,16 @@ finally:
     wandb.finish()
 ```
 
-**Issue: Sweep agents not finding program**
+#### Issue: Sweep agents not finding program
+
 ```python
 # Solution: Use absolute path in sweep config
 program: /absolute/path/to/train.py
 # Or ensure script is in current directory
 ```
 
-**Issue: Out of disk space**
+#### Issue: Out of disk space
+
 ```python
 # Solution: Clean W&B cache
 import wandb
@@ -772,18 +794,21 @@ rm -rf ~/.local/share/wandb/artifacts/*
 ## Essential Resources
 
 ### Official Documentation
-- **W&B Docs**: https://docs.wandb.ai/
-- **Lightning Integration**: https://docs.wandb.ai/models/integrations/lightning
-- **Sweeps Guide**: https://docs.wandb.ai/models/sweeps
-- **Artifacts Guide**: https://docs.wandb.ai/guides/artifacts
+
+- **W&B Docs**: <https://docs.wandb.ai/>
+- **Lightning Integration**: <https://docs.wandb.ai/models/integrations/lightning>
+- **Sweeps Guide**: <https://docs.wandb.ai/models/sweeps>
+- **Artifacts Guide**: <https://docs.wandb.ai/guides/artifacts>
 
 ### Tutorials
-- **W&B + Lightning Tutorial**: https://wandb.ai/site/articles/pytorch-lightning
-- **Hyperparameter Tuning**: https://wandb.ai/site/articles/hyperparameter-tuning
-- **Model Registry**: https://docs.wandb.ai/guides/model_registry
+
+- **W&B + Lightning Tutorial**: <https://wandb.ai/site/articles/pytorch-lightning>
+- **Hyperparameter Tuning**: <https://wandb.ai/site/articles/hyperparameter-tuning>
+- **Model Registry**: <https://docs.wandb.ai/guides/model_registry>
 
 ### Templates
-- **Lightning-Hydra-Template**: https://github.com/ashleve/lightning-hydra-template
+
+- **Lightning-Hydra-Template**: <https://github.com/ashleve/lightning-hydra-template>
 
 ---
 

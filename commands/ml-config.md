@@ -12,6 +12,7 @@ Generate and manage Hydra configuration files for machine learning experiments.
 ### 1. Determine Configuration Type
 
 Ask user what type of configuration to create:
+
 - **Model config**: New model architecture
 - **Data config**: New dataset or data pipeline
 - **Trainer config**: Training hyperparameters
@@ -22,6 +23,7 @@ Ask user what type of configuration to create:
 ### 2. Model Configuration
 
 For model configs, ask:
+
 - Model architecture (CNN, Transformer, GNN, MLP, etc.)
 - Input/output dimensions
 - Hidden dimensions and layers
@@ -30,6 +32,7 @@ For model configs, ask:
 - Dropout rates
 
 Generate `configs/model/<name>.yaml`:
+
 ```yaml
 _target_: src.models.<name>.Model
 
@@ -56,6 +59,7 @@ scheduler:
 ### 3. Data Configuration
 
 For data configs, ask:
+
 - Dataset name/type
 - Batch size
 - Number of workers
@@ -63,6 +67,7 @@ For data configs, ask:
 - Train/val/test split ratios
 
 Generate `configs/data/<name>.yaml`:
+
 ```yaml
 _target_: src.data.<name>.DataModule
 
@@ -89,6 +94,7 @@ augmentation:
 ### 4. Trainer Configuration
 
 For trainer configs, ask:
+
 - Max epochs
 - Precision (32, 16-mixed, bf16-mixed)
 - Accelerator (auto, gpu, cpu, mps)
@@ -98,6 +104,7 @@ For trainer configs, ask:
 - Accumulation steps
 
 Generate `configs/trainer/<name>.yaml`:
+
 ```yaml
 _target_: pytorch_lightning.Trainer
 
@@ -149,6 +156,7 @@ log_every_n_steps: 50
 For logger configs, based on tracking tool:
 
 **W&B (configs/logger/wandb.yaml):**
+
 ```yaml
 _target_: pytorch_lightning.loggers.WandbLogger
 
@@ -159,6 +167,7 @@ log_model: true
 ```
 
 **TensorBoard (configs/logger/tensorboard.yaml):**
+
 ```yaml
 _target_: pytorch_lightning.loggers.TensorBoardLogger
 
@@ -169,6 +178,7 @@ log_graph: true
 ```
 
 **MLFlow (configs/logger/mlflow.yaml):**
+
 ```yaml
 _target_: pytorch_lightning.loggers.MLFlowLogger
 
@@ -182,6 +192,7 @@ log_model: true
 For complete experiment configs, compose from existing configs:
 
 Generate `configs/experiment/<name>.yaml`:
+
 ```yaml
 # @package _global_
 
@@ -219,12 +230,14 @@ tags: ["baseline", "resnet", "imagenet"]
 ### 7. Hyperparameter Sweep Configuration
 
 For sweep configs, ask:
+
 - Parameters to sweep
 - Search strategy (grid, random, bayesian)
 - Search space (ranges, choices)
 - Optimization metric
 
 Generate `configs/sweep/<name>.yaml`:
+
 ```yaml
 # Hydra multirun configuration
 defaults:
@@ -270,6 +283,7 @@ optimized_metric: "val/loss"
 If using PyG, generate GNN-specific configs:
 
 **configs/model/gnn.yaml:**
+
 ```yaml
 _target_: src.models.gnn.GNNModel
 
@@ -293,6 +307,7 @@ num_classes: 7
 ```
 
 **configs/data/graph.yaml:**
+
 ```yaml
 _target_: src.data.graph_datamodule.GraphDataModule
 
@@ -313,6 +328,7 @@ num_neighbors: [15, 10, 5]
 ### 9. Validation
 
 After generating configs:
+
 1. Check YAML syntax validity
 2. Verify all `_target_` paths exist
 3. Ensure no circular dependencies in defaults
@@ -321,8 +337,10 @@ After generating configs:
 ### 10. Documentation
 
 Update project README with:
+
 - New configuration usage
 - Override syntax examples:
+
   ```bash
   # Override from CLI
   python src/train.py model.lr=0.01 data.batch_size=256

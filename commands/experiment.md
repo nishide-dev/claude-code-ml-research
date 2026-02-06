@@ -12,7 +12,8 @@ Manage machine learning experiments, track results, and compare performance acro
 ### 1. Experiment Organization
 
 **Directory Structure:**
-```
+
+```text
 logs/
 ├── 2026-02-06/
 │   ├── 14-30-22/  # Timestamp of run
@@ -32,6 +33,7 @@ logs/
 **Interactive Experiment Setup:**
 
 Ask user for:
+
 - Experiment name and description
 - Base configuration to extend
 - Key parameters to modify
@@ -39,6 +41,7 @@ Ask user for:
 - Expected runtime/compute requirements
 
 Generate `configs/experiment/<name>.yaml`:
+
 ```yaml
 # @package _global_
 
@@ -96,6 +99,7 @@ logger:
 **Create Experiment Registry:**
 
 Generate `logs/experiment_registry.json`:
+
 ```json
 {
   "experiments": [
@@ -128,6 +132,7 @@ Generate `logs/experiment_registry.json`:
 ```
 
 **Update Registry After Each Run:**
+
 ```python
 import json
 from pathlib import Path
@@ -218,6 +223,7 @@ def compare_experiments(exp_ids: list[str]):
 ### 5. Experiment Templates
 
 **Baseline Experiment:**
+
 ```yaml
 # configs/experiment/baseline.yaml
 name: "baseline"
@@ -231,6 +237,7 @@ trainer:
 ```
 
 **Ablation Study:**
+
 ```yaml
 # configs/experiment/ablation_dropout.yaml
 name: "ablation_dropout"
@@ -244,6 +251,7 @@ model:
 ```
 
 **Hyperparameter Optimization:**
+
 ```yaml
 # configs/experiment/hp_optimization.yaml
 name: "hp_optimization"
@@ -279,6 +287,7 @@ optimized_metric: "val/acc"
 ### 6. Experiment Reproduction
 
 **Save Full Environment:**
+
 ```bash
 # Save exact package versions
 pixi list > environment_snapshot.txt
@@ -293,6 +302,7 @@ python -c "import torch; print(f'PyTorch: {torch.__version__}\nCUDA: {torch.vers
 ```
 
 **Reproduce Experiment:**
+
 ```bash
 # Checkout exact code version
 git checkout $(cat logs/exp_001/commit_hash.txt)
@@ -309,6 +319,7 @@ python src/train.py --config-path ../logs/exp_001/.hydra --config-name config
 ### 7. Experiment Analysis Tools
 
 **Load and Analyze Results:**
+
 ```python
 from pytorch_lightning import Trainer
 from pathlib import Path
@@ -354,6 +365,7 @@ def analyze_experiment(exp_dir: Path):
 ### 8. W&B Integration
 
 **Query W&B Runs:**
+
 ```python
 import wandb
 
@@ -367,6 +379,7 @@ for run in runs:
 ```
 
 **Compare Runs in W&B:**
+
 ```bash
 # Open W&B workspace
 wandb workspace
@@ -378,23 +391,27 @@ wandb reports create --title "Experiment Comparison"
 ### 9. Experiment Best Practices
 
 **Naming Conventions:**
+
 - Use descriptive names: `vit_large_imagenet_pretrained`
 - Include date for long experiments: `exp_2026_02_baseline`
 - Use prefixes for experiment types: `ablation_`, `optimization_`, `baseline_`
 
 **Documentation:**
+
 - Always add description and notes
 - Tag experiments for easy filtering
 - Document unexpected results
 - Track compute resources used
 
 **Version Control:**
+
 - Commit code before long experiments
 - Save git hash with experiment
 - Don't modify code during experiment
 - Use branches for experimental features
 
 **Reproducibility:**
+
 - Set seeds everywhere (Python, NumPy, PyTorch, Lightning)
 - Save exact package versions
 - Document hardware used

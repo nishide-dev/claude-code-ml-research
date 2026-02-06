@@ -10,12 +10,14 @@ description: Comprehensive guide for Pixi package manager - Python environment m
 Pixi is a next-generation package manager designed to solve the "dependency hell" problem in machine learning projects. Built in Rust by the prefix.dev team, Pixi combines the best aspects of conda's binary package ecosystem with modern development workflows and strict reproducibility guarantees.
 
 **Core Philosophy:**
+
 - **Language-agnostic**: Manage Python, C++, CUDA, and system libraries in one tool
 - **Complete reproducibility**: Deterministic lock files guarantee bit-identical environments
 - **High-speed resolution**: Rust-based `rattler` solver is 10-100x faster than conda
 - **Hardware-aware**: Virtual packages represent system capabilities (CUDA, glibc, kernel)
 
 **Key Benefits for ML Research:**
+
 - **Automatic CUDA management**: System requirements ensure GPU compatibility before installation
 - **Fast dependency resolution**: Built on rattler (Rust-based conda resolver)
 - **Reproducible environments**: `pixi.lock` files guarantee exact environment replication
@@ -25,6 +27,7 @@ Pixi is a next-generation package manager designed to solve the "dependency hell
 - **Cross-platform**: Works on Linux, macOS (including Apple Silicon), Windows
 
 **When to use Pixi:**
+
 - ✅ GPU/CUDA projects (PyTorch, JAX, TensorFlow)
 - ✅ Projects needing both conda and PyPI packages
 - ✅ Team projects requiring exact reproducibility
@@ -44,10 +47,11 @@ Pixi is a next-generation package manager designed to solve the "dependency hell
 | Multi-env | ✅ Yes | ✅ Yes | ❌ No | ❌ No |
 
 **Essential Resources:**
-- Official docs: https://pixi.prefix.dev/latest/
-- GitHub: https://github.com/prefix-dev/pixi
-- PyTorch & CUDA guide: https://pixi.prefix.dev/latest/python/pytorch/
-- System requirements: https://pixi.prefix.dev/latest/features/system_requirements/
+
+- Official docs: <https://pixi.prefix.dev/latest/>
+- GitHub: <https://github.com/prefix-dev/pixi>
+- PyTorch & CUDA guide: <https://pixi.prefix.dev/latest/python/pytorch/>
+- System requirements: <https://pixi.prefix.dev/latest/features/system_requirements/>
 
 ---
 
@@ -56,6 +60,7 @@ Pixi is a next-generation package manager designed to solve the "dependency hell
 ### 1. Conda Ecosystem Integration
 
 Pixi uses the conda ecosystem (primarily conda-forge channels) as its package source. This allows unified management of:
+
 - Python libraries (NumPy, Pandas)
 - C/C++ libraries (OpenCV, Boost, FFmpeg)
 - CUDA toolkit and cuDNN
@@ -67,6 +72,7 @@ Unlike traditional `conda`, Pixi is built in Rust from scratch, with optimized S
 ### 2. Project Manifest and Lock Files
 
 **pixi.toml** - Project manifest (like Cargo.toml or pyproject.toml):
+
 ```toml
 [project]
 name = "deep-learning-project"
@@ -84,6 +90,7 @@ cuda = "12.4"
 ```
 
 **pixi.lock** - Deterministic lock file:
+
 - Exact package versions (including transitive dependencies)
 - Build strings (e.g., `py311h06a4308_0`)
 - SHA256 hashes for verification
@@ -96,18 +103,21 @@ Committing `pixi.lock` to Git ensures bit-identical environments across all mach
 **Key principle:** Use conda for **system libraries**, PyPI for **Python packages**.
 
 **[dependencies] - Conda packages:**
+
 - System libraries (CUDA, OpenMP, MKL)
 - C/C++ libraries (OpenCV, FFmpeg)
 - Python interpreter itself
 - Packages with complex C dependencies
 
 **[pypi-dependencies] - PyPI packages (resolved via uv):**
+
 - Pure Python packages
 - ML frameworks (PyTorch, TensorFlow - faster from PyPI)
 - Latest package versions (PyPI updates faster than conda)
 - Packages not on conda-forge
 
 **Resolution order:**
+
 1. Conda dependencies are locked first
 2. PyPI dependencies are resolved with conda packages as constraints
 3. Both are written to `pixi.lock`
@@ -164,6 +174,7 @@ pixi init
 ```
 
 **Generated `pixi.toml`:**
+
 ```toml
 [project]
 name = "my-ml-project"
@@ -211,18 +222,21 @@ pixi shell
 ### Specifying Python Versions
 
 **Single version:**
+
 ```toml
 [dependencies]
 python = "3.11.*"  # Any 3.11.x
 ```
 
 **Version range:**
+
 ```toml
 [dependencies]
 python = ">=3.10,<3.13"  # 3.10, 3.11, or 3.12
 ```
 
 **Platform-specific Python:**
+
 ```toml
 [target.osx-arm64.dependencies]
 python = "3.11.*"  # Force 3.11 on Apple Silicon
@@ -270,6 +284,7 @@ linux = "5.10"  # Minimum kernel version
 ```
 
 **Behavior:**
+
 - Pixi selects packages compatible with these requirements
 - If the host machine doesn't meet requirements, `pixi run` will fail with a clear error message
 - System requirements specify **minimum** versions (CUDA 12.1, 12.6 would both satisfy `cuda = "12"`)
@@ -295,11 +310,13 @@ cuda = "12.4"
 ```
 
 **Key points:**
+
 - **`pytorch-cuda` package**: Explicitly specifies GPU version
 - CUDA runtime libraries are installed **inside** the conda environment (no host contamination)
 - Pixi automatically validates CUDA compatibility via virtual packages
 
 **Advantages:**
+
 - Self-contained CUDA runtime (no host dependency)
 - Automatic compatibility validation
 - Works well with other CUDA libraries (RAPIDS, JAX)
@@ -314,6 +331,7 @@ torch = { version = "2.4.1+cu124", source = "url", url = "https://download.pytor
 ```
 
 **Trade-offs:**
+
 - PyPI wheels bundle CUDA runtime (larger package size)
 - Harder for Pixi to resolve CUDA version conflicts with other libraries
 - Use this only when conda channels don't have what you need
@@ -322,7 +340,8 @@ torch = { version = "2.4.1+cu124", source = "url", url = "https://download.pytor
 
 **Problem:** On macOS (no `__cuda` virtual package), Pixi cannot resolve Linux CUDA dependencies by default.
 
-**Solution 1: Environment Variable Override**
+#### Solution 1: Environment Variable Override
+
 ```bash
 export CONDA_OVERRIDE_CUDA="12.4"
 pixi install
@@ -391,6 +410,7 @@ Pixi's multi-environment feature (v0.13+) enables modular configurations for dev
 **Features** group dependencies and tasks. **Environments** combine features.
 
 **Example Structure:**
+
 - **Default feature**: Common libraries (Python, NumPy, Pandas)
 - **Test feature**: Testing tools (Pytest, Ruff)
 - **CUDA feature**: GPU libraries (PyTorch-CUDA, CuPy)
@@ -491,11 +511,13 @@ Environments in the same `solve-group` will use **identical versions** for share
 1. **Local Development (macOS)**: Use `default` environment with CPU PyTorch
 2. **CI Pipeline**: Use `ci` environment for testing and linting
 3. **Remote Training (Linux GPU server)**:
+
    ```bash
    git clone <repo>
    cd <repo>
    pixi run --environment prod-gpu train-gpu
    ```
+
    Pixi automatically downloads CUDA libraries and starts training.
 
 ---
@@ -519,6 +541,7 @@ train-gpu = { cmd = "python src/train.py", env = { CUDA_VISIBLE_DEVICES = "0" } 
 ```
 
 **Run tasks:**
+
 ```bash
 pixi run train
 pixi run train-gpu
@@ -587,6 +610,7 @@ clean = "rm -rf .pixi __pycache__ .pytest_cache .ruff_cache"
 ### Platform Selectors
 
 **Available platforms:**
+
 - `linux-64` - Linux x86_64
 - `linux-aarch64` - Linux ARM64
 - `osx-64` - macOS Intel
@@ -631,6 +655,7 @@ train-mps = "python src/train.py trainer.accelerator=mps"
 Pixi automatically generates `pixi.lock` when you run `pixi install`.
 
 **What it contains:**
+
 - Exact package versions (including transitive dependencies)
 - Build strings (e.g., `py311h06a4308_0`)
 - SHA256 hashes for verification
@@ -638,6 +663,7 @@ Pixi automatically generates `pixi.lock` when you run `pixi install`.
 - Platform-specific locks
 
 **Best practices:**
+
 ```bash
 # Always commit pixi.lock
 git add pixi.lock
@@ -651,6 +677,7 @@ pixi install  # Uses pixi.lock if present
 ```
 
 **Lock file guarantees:**
+
 - ✅ Exact same packages on all machines
 - ✅ Exact same versions
 - ✅ Cryptographic verification via hashes
@@ -663,6 +690,7 @@ pixi install  # Uses pixi.lock if present
 ### PyPI Dependency Syntax
 
 **Basic:**
+
 ```toml
 [pypi-dependencies]
 package-name = "*"  # Latest version
@@ -671,6 +699,7 @@ package-name = ">=1.0,<2.0"  # Version range
 ```
 
 **With extras:**
+
 ```toml
 [pypi-dependencies]
 fastapi = { version = "*", extras = ["all"] }
@@ -678,6 +707,7 @@ pandas = { version = ">=2.0", extras = ["sql", "excel"] }
 ```
 
 **From Git:**
+
 ```toml
 [pypi-dependencies]
 my-package = { git = "https://github.com/user/repo.git", branch = "main" }
@@ -686,6 +716,7 @@ experimental = { git = "https://github.com/user/repo.git", rev = "abc123" }
 ```
 
 **From local path (editable install):**
+
 ```toml
 [pypi-dependencies]
 my-lib = { path = "../my-lib", editable = true }
@@ -694,6 +725,7 @@ my-lib = { path = "../my-lib", editable = true }
 ### When to Use PyPI vs Conda
 
 **Use PyPI for:**
+
 - ✅ Pure Python packages
 - ✅ Latest versions (PyPI updates faster)
 - ✅ ML frameworks (PyTorch, TensorFlow, JAX)
@@ -701,6 +733,7 @@ my-lib = { path = "../my-lib", editable = true }
 - ✅ Packages not on conda-forge
 
 **Use Conda for:**
+
 - ✅ Python interpreter itself
 - ✅ System libraries (CUDA, MKL, OpenMP)
 - ✅ C/C++ dependencies (OpenCV, FFmpeg)
@@ -724,6 +757,7 @@ Pixi optimizes Docker image construction for ML workloads, reducing build time a
 QuantCo case study achieved 691MB → 209MB reduction with proper optimization.
 
 **Optimized Dockerfile:**
+
 ```dockerfile
 # Stage 1: Build Environment
 FROM ghcr.io/prefix-dev/pixi:latest AS build
@@ -757,6 +791,7 @@ CMD ["python", "src/app.py"]
 ```
 
 **Key points:**
+
 - Conda environments are **not relocatable** - keep absolute paths identical between stages
 - Remove cache (`rm -rf /root/.cache/rattler`) to reduce layer size
 - Use `--locked` to ensure reproducibility
@@ -795,6 +830,7 @@ Pixi-Pack is a revolutionary distribution mechanism for environments where Docke
 **Docker** distributes entire filesystem (including OS). **Pixi-Pack** distributes package repository + construction recipe, then reconstructs environment on target machine.
 
 **Archive contents:**
+
 1. Binary packages (`.conda` or `.tar.bz2` format)
 2. Metadata (`repodata.json`, `environment.yml`)
 3. Pixi-pack configuration
@@ -862,12 +898,14 @@ my-model-cli --input data.csv  # Application ready to use
 ### HPC & Air-Gapped Advantages
 
 **Why Pixi-Pack excels in these environments:**
+
 - **User permissions**: No root required (unlike Docker)
 - **Fully offline**: Archive contains everything
 - **No container overhead**: Direct execution on host
 - **Singularity-compatible**: Can be base for HPC container formats
 
 **Typical HPC workflow:**
+
 ```bash
 # On laptop (with internet)
 pixi-pack pack --environment gpu --platform linux-64
@@ -892,7 +930,7 @@ The most overlooked yet critical issue in ML deployment is `glibc` (GNU C Librar
 
 Linux programs (Python, PyTorch) dynamically link to system `glibc`. If you build/resolve on Ubuntu 22.04 (glibc 2.35) and run on CentOS 7 (glibc 2.17), you'll get:
 
-```
+```text
 error: version 'GLIBC_2.xx' not found
 ```
 
@@ -910,6 +948,7 @@ cuda = "12.1"
 ```
 
 **Behavior:**
+
 - Pixi solver selects binaries guaranteed to run on glibc 2.28+
 - If target machine has glibc 2.17, `pixi run`/`unpack` fails with clear error (preventing mysterious runtime crashes)
 
@@ -1210,12 +1249,14 @@ python train.py
 ### Issue 1: CUDA Not Available
 
 **Symptom:**
+
 ```python
 import torch
 torch.cuda.is_available()  # False
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check PyTorch version
 pixi run python -c "import torch; print(torch.__version__)"
@@ -1225,6 +1266,7 @@ pixi run python -c "import torch; print(torch.__version__)"
 ```
 
 **Solution:**
+
 ```toml
 # Ensure pytorch-cuda is specified
 [dependencies]
@@ -1238,12 +1280,14 @@ cuda = "12.4"
 ### Issue 2: System Requirements Not Met
 
 **Symptom:**
-```
+
+```text
 Error: System requirements not satisfied
   cuda: required 12.4, found 11.8
 ```
 
 **Solution:**
+
 ```toml
 # Lower CUDA requirement
 [system-requirements]
@@ -1257,11 +1301,13 @@ pytorch-cuda = { version = "11.8", channel = "pytorch" }
 ### Issue 3: Cross-Platform Lock Generation Fails
 
 **Symptom:**
-```
+
+```text
 Error: Could not resolve dependencies for linux-64
 ```
 
 **Solution (macOS → Linux):**
+
 ```bash
 # Set override environment variable
 export CONDA_OVERRIDE_CUDA="12.4"
@@ -1273,13 +1319,15 @@ pixi install
 ### Issue 4: Dependency Conflicts
 
 **Symptom:**
-```
+
+```text
 Error: Cannot resolve dependencies
   torch requires numpy<2.0
   package-x requires numpy>=2.0
 ```
 
 **Solution:**
+
 ```toml
 # Add explicit constraint
 [pypi-dependencies]
@@ -1289,12 +1337,14 @@ numpy = ">=1.24,<2.0"  # Satisfy both
 ### Issue 5: Slow Installation
 
 **Diagnosis:**
+
 ```bash
 # Check if conda-forge is source
 pixi list  # Look at package channels
 ```
 
 **Solution:**
+
 ```toml
 # Prioritize faster channels
 [project]
@@ -1304,11 +1354,13 @@ channels = ["pytorch", "nvidia", "conda-forge"]  # pytorch first
 ### Issue 6: Glibc Incompatibility
 
 **Symptom:**
-```
+
+```text
 error: version 'GLIBC_2.35' not found
 ```
 
 **Solution:**
+
 ```toml
 # Lower glibc requirement for compatibility
 [system-requirements]
@@ -1322,6 +1374,7 @@ libc = { family = "glibc", version = "2.28" }
 ### From Conda/Mamba
 
 **conda environment.yml:**
+
 ```yaml
 name: ml-env
 channels:
@@ -1334,6 +1387,7 @@ dependencies:
 ```
 
 **Equivalent pixi.toml:**
+
 ```toml
 [project]
 name = "ml-env"
@@ -1349,6 +1403,7 @@ numpy = "*"
 ```
 
 **Migration steps:**
+
 ```bash
 # 1. Create pixi.toml
 pixi init
@@ -1371,6 +1426,7 @@ pixi run python -c "import torch; print(torch.__version__)"
 ### From UV/Poetry
 
 **pyproject.toml (Poetry):**
+
 ```toml
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -1379,6 +1435,7 @@ numpy = "^1.24"
 ```
 
 **Equivalent pixi.toml:**
+
 ```toml
 [dependencies]
 python = ">=3.11,<3.12"
@@ -1389,6 +1446,7 @@ numpy = ">=1.24,<2.0"
 ```
 
 **Key differences:**
+
 - Poetry `^` (caret) → Pixi `>=x.y,<x+1.0`
 - Poetry only manages Python packages → Pixi manages system dependencies too
 
@@ -1437,32 +1495,37 @@ export HF_HOME=/scratch/huggingface_cache
 ## Essential Resources
 
 ### Official Documentation
-- **Pixi Documentation**: https://pixi.prefix.dev/latest/
-- **PyTorch & CUDA Setup**: https://pixi.prefix.dev/latest/python/pytorch/
-- **System Requirements**: https://pixi.prefix.dev/latest/features/system_requirements/
-- **Pixi-Pack Documentation**: https://pixi.prefix.dev/latest/deployment/pixi_pack/
-- **Manifest Reference**: https://pixi.prefix.dev/latest/reference/pixi_manifest/
+
+- **Pixi Documentation**: <https://pixi.prefix.dev/latest/>
+- **PyTorch & CUDA Setup**: <https://pixi.prefix.dev/latest/python/pytorch/>
+- **System Requirements**: <https://pixi.prefix.dev/latest/features/system_requirements/>
+- **Pixi-Pack Documentation**: <https://pixi.prefix.dev/latest/deployment/pixi_pack/>
+- **Manifest Reference**: <https://pixi.prefix.dev/latest/reference/pixi_manifest/>
 
 ### Case Studies & Blog Posts
-- **QuantCo: Pixi in Production**: https://tech.quantco.com/blog/pixi-production
+
+- **QuantCo: Pixi in Production**: <https://tech.quantco.com/blog/pixi-production>
   (Docker optimization, Pixi-Pack details)
-- **Prefix.dev: Multi-Environment Support**: https://prefix.dev/blog/introducing_multi_env_pixi
+- **Prefix.dev: Multi-Environment Support**: <https://prefix.dev/blog/introducing_multi_env_pixi>
   (CPU/GPU hybrid environments)
 
 ### Templates & Examples
-- **Simple PyTorch Project**: https://hpc.nmsu.edu/discovery/software/pixi/python-example/
-- **Marimo & Pixi Template**: https://github.com/marimo-team/marimo-pixi-starter-template
+
+- **Simple PyTorch Project**: <https://hpc.nmsu.edu/discovery/software/pixi/python-example/>
+- **Marimo & Pixi Template**: <https://github.com/marimo-team/marimo-pixi-starter-template>
   (Modern notebook environment)
 
 ### Community
-- **GitHub**: https://github.com/prefix-dev/pixi
-- **Discord**: https://discord.gg/kKV8ZxyzY4
-- **Discussions**: https://github.com/prefix-dev/pixi/discussions
+
+- **GitHub**: <https://github.com/prefix-dev/pixi>
+- **Discord**: <https://discord.gg/kKV8ZxyzY4>
+- **Discussions**: <https://github.com/prefix-dev/pixi/discussions>
 
 ### Related Tools
-- **Rattler**: https://github.com/mamba-org/rattler (Rust conda implementation)
-- **UV**: https://github.com/astral-sh/uv (Fast Python package installer)
-- **Prefix.dev**: https://prefix.dev/ (Commercial conda hosting)
+
+- **Rattler**: <https://github.com/mamba-org/rattler> (Rust conda implementation)
+- **UV**: <https://github.com/astral-sh/uv> (Fast Python package installer)
+- **Prefix.dev**: <https://prefix.dev/> (Commercial conda hosting)
 
 ---
 
@@ -1471,6 +1534,7 @@ export HF_HOME=/scratch/huggingface_cache
 Pixi represents a paradigm shift in ML environment management:
 
 **Core Strengths:**
+
 - **Deterministic reproducibility**: `pixi.lock` guarantees bit-identical environments
 - **10-100x faster**: Rust-based solver eliminates conda's slowness
 - **Unified ecosystem**: Conda + PyPI in one tool
@@ -1478,6 +1542,7 @@ Pixi represents a paradigm shift in ML environment management:
 - **Flexible deployment**: Docker optimization + Pixi-Pack for HPC/air-gapped environments
 
 **For ML Research:**
+
 - Automatic CUDA/GPU management via system requirements
 - Multi-environment CPU/GPU switching without separate projects
 - Cross-platform development (macOS) → production (Linux GPU)
@@ -1485,6 +1550,7 @@ Pixi represents a paradigm shift in ML environment management:
 - Lock files solve "works on my machine" permanently
 
 **When to Choose Pixi:**
+
 - ✅ Projects requiring GPU/CUDA (PyTorch, JAX, TensorFlow)
 - ✅ Teams needing strict reproducibility
 - ✅ Mixed conda + PyPI dependencies

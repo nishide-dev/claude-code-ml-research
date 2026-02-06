@@ -10,6 +10,7 @@ Profile ML training performance to identify bottlenecks in data loading, model f
 ## Overview
 
 Performance profiling helps you:
+
 - Identify training bottlenecks (data loading vs compute)
 - Optimize GPU utilization
 - Reduce training time
@@ -21,6 +22,7 @@ Performance profiling helps you:
 ### 1. PyTorch Lightning Profiler
 
 **Simple Profiler (built-in):**
+
 ```python
 from pytorch_lightning.profilers import SimpleProfiler
 
@@ -35,6 +37,7 @@ trainer.fit(model, datamodule)
 ```
 
 **Advanced Profiler:**
+
 ```python
 from pytorch_lightning.profilers import AdvancedProfiler
 
@@ -48,6 +51,7 @@ trainer.fit(model, datamodule)
 ```
 
 **PyTorch Profiler (most detailed):**
+
 ```python
 from pytorch_lightning.profilers import PyTorchProfiler
 
@@ -75,6 +79,7 @@ trainer.fit(model, datamodule)
 ### 2. Data Loading Profiler
 
 **Diagnose Data Loading Bottleneck:**
+
 ```python
 import time
 import torch
@@ -110,6 +115,7 @@ profile_dataloader(train_loader)
 ```
 
 **Optimize num_workers:**
+
 ```python
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
@@ -149,6 +155,7 @@ def find_optimal_num_workers(dataset, batch_size=32, max_workers=16):
 ### 3. GPU Utilization Monitoring
 
 **Monitor GPU Usage:**
+
 ```bash
 # Real-time GPU monitoring
 watch -n 1 nvidia-smi
@@ -161,6 +168,7 @@ kill $PID
 ```
 
 **GPU Utilization Tracker:**
+
 ```python
 import subprocess
 import threading
@@ -232,6 +240,7 @@ class MyModel(pl.LightningModule):
 ### 4. Model Forward/Backward Profiling
 
 **Profile Individual Components:**
+
 ```python
 import torch
 from pytorch_lightning import LightningModule
@@ -268,6 +277,7 @@ class ProfiledModel(LightningModule):
 ```
 
 **Layer-wise Profiling:**
+
 ```python
 def profile_model_layers(model, input_shape=(1, 3, 224, 224)):
     """Profile computation time of each layer."""
@@ -296,6 +306,7 @@ def profile_model_layers(model, input_shape=(1, 3, 224, 224)):
 ### 5. Memory Profiling
 
 **Track Memory Usage:**
+
 ```python
 import torch
 
@@ -321,6 +332,7 @@ class MemoryProfiledModel(pl.LightningModule):
 ```
 
 **Memory Profiler Callback:**
+
 ```python
 from pytorch_lightning.callbacks import Callback
 
@@ -343,6 +355,7 @@ trainer = Trainer(callbacks=[MemoryProfileCallback(log_every_n_steps=50)])
 ### 6. End-to-End Training Profile
 
 **Complete Profiling Script:**
+
 ```python
 #!/usr/bin/env python3
 """Profile complete training run."""
@@ -404,14 +417,17 @@ if __name__ == "__main__":
 ### Interpreting Results
 
 **Data Loading Bottleneck:**
+
 - GPU utilization < 80%
 - Fix: Increase `num_workers`, use faster storage, preprocess data offline
 
 **Compute Bottleneck:**
+
 - GPU utilization > 95%
 - Fix: Use mixed precision, optimize model architecture, larger batch size
 
 **Memory Bottleneck:**
+
 - OOM errors or near maximum memory
 - Fix: Reduce batch size, use gradient checkpointing, optimize model
 

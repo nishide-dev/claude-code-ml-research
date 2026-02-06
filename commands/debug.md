@@ -12,6 +12,7 @@ Debug common machine learning training issues, diagnose problems, and provide so
 ### 1. Identify Problem Category
 
 Ask user about the symptom:
+
 - **Loss issues**: NaN loss, exploding/vanishing gradients
 - **Performance issues**: Poor accuracy, overfitting, underfitting
 - **Speed issues**: Slow training, data loading bottleneck
@@ -26,6 +27,7 @@ Ask user about the symptom:
 Check these in order:
 
 1. **Learning Rate Too High:**
+
 ```bash
 # Test with lower learning rate
 python src/train.py model.optimizer.lr=0.0001
@@ -38,7 +40,8 @@ trainer.tune(model, datamodule=dm)
 "
 ```
 
-2. **Gradient Clipping:**
+1. **Gradient Clipping:**
+
 ```yaml
 # In trainer config
 trainer:
@@ -46,7 +49,8 @@ trainer:
   gradient_clip_algorithm: "norm"
 ```
 
-3. **Numerical Stability:**
+1. **Numerical Stability:**
+
 ```python
 # In model code
 # Add epsilon to divisions
@@ -63,7 +67,8 @@ def forward(self, x):
     return out
 ```
 
-4. **Mixed Precision Issues:**
+1. **Mixed Precision Issues:**
+
 ```bash
 # Try full precision first
 python src/train.py trainer.precision=32
@@ -75,6 +80,7 @@ trainer:
 ```
 
 **Exploding Gradients:**
+
 ```python
 # Enable gradient tracking
 trainer = Trainer(
@@ -88,6 +94,7 @@ trainer = Trainer(
 ```
 
 **Vanishing Gradients:**
+
 ```python
 # Solutions:
 # 1. Use ReLU instead of Sigmoid/Tanh
@@ -112,6 +119,7 @@ def __init__(self):
 **Overfitting (Val Loss > Train Loss):**
 
 Diagnosis script:
+
 ```python
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -132,6 +140,7 @@ if overfit_ratio > 1.5:
 ```
 
 Solutions:
+
 ```yaml
 # 1. Add regularization
 model:
@@ -161,6 +170,7 @@ model:
 **Underfitting (Both Losses High):**
 
 Solutions:
+
 ```yaml
 # 1. Increase model capacity
 model:
@@ -183,6 +193,7 @@ model:
 ```
 
 **Slow Convergence:**
+
 ```python
 # Try different optimizers
 # AdamW (default, good for most cases)
@@ -203,6 +214,7 @@ scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, total_st
 ### 4. Speed Issues Debugging
 
 **Profile Training:**
+
 ```bash
 # Use PyTorch Lightning profiler
 python src/train.py \
@@ -211,6 +223,7 @@ python src/train.py \
 ```
 
 **Data Loading Bottleneck:**
+
 ```python
 # Check if GPU is waiting for data
 # If GPU utilization < 80%, data loading is bottleneck
@@ -226,6 +239,7 @@ data:
 ```
 
 **Slow Forward/Backward Pass:**
+
 ```python
 # 1. Use torch.compile (PyTorch 2.0+)
 def configure_model(self):
@@ -253,6 +267,7 @@ trainer:
 **Out of Memory (OOM):**
 
 Diagnose:
+
 ```bash
 # Check memory usage
 nvidia-smi
@@ -270,6 +285,7 @@ trainer.fit(model, dm)
 ```
 
 Solutions in priority order:
+
 ```yaml
 # 1. Reduce batch size
 data:
@@ -298,6 +314,7 @@ if self.global_step % 100 == 0:
 ```
 
 **Memory Leak:**
+
 ```python
 # Common causes:
 # 1. Storing tensors in lists
@@ -322,6 +339,7 @@ callbacks:
 ### 6. PyTorch Geometric Specific Issues
 
 **Over-smoothing in GNNs:**
+
 ```python
 # Symptoms: All node representations become similar
 # Solutions:
@@ -343,6 +361,7 @@ self.jk = JumpingKnowledge(mode='cat')
 ```
 
 **Large Graph OOM:**
+
 ```yaml
 # Use mini-batch training with sampling
 data:
@@ -357,6 +376,7 @@ from torch_geometric.loader import NeighborSampler, ClusterData, ClusterLoader
 ### 7. Data Issues Debugging
 
 **Check Data Shapes:**
+
 ```python
 # Add to DataModule
 def setup(self, stage=None):
@@ -377,6 +397,7 @@ def setup(self, stage=None):
 ```
 
 **Visualize Data:**
+
 ```python
 # In notebook
 from torch.utils.data import DataLoader
@@ -403,6 +424,7 @@ plt.savefig("data_samples.png")
 Run through this checklist systematically:
 
 **Data:**
+
 - [ ] Data loads without errors
 - [ ] Shapes are correct (batch_size, channels, height, width)
 - [ ] No NaN or Inf values
@@ -411,12 +433,14 @@ Run through this checklist systematically:
 - [ ] Train/val/test splits are correct
 
 **Model:**
+
 - [ ] Model forward pass works with dummy data
 - [ ] Output shape matches expected
 - [ ] Number of parameters is reasonable
 - [ ] Gradients flow through all layers
 
 **Training:**
+
 - [ ] Loss decreases in first epoch
 - [ ] Validation is run correctly
 - [ ] Checkpoints are saved
@@ -424,6 +448,7 @@ Run through this checklist systematically:
 - [ ] GPU utilization is high
 
 **Config:**
+
 - [ ] Learning rate is appropriate
 - [ ] Batch size fits in memory
 - [ ] Number of epochs is sufficient
@@ -431,11 +456,13 @@ Run through this checklist systematically:
 ### 9. Common Error Messages and Solutions
 
 **"CUDA out of memory":**
+
 - Reduce batch_size
 - Enable gradient_checkpointing
 - Use precision="16-mixed"
 
 **"RuntimeError: Expected all tensors to be on the same device":**
+
 ```python
 # Move tensors to model device
 def forward(self, x):
@@ -444,11 +471,13 @@ def forward(self, x):
 ```
 
 **"ValueError: Target size must be the same as input size":**
+
 - Check loss function matches task (CrossEntropyLoss for classification)
 - Verify output dimensions match num_classes
 - For CrossEntropyLoss, labels should be class indices (Long), not one-hot
 
 **"RuntimeError: Sizes of tensors must match":**
+
 - Check batch dimensions are consistent
 - Ensure data augmentation doesn't break shapes
 

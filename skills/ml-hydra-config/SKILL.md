@@ -10,6 +10,7 @@ description: Comprehensive guide for Hydra configuration management, hierarchica
 Hydra is a powerful configuration management framework developed by Facebook AI Research (FAIR) that enables hierarchical configuration composition and dynamic parameter overriding. It's the de facto standard for managing complex ML experiments, allowing researchers to focus on science rather than configuration boilerplate.
 
 **Key Capabilities:**
+
 - Hierarchical configuration with composition
 - Command-line overrides without touching code
 - Multi-run for hyperparameter sweeps
@@ -18,8 +19,9 @@ Hydra is a powerful configuration management framework developed by Facebook AI 
 - Integration with Optuna for hyperparameter optimization
 
 **Resources:**
-- Official docs: https://hydra.cc/docs/intro/
-- Lightning-Hydra-Template: https://github.com/ashleve/lightning-hydra-template
+
+- Official docs: <https://hydra.cc/docs/intro/>
+- Lightning-Hydra-Template: <https://github.com/ashleve/lightning-hydra-template>
 
 ---
 
@@ -30,7 +32,8 @@ Hydra is a powerful configuration management framework developed by Facebook AI 
 Hydra's main strength is splitting configuration into meaningful units (config groups) that can be composed at runtime.
 
 **Project structure:**
-```
+
+```text
 project/
 ├── configs/
 │   ├── config.yaml          # Main config
@@ -47,6 +50,7 @@ project/
 ```
 
 **Main config (configs/config.yaml):**
+
 ```yaml
 defaults:
   - model: resnet           # Load configs/model/resnet.yaml
@@ -60,6 +64,7 @@ trainer:
 ```
 
 **Model config (configs/model/resnet.yaml):**
+
 ```yaml
 _target_: torchvision.models.resnet18
 pretrained: false
@@ -67,6 +72,7 @@ num_classes: 10
 ```
 
 **Command-line overrides:**
+
 ```bash
 # Change model and optimizer
 python train.py model=vit optimizer=sgd
@@ -83,6 +89,7 @@ python train.py model=resnet optimizer=adam model.pretrained=true
 The `_target_` key enables dynamic object creation from configs, eliminating conditional logic and adhering to the Open-Closed Principle.
 
 **Config with `_target_`:**
+
 ```yaml
 # configs/model/custom_model.yaml
 _target_: src.models.MyModel
@@ -93,6 +100,7 @@ dropout: 0.1
 ```
 
 **Python code:**
+
 ```python
 import hydra
 from hydra.utils import instantiate
@@ -117,6 +125,7 @@ if __name__ == "__main__":
 ```
 
 **Optimizer config example:**
+
 ```yaml
 # configs/optimizer/adam.yaml
 _target_: torch.optim.Adam
@@ -130,6 +139,7 @@ weight_decay: 0.0001
 The `-m` (multirun) flag enables running multiple experiments with different parameter combinations.
 
 **Basic multirun:**
+
 ```bash
 # Run 6 experiments (3 batch sizes × 2 learning rates)
 python train.py -m \
@@ -138,6 +148,7 @@ python train.py -m \
 ```
 
 **Parameter sweep with range:**
+
 ```bash
 # Sweep learning rate with 10 evenly spaced values
 python train.py -m model.lr=interval(1e-5,1e-2,10)
@@ -147,6 +158,7 @@ python train.py -m seed=range(1,11)  # Seeds 1-10
 ```
 
 **Multirun with config groups:**
+
 ```bash
 # Test all model × optimizer combinations
 python train.py -m model=resnet,vit optimizer=adam,sgd
@@ -160,7 +172,7 @@ Hydra and Lightning form the standard modern ML stack. The lightning-hydra-templ
 
 ### Recommended Project Structure
 
-```
+```text
 project/
 ├── configs/
 │   ├── config.yaml                    # Main config with defaults
@@ -203,6 +215,7 @@ project/
 ### Complete Training Script Example
 
 **src/train.py:**
+
 ```python
 import lightning as L
 import hydra
@@ -277,6 +290,7 @@ if __name__ == "__main__":
 ### Configuration Examples
 
 **configs/config.yaml:**
+
 ```yaml
 # @package _global_
 
@@ -303,6 +317,7 @@ work_dir: ${hydra:runtime.cwd}
 ```
 
 **configs/model/resnet.yaml:**
+
 ```yaml
 _target_: src.models.classifier.ImageClassifier
 
@@ -327,6 +342,7 @@ scheduler:
 ```
 
 **configs/trainer/gpu.yaml:**
+
 ```yaml
 _target_: lightning.Trainer
 
@@ -353,6 +369,7 @@ deterministic: false
 ```
 
 **configs/callbacks/default.yaml:**
+
 ```yaml
 model_checkpoint:
   _target_: lightning.pytorch.callbacks.ModelCheckpoint
@@ -385,6 +402,7 @@ rich_progress_bar:
 Experiment configs bundle related configurations into a single file for easy reproducibility.
 
 **configs/experiment/cifar10_resnet.yaml:**
+
 ```yaml
 # @package _global_
 
@@ -422,6 +440,7 @@ logger:
 ```
 
 **Running experiments:**
+
 ```bash
 # Run predefined experiment
 python src/train.py experiment=cifar10_resnet
@@ -448,6 +467,7 @@ pip install hydra-optuna-sweeper
 ### HPO Configuration
 
 **configs/hparams_search/mnist_optuna.yaml:**
+
 ```yaml
 # @package _global_
 
@@ -489,6 +509,7 @@ hydra:
 ```
 
 **Running HPO:**
+
 ```bash
 # Run hyperparameter search
 python src/train.py -m hparams_search=mnist_optuna
@@ -502,6 +523,7 @@ python src/train.py -m \
 ### Advanced Optuna Features
 
 **Pruning (early stopping bad trials):**
+
 ```yaml
 hydra:
   sweeper:
@@ -514,6 +536,7 @@ hydra:
 ```
 
 **Logging integration:**
+
 ```python
 # In your LightningModule
 from lightning.pytorch.callbacks import Callback
@@ -655,6 +678,7 @@ python train.py --cfg job --resolve
 ### Config Validation
 
 **tests/test_configs.py:**
+
 ```python
 import pytest
 from hydra import compose, initialize
@@ -721,11 +745,11 @@ defaults:
 
 ## Essential Resources
 
-- **Official Hydra Docs**: https://hydra.cc/docs/intro/
-- **Lightning-Hydra-Template**: https://github.com/ashleve/lightning-hydra-template
-- **Optuna Sweeper Plugin**: https://hydra.cc/docs/plugins/optuna_sweeper/
-- **Config Store API**: https://hydra.cc/docs/tutorials/structured_config/config_store/
-- **Best Practices**: https://hydra.cc/docs/patterns/configuring_experiments/
+- **Official Hydra Docs**: <https://hydra.cc/docs/intro/>
+- **Lightning-Hydra-Template**: <https://github.com/ashleve/lightning-hydra-template>
+- **Optuna Sweeper Plugin**: <https://hydra.cc/docs/plugins/optuna_sweeper/>
+- **Config Store API**: <https://hydra.cc/docs/tutorials/structured_config/config_store/>
+- **Best Practices**: <https://hydra.cc/docs/patterns/configuring_experiments/>
 
 ---
 

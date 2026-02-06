@@ -92,24 +92,28 @@ The template supports two package managers with different strengths:
 #### Pixi (Recommended for GPU/ML Research)
 
 **Best for:**
+
 - Projects requiring CUDA/GPU support
 - Complex ML dependencies (PyTorch, PyTorch Geometric)
 - Reproducible environments across platforms
 - Teams using conda ecosystems
 
 **Architecture:**
+
 - Python from conda (base environment)
 - ML packages from PyPI via `[pypi-dependencies]` (faster, latest versions)
 - PyTorch includes bundled CUDA (no separate CUDA installation needed)
 - Automatic dependency resolution and locking
 
 **Installation:**
+
 ```bash
 curl -fsSL https://pixi.sh/install.sh | sh
 pixi --version  # Should show v0.63+
 ```
 
 **Commands:**
+
 ```bash
 pixi install          # Install all dependencies
 pixi run train        # Run training
@@ -120,17 +124,20 @@ pixi run format       # Format code
 #### UV (Recommended for Simple/CPU Projects)
 
 **Best for:**
+
 - CPU-only projects
 - Simple dependencies
 - Fast iteration and prototyping
 - Projects without complex CUDA requirements
 
 **Architecture:**
+
 - Pure Python packages from PyPI
 - Fast dependency resolution
 - pip-compatible workflows
 
 **Commands:**
+
 ```bash
 uv sync                                      # Install dependencies
 uv run python src/my_project/train.py       # Run training
@@ -148,6 +155,7 @@ This command uses `uvx copier copy` to create a project from the ML Research tem
 **Interactive Configuration:**
 
 The template will ask you to configure:
+
 - **Package Manager:** uv (fast, pip-compatible) or pixi (conda-based, automatic CUDA)
 - **Python Version:** 3.10, 3.11, 3.12, or 3.13
 - **PyTorch + CUDA:** Choose from presets (PyTorch 2.4-2.9, CUDA 11.8-13.0)
@@ -157,6 +165,7 @@ The template will ask you to configure:
 - **Dataset:** MNIST, CIFAR-10, CIFAR-100, Fashion-MNIST (for vision tasks)
 
 **What it creates:**
+
 - `src/{{ package_name }}/` directory with your Python package
 - Complete Hydra configuration structure
 - PyTorch Lightning model and data module templates
@@ -198,6 +207,7 @@ Create new model, data, trainer, or experiment configurations with proper Hydra 
 ```
 
 Execute training with:
+
 - Pre-training validation checks
 - Real-time monitoring
 - Automatic checkpointing
@@ -211,6 +221,7 @@ Execute training with:
 ```
 
 Diagnose and fix:
+
 - NaN/Inf loss
 - Memory errors (OOM)
 - Slow training
@@ -221,7 +232,7 @@ Diagnose and fix:
 
 Projects generated from the template have this structure:
 
-```
+```text
 my-ml-project/
 ├── src/
 │   └── my_ml_project/           # Package name auto-generated from project name
@@ -265,6 +276,7 @@ my-ml-project/
 ```
 
 **Key Features:**
+
 - `src/{{ package_name }}/` structure for proper Python packaging
 - Complete Hydra configuration with composition support
 - Lightning callbacks (checkpointing, early stopping, progress bar)
@@ -484,11 +496,13 @@ python scripts/generate_report.py --output report.md
 #### For Pixi Projects
 
 1. **Use `pixi.toml` tasks** instead of remembering long commands
+
    ```bash
    pixi run train-debug  # Instead of: pixi run python src/...
    ```
 
 2. **Lock file is critical** - Always commit `pixi.lock`
+
    ```bash
    git add pixi.lock  # Ensures reproducible environments
    ```
@@ -498,11 +512,13 @@ python scripts/generate_report.py --output report.md
    - CUDA is bundled with PyTorch (no separate installation)
 
 4. **Platform-specific environments** - Pixi handles this automatically
+
    ```toml
    platforms = ["linux-64", "osx-arm64"]  # Intel macOS not supported by PyTorch 2.5+
    ```
 
 5. **Feature environments** for optional dependencies
+
    ```bash
    pixi run --environment dev test  # Dev environment with extra tools
    ```
@@ -512,6 +528,7 @@ python scripts/generate_report.py --output report.md
 1. **Use `uv.lock` for reproducibility** - Commit lock files
 2. **Leverage uv's speed** - `uv sync` is much faster than pip
 3. **Use extras for optional features**
+
    ```bash
    uv pip install -e ".[dev,wandb]"
    ```
@@ -598,6 +615,7 @@ This plugin focuses on ML-specific workflows. For Python development tools, we r
 ### Astral Plugin (UV, Ruff, Ty)
 
 The official Astral plugin provides skills for:
+
 - **uv**: Python package and project manager
 - **ruff**: Linter and formatter
 - **ty**: Type checker
@@ -636,14 +654,14 @@ Add to your project's `.claude/settings.json`:
 
 Skills for uv, ruff, and ty best practices. Claude will automatically reference these skills when working with Python development tasks.
 
-For more information, see: https://github.com/astral-sh/claude-code-plugins
+For more information, see: <https://github.com/astral-sh/claude-code-plugins>
 
 ### Everything Claude Code
 
 For general software development workflows (TDD, verification loops, continuous learning), install the comprehensive plugin by Anthropic hackathon winner:
 
 - **Plugin**: `everything-claude-code`
-- **Repository**: https://github.com/affaan-m/everything-claude-code
+- **Repository**: <https://github.com/affaan-m/everything-claude-code>
 - **Agents**: 13 agents including architect, code-reviewer, planner, tdd-guide, security-reviewer
 - **Commands**: 30+ commands including `/plan`, `/tdd`, `/code-review`, `/verify`, `/learn`, and more
 - **Skills**: 29 skills including coding-standards, tdd-workflow, verification-loop, continuous-learning
@@ -687,8 +705,8 @@ If you use this plugin in your research, please cite:
 
 ## Support
 
-- GitHub Issues: https://github.com/nishide-dev/claude-code-ml-research/issues
-- Discussions: https://github.com/nishide-dev/claude-code-ml-research/discussions
+- GitHub Issues: <https://github.com/nishide-dev/claude-code-ml-research/issues>
+- Discussions: <https://github.com/nishide-dev/claude-code-ml-research/discussions>
 
 ---
 

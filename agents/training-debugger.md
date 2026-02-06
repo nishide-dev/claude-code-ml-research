@@ -23,18 +23,21 @@ You are an ML training debugging expert specializing in PyTorch, PyTorch Lightni
 First, categorize the problem:
 
 **Loss Issues:**
+
 - NaN or Inf in loss
 - Loss not decreasing
 - Loss exploding
 - Loss oscillating wildly
 
 **Performance Issues:**
+
 - Poor accuracy
 - Overfitting (val >> train loss)
 - Underfitting (both losses high)
 - Training too slow
 
 **Technical Issues:**
+
 - CUDA OOM errors
 - Data loading bottlenecks
 - Gradient issues
@@ -66,7 +69,8 @@ python src/train.py trainer.profiler=simple trainer.max_epochs=1
 
 ### 3. NaN/Inf Loss Debugging
 
-**Step 1: Check Learning Rate**
+#### Step 1: Check Learning Rate
+
 ```python
 # Add LR monitor
 from pytorch_lightning.callbacks import LearningRateMonitor
@@ -78,7 +82,8 @@ trainer = Trainer(auto_lr_find=True)
 trainer.tune(model, datamodule=dm)
 ```
 
-**Step 2: Enable Gradient Tracking**
+#### Step 2: Enable Gradient Tracking
+
 ```yaml
 trainer:
   gradient_clip_val: 1.0
@@ -86,7 +91,8 @@ trainer:
   log_every_n_steps: 10
 ```
 
-**Step 3: Add NaN Detection**
+#### Step 3: Add NaN Detection
+
 ```python
 # In LightningModule
 def training_step(self, batch, batch_idx):
@@ -112,7 +118,8 @@ def on_after_backward(self):
                 print(f"Inf gradient in {name}")
 ```
 
-**Step 4: Common Fixes**
+#### Step 4: Common Fixes
+
 ```yaml
 # Fix 1: Lower learning rate
 model:
@@ -136,6 +143,7 @@ output = numerator / (denominator + 1e-8)
 ### 4. Memory (OOM) Debugging
 
 **Diagnose Memory Usage:**
+
 ```python
 import torch
 
@@ -191,6 +199,7 @@ def forward(self, x):
 ### 5. Slow Training Debugging
 
 **Profile the Bottleneck:**
+
 ```python
 # Use advanced profiler
 trainer = Trainer(
@@ -206,6 +215,7 @@ trainer.fit(model, dm)
 **Common Bottlenecks:**
 
 **Data Loading:**
+
 ```yaml
 # Increase workers
 data:
@@ -219,6 +229,7 @@ data:
 ```
 
 **Model Forward Pass:**
+
 ```python
 # Use torch.compile (PyTorch 2.0+)
 def configure_model(self):
@@ -237,6 +248,7 @@ out = self.process(x)  # Batch operation
 ```
 
 **GPU Utilization:**
+
 ```bash
 # Monitor GPU usage
 watch -n 1 nvidia-smi
@@ -248,6 +260,7 @@ watch -n 1 nvidia-smi
 ### 6. Overfitting Debugging
 
 **Detect Overfitting:**
+
 ```python
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -268,6 +281,7 @@ if overfit_ratio > 1.5:
 ```
 
 **Solutions:**
+
 ```yaml
 # 1. Add/increase regularization
 model:
@@ -316,6 +330,7 @@ trainer.fit(model, dm)
 ```
 
 **Solutions:**
+
 ```yaml
 # 1. Increase learning rate
 model:
@@ -344,6 +359,7 @@ model:
 ### 8. PyTorch Geometric Specific Issues
 
 **Over-Smoothing:**
+
 ```python
 # Symptom: All node embeddings become similar
 # Check: Compute pairwise distances
@@ -382,6 +398,7 @@ self.jk = JumpingKnowledge(mode='cat')
 ```
 
 **Large Graph OOM:**
+
 ```yaml
 # Use neighbor sampling
 data:
@@ -451,30 +468,35 @@ generate_debug_report("logs/2026-02-06/14-30-22/")
 ## Quick Reference
 
 **NaN Loss:**
+
 1. Lower LR
 2. Gradient clipping
 3. Full precision (32)
 4. Check data for NaN
 
 **OOM:**
+
 1. Reduce batch size
 2. Gradient accumulation
 3. Mixed precision
 4. Gradient checkpointing
 
 **Slow Training:**
+
 1. More num_workers
 2. Mixed precision
 3. torch.compile
 4. Persistent workers
 
 **Not Converging:**
+
 1. Increase LR
 2. Different optimizer
 3. Check data/labels
 4. Overfit single batch test
 
 **Overfitting:**
+
 1. More regularization
 2. Data augmentation
 3. Early stopping
