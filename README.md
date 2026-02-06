@@ -696,7 +696,7 @@ If you use this plugin in your research, please cite:
 
 ```bibtex
 @software{claude_code_ml_research,
-  author = {ML Research Team},
+  author = {nishide-dev},
   title = {ML Research Plugin for Claude Code},
   year = {2026},
   url = {https://github.com/nishide-dev/claude-code-ml-research}

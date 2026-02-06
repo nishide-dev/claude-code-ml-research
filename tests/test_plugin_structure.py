@@ -183,9 +183,7 @@ class TestCommandFiles:
                         break
 
             # Find first non-empty line after frontmatter
-            first_line = next(
-                (line for line in lines[start_idx:] if line.strip()), ""
-            )
+            first_line = next((line for line in lines[start_idx:] if line.strip()), "")
 
             assert first_line.startswith("#"), (
                 f"Command {cmd_file.name} missing title (should start with #)"
