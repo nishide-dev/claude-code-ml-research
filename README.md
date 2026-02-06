@@ -593,6 +593,7 @@ uv run pre-commit run --all-files
 
 - ✅ **Ruff**: Auto-fix linting issues and format code
 - ✅ **ty**: Type checking
+- ✅ **Markdownlint**: Auto-fix markdown formatting issues
 - ✅ **YAML validation**: Check YAML syntax
 - ✅ **Python AST check**: Verify Python syntax
 - ✅ **Trailing whitespace**: Remove trailing spaces

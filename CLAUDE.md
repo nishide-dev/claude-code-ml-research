@@ -193,7 +193,7 @@ Hooks run on commit:
 - Ruff linter (auto-fix)
 - Ruff formatter
 - ty type check
-- Markdownlint
+- Markdownlint (auto-fix)
 - YAML validation
 - Python AST check
 - Trailing whitespace removal
