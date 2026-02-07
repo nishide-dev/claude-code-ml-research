@@ -14,6 +14,25 @@ This is a **Claude Code plugin** for machine learning research. It is NOT a Pyth
 
 **Plugin manifest**: `.claude-plugin/plugin.json` defines the plugin structure. The `name` field is just an identifier—commands are invoked directly (e.g., `/train`, not `/ml-research:train`).
 
+## Distribution
+
+This plugin is distributed via marketplace.json, allowing users to install from GitHub:
+
+**Marketplace Structure** (`.claude-plugin/marketplace.json`):
+
+- Marketplace name: "ml-research" (same as plugin name)
+- Single plugin entry with source: "." (repository root)
+- Category: "machine-learning"
+- Tags: deep-learning, pytorch-lightning, experiment-tracking, graph-neural-networks, nlp, computer-vision, training-automation, model-debugging, configuration-management, reproducible-research
+
+**Installation methods**:
+
+1. Marketplace: `/plugin marketplace add nishide-dev/claude-code-ml-research`
+2. GitHub: `/plugin install gh:nishide-dev/claude-code-ml-research`
+3. Local: `/plugin install ./claude-code-ml-research`
+
+The marketplace.json enables Claude Code's plugin discovery and automatic updates.
+
 ## Architecture: Four Component Types
 
 ### 1. Commands (commands/*.md)

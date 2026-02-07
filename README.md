@@ -2,6 +2,31 @@
 
 Comprehensive Claude Code plugin for machine learning research and experimentation. Provides project scaffolding, experiment management, training support, and debugging tools for PyTorch Lightning, Hydra, PyTorch Geometric, and Hugging Face Transformers.
 
+## Installation
+
+### Via Claude Code Marketplace
+
+```bash
+# Add marketplace
+/plugin marketplace add nishide-dev/claude-code-ml-research
+
+# Install plugin
+/plugin install ml-research
+```
+
+### Via GitHub URL
+
+```bash
+/plugin install gh:nishide-dev/claude-code-ml-research
+```
+
+### Via Local Clone
+
+```bash
+git clone https://github.com/nishide-dev/claude-code-ml-research.git
+/plugin install ./claude-code-ml-research
+```
+
 ## Features
 
 ### Commands
@@ -80,13 +105,7 @@ Skills provide comprehensive guides and best practices. Access them by referenci
 - **ruff**: Linting and formatting
 - **ty**: Type checking
 
-## Installation
-
-### Via Claude Code Marketplace (Coming Soon)
-
-```bash
-claude plugin install ml-research
-```
+## Development
 
 ### Local Development
 
@@ -567,7 +586,7 @@ python scripts/generate_report.py --output report.md
    uv pip install -e ".[dev,wandb]"
    ```
 
-## Development
+## Plugin Development
 
 ### Adding New Commands
 
@@ -697,11 +716,6 @@ MIT License - see LICENSE file for details
 - [UV Documentation](https://docs.astral.sh/uv/)
 - [Pixi PyPI Integration Guide](https://pixi.sh/latest/features/pypi_packages/)
 
-### Templates
-
-- [uv-torch-nix-template](https://github.com/nishide-dev/uv-torch-nix-template) - UV-based PyTorch template
-- [uv-pyg-nix-template](https://github.com/nishide-dev/uv-pyg-nix-template) - UV-based PyTorch Geometric template
-
 ## Recommended Plugins
 
 This plugin focuses on ML-specific workflows. For Python development tools, we recommend installing the official Astral plugin:
@@ -801,7 +815,7 @@ If you use this plugin in your research, please cite:
 
 ```bibtex
 @software{claude_code_ml_research,
-  author = {nishide-dev},
+  author = {Ryusei Nishide},
   title = {ML Research Plugin for Claude Code},
   year = {2026},
   url = {https://github.com/nishide-dev/claude-code-ml-research}

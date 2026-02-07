@@ -1,0 +1,51 @@
+{
+  "name": "ml-research",
+  "owner": {
+    "name": "nishide-dev"
+  },
+  "metadata": {
+    "description": "Marketplace for comprehensive Machine Learning research tools for Claude Code",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "ml-research",
+      "source": ".",
+      "description": "Comprehensive Machine Learning research plugin for Claude Code. Provides project scaffolding, experiment management, training support, and debugging tools for PyTorch Lightning, Hydra, PyTorch Geometric, and Hugging Face Transformers.",
+      "version": "0.1.0",
+      "author": {
+        "name": "nishide-dev"
+      },
+      "homepage": "https://github.com/nishide-dev/claude-code-ml-research",
+      "repository": "https://github.com/nishide-dev/claude-code-ml-research",
+      "license": "MIT",
+      "keywords": [
+        "machine-learning",
+        "pytorch",
+        "pytorch-lightning",
+        "hydra",
+        "pytorch-geometric",
+        "transformers",
+        "ml-research",
+        "pixi",
+        "uv",
+        "ruff",
+        "wandb"
+      ],
+      "category": "machine-learning",
+      "tags": [
+        "deep-learning",
+        "pytorch-lightning",
+        "experiment-tracking",
+        "graph-neural-networks",
+        "nlp",
+        "computer-vision",
+        "training-automation",
+        "model-debugging",
+        "configuration-management",
+        "reproducible-research"
+      ],
+      "strict": true
+    }
+  ]
+}
