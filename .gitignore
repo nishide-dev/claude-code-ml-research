@@ -116,8 +116,6 @@ examples/*/logs/
 examples/*/checkpoints/
 examples/*/wandb/
 examples/*/data/
-templates/*/logs/
-templates/*/checkpoints/
 
 # Distribution / packaging
 *.whl

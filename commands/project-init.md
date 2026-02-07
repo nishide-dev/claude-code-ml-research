@@ -39,13 +39,19 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 Execute the copier command pointing to the ML research template:
 
 ```bash
-uvx copier copy <plugin-dir>/templates/ml-research <project-directory>
+# From GitHub (recommended)
+uvx copier copy --trust gh:nishide-dev/ml-research-template <project-directory>
+
+# From local clone (for development)
+uvx copier copy --trust /path/to/ml-research-template <project-directory>
 ```
 
 Where:
 
-- `<plugin-dir>` is the absolute path to the claude-code-ml-research plugin directory
+- `gh:nishide-dev/ml-research-template` is the GitHub repository URL
 - `<project-directory>` is where the new project will be created
+
+**Note**: The template is maintained in a separate repository ([ml-research-template](https://github.com/nishide-dev/ml-research-template)) for independent versioning and broader reusability.
 
 ### 4. Interactive Configuration
 
@@ -188,16 +194,19 @@ wandb login
 If the user wants a specific template variant without interactive prompts, they can use:
 
 ```bash
-# Use defaults with --defaults flag
-uvx copier copy --defaults <plugin-dir>/templates/ml-research <project-directory>
+# Use defaults with --defaults flag (from GitHub)
+uvx copier copy --trust --defaults gh:nishide-dev/ml-research-template <project-directory>
 
-# Use data flags for non-interactive
-uvx copier copy \
+# Use data flags for non-interactive (from GitHub)
+uvx copier copy --trust \
   --data project_name="my-project" \
   --data pytorch_cuda_preset="pytorch-2.8.0-cuda-12.6" \
   --data use_lightning=true \
   --data logger_choice="wandb" \
-  <plugin-dir>/templates/ml-research <project-directory>
+  gh:nishide-dev/ml-research-template <project-directory>
+
+# From local clone
+uvx copier copy --trust --defaults /path/to/ml-research-template <project-directory>
 ```
 
 ## Troubleshooting
@@ -244,14 +253,13 @@ Project is ready for ML research!
 ## Example Usage
 
 ```bash
-# Get plugin directory
-PLUGIN_DIR=$(pwd)
+# From GitHub (recommended)
+uvx copier copy --trust gh:nishide-dev/ml-research-template ~/projects/my-cifar10-project
 
-# Create new project in ~/projects
-cd ~/projects
-uvx copier copy $PLUGIN_DIR/templates/ml-research my-cifar10-project
+# From local clone (for development)
+uvx copier copy --trust /path/to/ml-research-template ~/projects/my-cifar10-project
 
 # Follow interactive prompts, then:
-cd my-cifar10-project
+cd ~/projects/my-cifar10-project
 uv run python src/my_cifar10_project/train.py
 ```

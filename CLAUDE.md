@@ -33,6 +33,8 @@ Content here...
 
 Commands are referenced in `plugin.json` via `"skills": ["./commands/"]` (note: commands are treated as "skills" in the manifest).
 
+**Note on `/project-init`**: This command uses the [ML Research Template](https://github.com/nishide-dev/ml-research-template), maintained as a separate repository. The template is referenced via GitHub URL (`gh:nishide-dev/ml-research-template`) for independent versioning and broader reusability.
+
 ### 2. Agents (agents/*.md)
 
 Agent files have YAML frontmatter specifying tools, model, role, and optional color:

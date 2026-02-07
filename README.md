@@ -183,19 +183,20 @@ uv run pytest tests/                        # Run tests
 /project-init
 ```
 
-This command uses `uvx copier copy` to create a project from the ML Research template.
+Creates a new ML research project using the [ML Research Template](https://github.com/nishide-dev/ml-research-template) (maintained separately for independent versioning and broader reusability).
 
 **Interactive Configuration:**
 
 The template will ask you to configure:
 
+- **Project Basics:** Name, package name, author info, Python version (3.10-3.13)
 - **Package Manager:** uv (fast, pip-compatible) or pixi (conda-based, automatic CUDA)
-- **Python Version:** 3.10, 3.11, 3.12, or 3.13
-- **PyTorch + CUDA:** Choose from presets (PyTorch 2.4-2.9, CUDA 11.8-13.0)
+- **PyTorch + CUDA:** Choose from 16 presets (PyTorch 2.4-2.9, CUDA 11.8-13.0)
 - **ML Frameworks:** PyTorch Lightning, Hydra, PyTorch Geometric
-- **Experiment Tracking:** TensorBoard, Weights & Biases, MLflow
-- **Template Type:** Image classification, segmentation, GNN, text classification
+- **Experiment Tracking:** TensorBoard, Weights & Biases, MLflow, or both
+- **Template Type:** Image classification, segmentation, GNN, text classification, minimal
 - **Dataset:** MNIST, CIFAR-10, CIFAR-100, Fashion-MNIST (for vision tasks)
+- **Development Tools:** ruff, ty, pytest, GitHub Actions, Nix + direnv
 
 **What it creates:**
 
@@ -210,11 +211,11 @@ The template will ask you to configure:
 **Manual Usage:**
 
 ```bash
-# From the plugin directory
-cd /path/to/claude-code-ml-research
+# From GitHub (recommended)
+uvx copier copy --trust gh:nishide-dev/ml-research-template ~/projects/my-ml-project
 
-# Create new project
-uvx copier copy --trust templates/ml-research ~/projects/my-ml-project
+# From local template clone (for development)
+uvx copier copy --trust /path/to/ml-research-template ~/projects/my-ml-project
 
 # Follow the interactive prompts
 # cd to your new project
