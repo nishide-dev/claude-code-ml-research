@@ -173,7 +173,11 @@ All use `uv` for dependency management with `uv.lock` caching.
 
 ## Key Files for Plugin Structure
 
-- `.claude-plugin/plugin.json`: Plugin manifest (defines agents, skills paths)
+- `.claude-plugin/plugin.json`: Plugin manifest (defines agents, skills paths, metadata)
+  - Note: `hooks/hooks.json` is loaded automatically (no need to specify in manifest)
+  - Note: LSP servers removed from manifest (can be configured per-project)
+- `.claude-plugin/marketplace.json`: Marketplace configuration for distribution
+- `hooks/hooks.json`: Event-driven automation (loaded automatically from standard location)
 - `pyproject.toml`: Python dependencies for development (not for plugin users)
 - `uv.lock`: Locked dependencies (must be committed for reproducible CI)
 - `.pre-commit-config.yaml`: Pre-commit hooks (Ruff, ty, YAML validation)
