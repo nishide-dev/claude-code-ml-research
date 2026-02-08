@@ -99,7 +99,7 @@ Skills are NOT invoked as commands—they provide context when referenced in con
 
 ### 4. Rules (rules/ml/*.md)
 
-Rules enforce coding standards and workflow constraints automatically. They are organized by category and referenced in `plugin.json` under `"rules"`:
+Rules enforce coding standards and workflow constraints automatically. They are organized by category:
 
 - `rules/ml/coding-standards.md`: ML coding best practices (deterministic operations, type hints, tensor shape documentation)
 - `rules/ml/security-practices.md`: Security guidelines (never log API keys, use environment variables, sanitize file paths)
@@ -107,7 +107,13 @@ Rules enforce coding standards and workflow constraints automatically. They are 
 
 **Directory structure**: Rules are organized in subdirectories (`ml/`) to allow coexistence with rules from other plugins when installing to `~/.claude/rules/`.
 
-Rules are automatically applied to guide Claude's behavior when writing code or suggesting workflows.
+**Installation**: Rules must be manually installed to `~/.claude/rules/` as plugins cannot distribute rules automatically:
+
+```bash
+cp -r rules/ml/* ~/.claude/rules/
+```
+
+Once installed, rules are automatically applied to guide Claude's behavior when writing code or suggesting workflows.
 
 ## Development Commands
 

@@ -2,7 +2,9 @@
   "name": "ml-research",
   "version": "0.1.0",
   "description": "Comprehensive Machine Learning research plugin for Claude Code. Provides project scaffolding, experiment management, training support, and debugging tools for PyTorch Lightning, Hydra, PyTorch Geometric, and Hugging Face Transformers.",
-  "author": "nishide-dev",
+  "author": {
+    "name": "nishide-dev"
+  },
   "homepage": "https://github.com/nishide-dev/claude-code-ml-research",
   "repository": "https://github.com/nishide-dev/claude-code-ml-research",
   "license": "MIT",
@@ -33,9 +35,8 @@
     "./agents/geometric-specialist.md",
     "./agents/transformers-specialist.md"
   ],
-  "lspServers": [
-    {
-      "name": "ty",
+  "lspServers": {
+    "ty": {
       "command": "uvx",
       "args": [
         "ty@latest",
@@ -45,8 +46,7 @@
         "python"
       ]
     },
-    {
-      "name": "ruff",
+    "ruff": {
       "command": "uvx",
       "args": [
         "ruff",
@@ -56,11 +56,6 @@
         "python"
       ]
     }
-  ],
-  "hooks": "./hooks/hooks.json",
-  "rules": [
-    "./rules/ml/coding-standards.md",
-    "./rules/ml/security-practices.md",
-    "./rules/ml/workflow-constraints.md"
-  ]
+  },
+  "hooks": "./hooks/hooks.json"
 }

@@ -127,18 +127,29 @@ class PluginValidator:
             if not full_path.exists():
                 self.errors.append(f"Skill directory not found: {skill_path}")
 
-    def _validate_lsp_servers(self, lsp_servers: list[dict[str, Any]]) -> None:
+    def _validate_lsp_servers(
+        self, lsp_servers: dict[str, dict[str, Any]] | list[dict[str, Any]]
+    ) -> None:
         """Validate LSP server configurations.
 
         Args:
-            lsp_servers: List of LSP server configs from plugin.json
+            lsp_servers: LSP server configs from plugin.json
+                (dict or list for backward compatibility)
         """
-        for server in lsp_servers:
-            if "name" not in server:
-                self.errors.append("LSP server missing 'name' field")
-            if "command" not in server:
-                server_name = server.get("name", "unknown")
-                self.errors.append(f"LSP server '{server_name}' missing 'command'")
+        # Handle both dict (new format) and list (old format) for backward compatibility
+        if isinstance(lsp_servers, dict):
+            servers = lsp_servers.items()
+            for server_name, server_config in servers:
+                if "command" not in server_config:
+                    self.errors.append(f"LSP server '{server_name}' missing 'command'")
+        else:
+            # Old list format
+            for server in lsp_servers:
+                if "name" not in server:
+                    self.errors.append("LSP server missing 'name' field")
+                if "command" not in server:
+                    server_name = server.get("name", "unknown")
+                    self.errors.append(f"LSP server '{server_name}' missing 'command'")
 
     def _validate_commands(self) -> None:
         """Validate command files."""
