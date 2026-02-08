@@ -35,27 +35,5 @@
     "./agents/geometric-specialist.md",
     "./agents/transformers-specialist.md"
   ],
-  "lspServers": {
-    "ty": {
-      "command": "uvx",
-      "args": [
-        "ty@latest",
-        "server"
-      ],
-      "languages": [
-        "python"
-      ]
-    },
-    "ruff": {
-      "command": "uvx",
-      "args": [
-        "ruff",
-        "server"
-      ],
-      "languages": [
-        "python"
-      ]
-    }
-  },
   "hooks": "./hooks/hooks.json"
 }
