@@ -24,7 +24,9 @@
   "skills": [
     "./skills/ml-cli-tools/",
     "./skills/ml-transformers/",
-    "./skills/",
+    "./skills/"
+  ],
+  "commands": [
     "./commands/"
   ],
   "agents": [
