@@ -12,7 +12,7 @@ This is a **Claude Code plugin** for machine learning research. It is NOT a Pyth
 - **Rules** (`rules/*.md`): Coding standards and workflow constraints enforced automatically
 - **Hooks** (`hooks/hooks.json`): Event-driven automation (auto-format Python files, validate YAML configs)
 
-**Plugin manifest**: `.claude-plugin/plugin.json` defines the plugin structure. The `name` field is just an identifier—commands are invoked directly (e.g., `/train`, not `/ml-research:train`).
+**Plugin manifest**: `.claude-plugin/plugin.json` defines the plugin structure. Commands in `./commands/` are auto-discovered and invoked directly (e.g., `/train`). Subdirectories create namespaces (e.g., `commands/ml/foo.md` → `/ml:foo`).
 
 ## Distribution
 
@@ -50,7 +50,7 @@ description: Execute training runs with PyTorch Lightning
 Content here...
 ```
 
-Commands are referenced in `plugin.json` via `"skills": ["./commands/"]` (note: commands are treated as "skills" in the manifest).
+Commands in `./commands/` are auto-discovered (no need to reference in `plugin.json`).
 
 **Note on `/project-init`**: This command uses the [ML Research Template](https://github.com/nishide-dev/ml-research-template), maintained as a separate repository. The template is referenced via GitHub URL (`gh:nishide-dev/ml-research-template`) for independent versioning and broader reusability.
 
@@ -264,8 +264,9 @@ Manual-only (slow): `pytest` with `--hook-stage manual`
 ## Common Pitfalls
 
 1. **Command naming**: Don't prefix all commands with `ml-`—only rename those that conflict with built-ins
-2. **Plugin name vs commands**: The plugin `name` in `plugin.json` is NOT a namespace. Commands are invoked directly.
-3. **YAML frontmatter**: All command files need it, but skills don't
-4. **uv.lock tracking**: Must be committed to Git for CI caching to work
-5. **ty version**: Use `>=0.0.15`, not `>=0.2.0`
-6. **Coverage target**: pytest measures coverage for `scripts/`, not the plugin content itself
+2. **Command namespacing**: Plugin name is NOT used as namespace. Subdirectories create namespaces (e.g., `commands/ml/foo.md` → `/ml:foo`)
+3. **Commands auto-discovery**: `./commands/` is auto-discovered—don't add to `skills` or `commands` fields in plugin.json
+4. **YAML frontmatter**: All command files need it, but skills don't
+5. **uv.lock tracking**: Must be committed to Git for CI caching to work
+6. **ty version**: Use `>=0.0.15`, not `>=0.2.0`
+7. **Coverage target**: pytest measures coverage for `scripts/`, not the plugin content itself
