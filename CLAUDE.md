@@ -37,12 +37,12 @@ The marketplace.json enables Claude Code's plugin discovery and automatic update
 
 ### 1. Commands (commands/*.md)
 
-Each command file must have YAML frontmatter:
+Each command file must have YAML frontmatter with `description` field. The `name` field is NOT needed—the filename determines the command name.
 
 ```markdown
 ---
-name: train
 description: Execute training runs with PyTorch Lightning
+argument-hint: [optional-args]
 ---
 
 # ML Training Execution
@@ -50,13 +50,20 @@ description: Execute training runs with PyTorch Lightning
 Content here...
 ```
 
+**Frontmatter fields**:
+
+- `description` (required): Brief description shown in `/help`
+- `argument-hint` (optional): Document expected arguments like `[pr-number] [priority]`
+- `model` (optional): Specify model (sonnet, opus, haiku)
+- `allowed-tools` (optional): Restrict which tools command can use
+
 Commands in `./commands/` are auto-discovered (no need to reference in `plugin.json`).
 
 **Note on `/project-init`**: This command uses the [ML Research Template](https://github.com/nishide-dev/ml-research-template), maintained as a separate repository. The template is referenced via GitHub URL (`gh:nishide-dev/ml-research-template`) for independent versioning and broader reusability.
 
 ### 2. Agents (agents/*.md)
 
-Agent files have YAML frontmatter specifying tools, model, role, and optional color:
+Agent files have YAML frontmatter specifying name, description, tools, model, and color:
 
 ```markdown
 ---
@@ -64,22 +71,30 @@ name: ml-architect
 description: Design ML system architectures
 tools: ["Read", "Write", "Glob", "Grep"]
 model: opus
-color: "#4A90E2"
+color: blue
 ---
 
 You are an expert ML architect...
 ```
 
+**Frontmatter fields**:
+
+- `name` (required): Agent identifier (kebab-case)
+- `description` (required): When to trigger this agent (should include examples)
+- `model` (required): `inherit`, `sonnet`, `opus`, or `haiku`
+- `color` (required): Keyword color for UI (`blue`, `cyan`, `green`, `yellow`, `magenta`, `red`)
+- `tools` (optional): Array of allowed tools
+
 **Model aliases**: Use simple aliases (`opus`, `sonnet`, `haiku`) instead of full version names. These automatically point to the latest versions (Opus 4.6, Sonnet 4.5, Haiku 4.5).
 
-**Color field** (optional): Hex color code for visual distinction in Claude Code UI. Each agent has a semantic color:
+**Color field**: Use keyword colors for consistency. Each agent has a semantic color:
 
-- ml-architect: `#4A90E2` (blue - strategic)
-- training-debugger: `#E74C3C` (red - debugging)
-- config-generator: `#9B59B6` (purple - configuration)
-- pytorch-expert: `#F39C12` (orange - implementation)
-- geometric-specialist: `#16A085` (teal - graph domain)
-- transformers-specialist: `#8B5CF6` (violet - NLP/LLM domain)
+- ml-architect: `blue` (strategic)
+- training-debugger: `red` (debugging)
+- config-generator: `magenta` (configuration)
+- pytorch-expert: `yellow` (implementation)
+- geometric-specialist: `cyan` (graph domain)
+- transformers-specialist: `magenta` (NLP/LLM domain)
 
 Agents are explicitly listed in `plugin.json` under `"agents"`.
 
@@ -95,7 +110,18 @@ Skills are knowledge bases stored in subdirectories. Each skill has a `SKILL.md`
 - `ml-transformers/SKILL.md`: Hugging Face Transformers + PyTorch Lightning integration
 - `tool-pixi/SKILL.md`: Pixi package manager for ML projects
 
-Skills are NOT invoked as commands—they provide context when referenced in conversation.
+**Skill frontmatter** (in SKILL.md):
+
+```markdown
+---
+name: ml-lightning-basics
+description: Comprehensive guide for PyTorch Lightning...
+---
+```
+
+**Invocation**: Skills can be invoked manually as `/skill-name` (e.g., `/ml-lightning-basics`) or Claude automatically loads them based on task context.
+
+Skills in `./skills/` are auto-discovered (no need to reference in `plugin.json`).
 
 ### 4. Rules (rules/ml/*.md)
 
@@ -173,8 +199,10 @@ All use `uv` for dependency management with `uv.lock` caching.
 
 ## Key Files for Plugin Structure
 
-- `.claude-plugin/plugin.json`: Plugin manifest (defines agents, skills paths, metadata)
-  - Note: `hooks/hooks.json` is loaded automatically (no need to specify in manifest)
+- `.claude-plugin/plugin.json`: Plugin manifest
+  - Required fields: `name`, plus optional metadata (`version`, `description`, `author`, etc.)
+  - `agents` field: Explicitly list agent files (not auto-discovered)
+  - `skills`, `commands`, `hooks` fields: Auto-discovered from standard directories, don't need to be specified
   - Note: LSP servers removed from manifest (can be configured per-project)
 - `.claude-plugin/marketplace.json`: Marketplace configuration for distribution
 - `hooks/hooks.json`: Event-driven automation (loaded automatically from standard location)
@@ -192,20 +220,26 @@ All use `uv` for dependency management with `uv.lock` caching.
 
 Avoid names that conflict with Claude Code built-ins: `/init`, `/config`, `/export`, `/clear`, `/help`, etc.
 
-## Command Files: YAML Frontmatter Required
+## Component File Frontmatter Requirements
 
-Since Phase 2, ALL command files MUST have YAML frontmatter. Tests check for this:
+### Commands
 
-```markdown
----
-name: command-name
-description: Brief description here
----
+- `description` (required): Brief description shown in `/help`
+- `name` field: NOT needed (filename determines command name)
+- `argument-hint` (optional): Document expected arguments
 
-# Command Title
+### Agents
 
-Content...
-```
+- `name` (required): Agent identifier in kebab-case
+- `description` (required): When to trigger (include examples)
+- `model` (required): `inherit`, `sonnet`, `opus`, or `haiku`
+- `color` (required): Keyword color (`blue`, `cyan`, `green`, `yellow`, `magenta`, `red`)
+- `tools` (optional): Array of allowed tools
+
+### Skills
+
+- `name` (required): Skill identifier
+- `description` (required): When to use this skill (third-person voice)
 
 The test `test_command_files_have_title` skips frontmatter when checking for title (`# heading`).
 
@@ -265,8 +299,10 @@ Manual-only (slow): `pytest` with `--hook-stage manual`
 
 1. **Command naming**: Don't prefix all commands with `ml-`—only rename those that conflict with built-ins
 2. **Command namespacing**: Plugin name is NOT used as namespace. Subdirectories create namespaces (e.g., `commands/ml/foo.md` → `/ml:foo`)
-3. **Commands auto-discovery**: `./commands/` is auto-discovered—don't add to `skills` or `commands` fields in plugin.json
-4. **YAML frontmatter**: All command files need it, but skills don't
-5. **uv.lock tracking**: Must be committed to Git for CI caching to work
-6. **ty version**: Use `>=0.0.15`, not `>=0.2.0`
-7. **Coverage target**: pytest measures coverage for `scripts/`, not the plugin content itself
+3. **Auto-discovery**: `./commands/` and `./skills/` are auto-discovered—don't add to plugin.json
+4. **Command frontmatter**: Use `description` (required) and `argument-hint` (optional), NOT `name` or `arguments`
+5. **Agent frontmatter**: Use keyword colors (`blue`, `red`, etc.), NOT hex codes (`#4A90E2`)
+6. **Skills auto-discovery**: All skills in `./skills/` are auto-discovered and can be invoked as `/skill-name`
+7. **uv.lock tracking**: Must be committed to Git for CI caching to work
+8. **ty version**: Use `>=0.0.15`, not `>=0.2.0`
+9. **Coverage target**: pytest measures coverage for `scripts/`, not the plugin content itself

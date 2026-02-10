@@ -590,12 +590,19 @@ python scripts/generate_report.py --output report.md
 
 ### Adding New Commands
 
-```bash
-# Create command file
-echo "# My Command\n\nCommand description..." > commands/my-command.md
+```markdown
+# commands/my-command.md
+---
+description: Brief description of what this command does
+argument-hint: [optional-args]
+---
 
-# Plugin will automatically detect it
+# My Command
+
+Command instructions for Claude...
 ```
+
+**Note**: The `name` field is not needed—the filename (`my-command.md`) determines the command name (`/my-command`).
 
 ### Adding New Agents
 
@@ -603,9 +610,10 @@ echo "# My Command\n\nCommand description..." > commands/my-command.md
 # agents/my-agent.md
 ---
 name: my-agent
-description: Agent description
+description: Agent description (should include when to trigger)
 tools: ["Read", "Write", "Edit"]
 model: sonnet
+color: blue
 ---
 
 You are an expert in...
@@ -615,15 +623,23 @@ You are an expert in...
 - ...
 ```
 
+**Note**: Use keyword colors (`blue`, `cyan`, `green`, `yellow`, `magenta`, `red`), not hex codes.
+
 ### Adding New Skills
 
-```bash
-# Create skill directory
-mkdir skills/my-skill
+```markdown
+# skills/my-skill/SKILL.md
+---
+name: my-skill
+description: Comprehensive guide for... (use third-person voice)
+---
 
-# Create SKILL.md
-echo "# My Skill\n\nSkill content..." > skills/my-skill/SKILL.md
+# My Skill Title
+
+Skill content providing comprehensive guidance...
 ```
+
+**Note**: Skills are invoked as `/my-skill` (either manually by user or automatically by Claude).
 
 ### Adding New Rules
 
