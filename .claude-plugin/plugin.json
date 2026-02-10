@@ -21,11 +21,6 @@
     "ruff",
     "wandb"
   ],
-  "skills": [
-    "./skills/ml-cli-tools/",
-    "./skills/ml-transformers/",
-    "./skills/"
-  ],
   "agents": [
     "./agents/ml-architect.md",
     "./agents/config-generator.md",

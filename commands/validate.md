@@ -1,5 +1,4 @@
 ---
-name: validate
 description: Comprehensive validation of ML project structure, configurations, code quality, and training readiness (config loading, data pipeline, model architecture)
 ---
 

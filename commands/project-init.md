@@ -1,5 +1,4 @@
 ---
-name: project-init
 description: Initialize a new ML research project using the ML Research template with PyTorch Lightning, Hydra, and modern Python tooling
 ---
 

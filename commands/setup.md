@@ -1,5 +1,4 @@
 ---
-name: setup
 description: Setup development environment with modern Python tooling (uv/pixi), install dependencies, and configure development tools (ruff, ty, pytest)
 ---
 

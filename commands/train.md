@@ -1,5 +1,4 @@
 ---
-name: train
 description: Execute training runs with proper monitoring, checkpointing, and experiment tracking (PyTorch Lightning with Hydra config support)
 ---
 

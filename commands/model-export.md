@@ -1,5 +1,4 @@
 ---
-name: model-export
 description: Export trained PyTorch models to various formats (ONNX, TorchScript, TensorRT) and upload to model registries (Hugging Face Hub, MLflow)
 ---
 

@@ -1,13 +1,6 @@
 ---
-name: profile
 description: Profile ML training performance to identify bottlenecks (data loading, compute, memory usage) and optimize GPU utilization
-arguments:
-  - name: profiler_type
-    description: Profiler to use (pytorch, py-spy, memory_profiler)
-    default: "pytorch"
-  - name: profile_duration
-    description: Duration to profile in seconds
-    default: "60"
+argument-hint: [profiler_type] [profile_duration]
 ---
 
 # ML Training Performance Profiling
