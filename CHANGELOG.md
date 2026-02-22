@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI validation now properly validates skills instead of commands
 - Test suite updated for skills-based architecture
 
-## [0.1.0] - 2024-02-23
+## [0.1.0] - 2026-02-23
 
 ### Added
 - Initial release of ML Research plugin
