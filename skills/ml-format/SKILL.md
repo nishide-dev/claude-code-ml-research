@@ -1,7 +1,6 @@
 ---
 name: ml-format
 description: Format Python code with ruff formatter and optionally fix auto-fixable linting issues. Use when formatting code, preparing code for commit, or ensuring consistent code style across the project.
-model: haiku
 disable-model-invocation: true
 ---
 

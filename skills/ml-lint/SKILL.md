@@ -1,7 +1,6 @@
 ---
 name: ml-lint
 description: Run comprehensive code quality checks with ruff (format, lint) and ty (type checking). Use when checking code quality, fixing linting errors, or ensuring code follows best practices before commits or PRs.
-model: haiku
 disable-model-invocation: true
 ---
 
