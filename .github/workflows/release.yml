@@ -1,0 +1,92 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release Tag (e.g. v0.1.0-beta)
+        required: true
+        type: string
+  release:
+    types: [created]
+
+jobs:
+  create-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Extract version from tag
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${{ github.event.release.tag_name }}"
+          fi
+
+          # Extract version without 'v' prefix for CHANGELOG lookup
+          # Tag: v0.1.0 -> Version: 0.1.0
+          VERSION="${TAG#v}"
+
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=$TAG" >> $GITHUB_OUTPUT
+        shell: bash
+
+      # Extract changelog
+      - name: Extract changelog for version
+        id: extract_changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          echo "Extracting changelog for version: $VERSION"
+
+          # Extract changelog section for the specified version
+          # Looks for "## [v0.1.0-beta] - 2025-11-26" format
+          awk -v ver="$VERSION" '
+          BEGIN { found=0; printing=0; changelog="" }
+          /^## \[/ {
+            # If we were printing, we found the next section, so stop
+            if (printing) { printing=0; exit }
+
+            # Check if this line matches our version
+            # We expect line like "## [v0.1.0-beta] - 2025-11-26"
+            if ($0 ~ "\\[" ver "\\]") {
+              printing=1; found=1;
+              next; # Skip the header line itself for cleaner release notes
+            }
+          }
+          printing { changelog = changelog $0 "\n" }
+          END { if (found) printf "%s", changelog }
+          ' CHANGELOG.md > release_notes.md
+
+          # If nothing was found, use a default message
+          if [ ! -s release_notes.md ]; then
+            echo "Release notes not found for version $VERSION" > release_notes.md
+            echo "" >> release_notes.md
+            echo "Please check CHANGELOG.md for details." >> release_notes.md
+          fi
+
+          cat release_notes.md
+        shell: bash
+
+      # Create or Update Release
+      - name: Create or Update Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${{ steps.get_version.outputs.TAG_NAME }}"
+
+          # Check if release exists
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Updating existing release $TAG_NAME"
+            gh release edit "$TAG_NAME" --notes-file "release_notes.md"
+          else
+            echo "Creating new release $TAG_NAME"
+            gh release create "$TAG_NAME" --title "$TAG_NAME" --notes-file "release_notes.md"
+          fi
+        shell: bash
