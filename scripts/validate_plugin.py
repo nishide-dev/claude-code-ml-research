@@ -3,7 +3,6 @@
 
 This script validates:
 - Plugin metadata (plugin.json)
-- Command files (.md in commands/)
 - Agent files (.md in agents/)
 - Skill files (SKILL.md in skills/)
 - Hook configuration (hooks.json)
@@ -52,7 +51,6 @@ class PluginValidator:
 
         # Run validation checks
         self._validate_plugin_json()
-        self._validate_commands()
         self._validate_agents()
         self._validate_skills()
         self._validate_hooks()
@@ -150,37 +148,6 @@ class PluginValidator:
                 if "command" not in server:
                     server_name = server.get("name", "unknown")
                     self.errors.append(f"LSP server '{server_name}' missing 'command'")
-
-    def _validate_commands(self) -> None:
-        """Validate command files."""
-        commands_dir = self.plugin_dir / "commands"
-
-        if not commands_dir.exists():
-            self.warnings.append("No commands/ directory found")
-            return
-
-        command_files = list(commands_dir.glob("*.md"))
-        if not command_files:
-            self.warnings.append("No command files found in commands/")
-            return
-
-        for cmd_file in command_files:
-            self._validate_command_file(cmd_file)
-
-        logger.info("✓ Found %d command file(s)", len(command_files))
-
-    def _validate_command_file(self, cmd_file: Path) -> None:
-        """Validate individual command file.
-
-        Args:
-            cmd_file: Path to command markdown file
-        """
-        try:
-            content = cmd_file.read_text()
-            if not content.strip():
-                self.warnings.append(f"Command file is empty: {cmd_file.name}")
-        except Exception as e:
-            self.errors.append(f"Error reading command file {cmd_file.name}: {e}")
 
     def _validate_agents(self) -> None:
         """Validate agent files."""
