@@ -62,23 +62,6 @@ class TestPluginStructure:
                 skill_dir = PLUGIN_DIR / skill_path
                 assert skill_dir.exists(), f"Skill path not found: {skill_path}"
 
-    def test_commands_directory_exists(self) -> None:
-        """Check that commands directory exists."""
-        commands_dir = PLUGIN_DIR / "commands"
-        assert commands_dir.exists(), "commands/ directory not found"
-        assert commands_dir.is_dir(), "commands/ is not a directory"
-
-    def test_commands_have_content(self) -> None:
-        """Check that command files have content."""
-        commands_dir = PLUGIN_DIR / "commands"
-        command_files = list(commands_dir.glob("*.md"))
-
-        assert len(command_files) > 0, "No command files found"
-
-        for cmd_file in command_files:
-            content = cmd_file.read_text()
-            assert content.strip(), f"Command file is empty: {cmd_file.name}"
-
     def test_agents_directory_exists(self) -> None:
         """Check that agents directory exists."""
         agents_dir = PLUGIN_DIR / "agents"
@@ -151,43 +134,6 @@ class TestPluginStructure:
         readme = PLUGIN_DIR / "README.md"
         assert readme.exists(), "README.md not found"
         assert readme.read_text().strip(), "README.md is empty"
-
-
-class TestCommandFiles:
-    """Test individual command files."""
-
-    @pytest.fixture
-    def command_files(self) -> list[Path]:
-        """Get all command files."""
-        commands_dir = PLUGIN_DIR / "commands"
-        return list(commands_dir.glob("*.md"))
-
-    def test_command_files_are_markdown(self, command_files: list[Path]) -> None:
-        """Check that all command files are markdown."""
-        for cmd_file in command_files:
-            assert cmd_file.suffix == ".md", f"{cmd_file.name} is not a markdown file"
-
-    def test_command_files_have_title(self, command_files: list[Path]) -> None:
-        """Check that command files have a title (# heading)."""
-        for cmd_file in command_files:
-            content = cmd_file.read_text()
-            lines = content.split("\n")
-
-            # Skip YAML frontmatter if present
-            start_idx = 0
-            if lines and lines[0].strip() == "---":
-                # Find end of frontmatter
-                for i, line in enumerate(lines[1:], start=1):
-                    if line.strip() == "---":
-                        start_idx = i + 1
-                        break
-
-            # Find first non-empty line after frontmatter
-            first_line = next((line for line in lines[start_idx:] if line.strip()), "")
-
-            assert first_line.startswith("#"), (
-                f"Command {cmd_file.name} missing title (should start with #)"
-            )
 
 
 class TestAgentFiles:
