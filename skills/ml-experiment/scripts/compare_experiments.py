@@ -92,7 +92,7 @@ def plot_comparison(df: pd.DataFrame, output_path: Path):
         return
 
     # Create figure
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    _fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
     # 1. Validation Accuracy
     ax = axes[0, 0]

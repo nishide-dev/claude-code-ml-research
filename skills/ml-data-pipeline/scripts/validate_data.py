@@ -64,7 +64,7 @@ def validate_dataset(data_dir: Path):
 
     # Analyze sizes
     if sizes:
-        widths, heights = zip(*sizes)
+        widths, heights = zip(*sizes, strict=False)
         print(
             f"Image sizes - Width: [{min(widths)}, {max(widths)}], "
             f"Height: [{min(heights)}, {max(heights)}]"

@@ -163,7 +163,7 @@ class ProjectValidator:
             return
 
         result = subprocess.run(
-            ["ruff", "check"] + src_paths,
+            ["ruff", "check", *src_paths],
             capture_output=True,
             text=True,
             check=False,

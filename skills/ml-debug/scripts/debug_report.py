@@ -3,6 +3,7 @@
 
 import argparse
 from pathlib import Path
+import sys
 
 import pandas as pd
 import torch
@@ -101,10 +102,9 @@ def generate_debug_report(log_dir: Path, output_file: Path | None = None):
                     report_lines.append("ℹ️  Training loss has plateaued")
 
         # Check for NaN
-        if "train_loss" in metrics.columns:
-            if metrics["train_loss"].isna().any():
-                nan_epoch = metrics[metrics["train_loss"].isna()]["epoch"].iloc[0]
-                report_lines.append(f"\n❌ ERROR: NaN loss detected at epoch {nan_epoch}")
+        if "train_loss" in metrics.columns and metrics["train_loss"].isna().any():
+            nan_epoch = metrics[metrics["train_loss"].isna()]["epoch"].iloc[0]
+            report_lines.append(f"\n❌ ERROR: NaN loss detected at epoch {nan_epoch}")
 
     else:
         report_lines.append("\n## Training Metrics")
@@ -242,4 +242,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

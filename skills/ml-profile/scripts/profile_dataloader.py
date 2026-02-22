@@ -83,7 +83,7 @@ def find_optimal_num_workers(
         print(f"  num_workers={num_workers}: {avg_time * 1000:.2f}ms/batch")
 
     # Plot results
-    workers, times = zip(*results)
+    workers, times = zip(*results, strict=False)
 
     plt.figure(figsize=(10, 6))
     plt.plot(workers, times, marker="o", linewidth=2, markersize=8)

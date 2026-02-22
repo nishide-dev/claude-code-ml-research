@@ -17,7 +17,7 @@ class GraphDataModule(pl.LightningDataModule):
         batch_size: int = 32,
         num_workers: int = 4,
         use_sampling: bool = False,
-        num_neighbors: list[int] = None,
+        num_neighbors: list[int] | None = None,
     ):
         super().__init__()
         self.save_hyperparameters()

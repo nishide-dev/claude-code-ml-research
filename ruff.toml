@@ -91,6 +91,35 @@ unfixable = []
     "T201",    # Print is allowed in examples
 ]
 
+# Skill scripts are example/template code - allow more flexibility
+"skills/**/scripts/*.py" = [
+    "T201",    # Print is allowed in CLI scripts
+    "ANN",     # Type annotations optional in examples
+    "ARG001",  # Unused arguments OK (template code)
+    "PLR2004", # Magic values OK in examples
+    "PLC0415", # Imports inside functions OK for examples
+    "N812",    # Lowercase imported as non-lowercase OK
+    "G004",    # f-strings in logging OK for examples
+    "PTH123",  # open() instead of Path.open() OK for readability
+    "DTZ005",  # datetime.now() without tz OK for examples
+    "B008",    # Function calls in defaults OK for examples
+    "RUF001",  # Ambiguous unicode characters OK (info symbols)
+]
+
+# Skill templates are example code
+"skills/**/templates/*.py" = [
+    "INP001",  # Implicit namespace package
+    "ANN",     # Type annotations optional
+    "ARG002",  # Unused method arguments OK (interface requirements)
+]
+
+# Skill examples are demonstration code
+"skills/**/examples/*.py" = [
+    "INP001",  # Implicit namespace package
+    "T201",    # Print is allowed
+    "ANN",     # Type annotations optional
+]
+
 [lint.isort]
 known-first-party = ["scripts"]
 force-sort-within-sections = true
