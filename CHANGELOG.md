@@ -8,17 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - Migrated all commands to skills architecture
 - Updated documentation to reflect skills-only approach
 - Removed legacy commands directory
 
 ### Fixed
+
 - CI validation now properly validates skills instead of commands
 - Test suite updated for skills-based architecture
 
 ## [0.1.0] - 2026-02-23
 
 ### Added
+
 - Initial release of ML Research plugin
 - 12 workflow skills for ML development:
   - `/ml-train` - Execute training runs
@@ -55,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plugin marketplace integration
 
 ### Documentation
+
 - Detailed CLAUDE.md with architecture overview
 - Git workflow and commit conventions
 - Frontmatter reference for skills and agents
