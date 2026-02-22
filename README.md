@@ -29,26 +29,35 @@ git clone https://github.com/nishide-dev/claude-code-ml-research.git
 
 ## Features
 
-### Commands
+### Skills
 
-This plugin provides slash commands for ML workflows. Commands support **arguments** for flexible invocation:
+This plugin provides comprehensive ML workflow skills following the [Agent Skills open standard](https://agentskills.io). All skills are directory-based with supporting files (templates, examples, scripts).
 
-- `/project-init` - Initialize new ML project with PyTorch Lightning + Hydra structure
-- `/ml-config` - Generate and manage Hydra configuration files
-- `/train` - Execute training with monitoring and debugging
-- `/experiment [experiment_name] [action]` - Manage experiments, track results, and compare performance
-  - `experiment_name`: Name of experiment to manage
-  - `action`: create, list, compare, clean (default: list)
-- `/debug [log_file] [issue_type]` - Debug training issues (NaN loss, OOM, convergence problems)
-  - `log_file`: Path to training log file
-  - `issue_type`: loss, memory, performance, convergence
-- `/data` - Create and manage data pipelines and preprocessing
-- `/setup` - Set up development environment with package managers
-- `/validate` - Validate model and data configurations
-- `/profile [profiler_type] [profile_duration]` - Profile model performance and memory usage
-  - `profiler_type`: pytorch, py-spy, memory_profiler (default: pytorch)
-  - `profile_duration`: Duration in seconds (default: 60)
-- `/model-export` - Export models for deployment
+**Workflow Skills** (user-invocable commands):
+
+- `/ml-train` - Execute training runs with proper monitoring, checkpointing, and experiment tracking
+- `/ml-config-manager` - Generate and manage Hydra configuration files (model, data, trainer, logger, experiment configs)
+- `/ml-debug` - Debug common ML training issues (NaN loss, OOM, slow training, convergence problems)
+- `/ml-experiment` - Manage ML experiments, track results, and compare performance across configurations
+- `/ml-validate` - Comprehensive validation of ML project structure, configurations, and training readiness
+- `/ml-profile` - Profile ML training performance to identify bottlenecks and optimize GPU utilization
+- `/ml-data-pipeline` - Create and manage data loading, preprocessing, and augmentation pipelines
+- `/ml-setup` - Setup development environment with modern Python tooling (uv/pixi)
+- `/ml-project-init` - Initialize new ML research project using the ML Research template
+- `/ml-lint` - Run comprehensive code quality checks (ruff format/check, type checking)
+- `/ml-format` - Format code with ruff and verify results
+- `/ml-model-export` - Export trained PyTorch models to various formats (ONNX, TorchScript, TensorRT)
+
+**Knowledge Skills** (background knowledge loaded automatically):
+
+- `/ml-lightning-basics` - PyTorch Lightning patterns and best practices
+- `/ml-hydra-config` - Hydra configuration management
+- `/ml-pytorch-geometric` - Graph Neural Networks with PyTorch Geometric
+- `/ml-wandb-tracking` - Experiment tracking with Weights & Biases
+- `/ml-transformers` - Hugging Face Transformers + Lightning integration
+- `/ml-cli-tools` - Building CLIs with Typer and Rich
+- `/tool-pixi` - Pixi package manager for ML projects
+- `/tool-marimo` - Marimo reactive Python notebooks
 
 ### Agents
 
@@ -77,17 +86,6 @@ Event-driven automation for code quality:
 - **Validate YAML configs** after writing Hydra configs
 - **Remind dependencies installation** after package config changes
 - **Welcome message** on session start with available commands
-
-### Skills
-
-Skills provide comprehensive guides and best practices. Access them by referencing in conversation:
-
-- **ml-lightning-basics** (300+ lines): PyTorch Lightning fundamentals - LightningModule, Trainer, DataModule, distributed training, callbacks, and best practices
-- **ml-hydra-config** (742 lines): Hydra configuration management - hierarchical configs, composition, `_target_` instantiation, multirun, Optuna integration, Lightning-Hydra-Template patterns
-- **ml-pytorch-geometric** (686 lines): PyTorch Geometric for Graph Neural Networks - message passing, GCN/GAT/GraphSAGE layers, large-scale distributed graph learning, Lightning integration
-- **ml-wandb-tracking** (801 lines): Weights & Biases experiment tracking - WandbLogger, hyperparameter sweeps (Grid/Random/Bayes), artifacts, model registry, SLURM cluster patterns
-- **ml-cli-tools** (1000+ lines): Building professional CLIs with Typer and Rich - type-safe argument parsing, progress bars, model visualization, Hydra integration, logging patterns, multi-process handling
-- **ml-transformers** (1500+ lines): Hugging Face Transformers + PyTorch Lightning integration - LightningModule patterns, distributed training (FSDP/DeepSpeed), PEFT (LoRA/QLoRA), data pipelines, evaluation metrics, common NLP tasks
 
 ### Supported Frameworks
 
@@ -588,21 +586,36 @@ python scripts/generate_report.py --output report.md
 
 ## Plugin Development
 
-### Adding New Commands
+### Adding New Skills
 
 ```markdown
-# commands/my-command.md
+# skills/my-skill/SKILL.md
 ---
-description: Brief description of what this command does
-argument-hint: [optional-args]
+name: my-skill
+description: Comprehensive guide for... (use third-person voice)
+disable-model-invocation: true  # Optional: prevent auto-invocation
 ---
 
-# My Command
+# My Skill Title
 
-Command instructions for Claude...
+Skill content providing comprehensive guidance...
+
+## Available Templates
+
+See [templates/](templates/) for...
+
+## Examples
+
+See [examples/](examples/) for...
 ```
 
-**Note**: The `name` field is not needed—the filename (`my-command.md`) determines the command name (`/my-command`).
+Create supporting files:
+
+```bash
+mkdir -p skills/my-skill/{templates,examples,scripts}
+```
+
+**Note**: Skills are invoked as `/my-skill` (either manually by user or automatically by Claude).
 
 ### Adding New Agents
 
@@ -624,22 +637,6 @@ You are an expert in...
 ```
 
 **Note**: Use keyword colors (`blue`, `cyan`, `green`, `yellow`, `magenta`, `red`), not hex codes.
-
-### Adding New Skills
-
-```markdown
-# skills/my-skill/SKILL.md
----
-name: my-skill
-description: Comprehensive guide for... (use third-person voice)
----
-
-# My Skill Title
-
-Skill content providing comprehensive guidance...
-```
-
-**Note**: Skills are invoked as `/my-skill` (either manually by user or automatically by Claude).
 
 ### Adding New Rules
 

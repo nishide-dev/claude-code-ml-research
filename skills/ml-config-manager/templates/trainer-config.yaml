@@ -1,0 +1,96 @@
+# Trainer Configuration Template
+# Location: configs/trainer/<trainer_name>.yaml
+# Usage: python src/train.py trainer=<trainer_name>
+
+_target_: pytorch_lightning.Trainer
+
+# Training duration
+max_epochs: 100  # Maximum number of epochs
+min_epochs: 1  # Minimum number of epochs
+max_steps: -1  # Maximum number of steps (-1 for no limit)
+max_time: null  # Maximum training time (e.g., "00:12:00:00" for 12 hours)
+
+# Hardware configuration
+accelerator: gpu  # auto, gpu, cpu, mps, tpu
+devices: 1  # Number of devices (GPUs)
+precision: 16-mixed  # 32, 16-mixed, bf16-mixed
+
+# Distributed training strategy
+strategy: auto  # auto, ddp, ddp_notebook, fsdp, deepspeed
+sync_batchnorm: false  # Synchronize batch norm across devices
+
+# Optimization settings
+gradient_clip_val: 1.0  # Gradient clipping value (null to disable)
+gradient_clip_algorithm: norm  # norm or value
+accumulate_grad_batches: 1  # Gradient accumulation steps
+
+# Validation settings
+check_val_every_n_epoch: 1  # Run validation every N epochs
+val_check_interval: 1.0  # Fraction of training epoch (0.0-1.0) or number of batches
+num_sanity_val_steps: 2  # Validation steps before training starts
+limit_val_batches: 1.0  # Limit validation batches (fraction or count)
+
+# Training limits (for debugging)
+limit_train_batches: 1.0  # Limit training batches (fraction or count)
+fast_dev_run: false  # Quick run through train/val/test for debugging
+overfit_batches: 0.0  # Overfit on subset of data (for testing model capacity)
+
+# Logging
+log_every_n_steps: 50  # Log metrics every N steps
+enable_progress_bar: true  # Show progress bar
+enable_model_summary: true  # Print model summary
+
+# Checkpointing
+enable_checkpointing: true  # Enable checkpoint saving
+default_root_dir: "logs/"  # Default directory for logs and checkpoints
+
+# Performance optimization
+benchmark: false  # Enable cudnn.benchmark (faster but non-deterministic)
+deterministic: false  # Ensure reproducibility (slower)
+reload_dataloaders_every_n_epochs: 0  # Reload dataloaders (useful for dynamic datasets)
+
+# Debugging
+detect_anomaly: false  # Enable anomaly detection (slow, for debugging)
+profiler: null  # simple, advanced, pytorch, or null
+
+# Callbacks
+callbacks:
+  # Model checkpointing
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${paths.output_dir}/checkpoints
+    filename: "epoch_{epoch:03d}"
+    monitor: "val/loss"
+    mode: "min"
+    save_top_k: 3
+    save_last: true
+    save_on_train_epoch_end: false
+    auto_insert_metric_name: false
+    every_n_epochs: 1
+
+  # Early stopping
+  - _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: "val/loss"
+    patience: 10
+    mode: "min"
+    min_delta: 0.001
+    check_on_train_epoch_end: false
+    stopping_threshold: null
+    divergence_threshold: null
+
+  # Learning rate monitor
+  - _target_: pytorch_lightning.callbacks.LearningRateMonitor
+    logging_interval: "step"
+    log_momentum: false
+
+  # Rich progress bar
+  - _target_: pytorch_lightning.callbacks.RichProgressBar
+    refresh_rate: 1
+    leave: true
+
+  # Device stats monitor (optional, for GPU monitoring)
+  # - _target_: pytorch_lightning.callbacks.DeviceStatsMonitor
+  #   cpu_stats: false
+
+# For multi-GPU training, also set:
+# num_nodes: 1  # Number of machines
+# sync_batchnorm: true  # Synchronize batch normalization

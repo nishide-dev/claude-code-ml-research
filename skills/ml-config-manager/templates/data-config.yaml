@@ -1,0 +1,67 @@
+# Data Configuration Template
+# Location: configs/data/<dataset_name>.yaml
+# Usage: python src/train.py data=<dataset_name>
+
+_target_: src.data.<dataset_name>.DataModule
+
+# Dataset configuration
+dataset_name: "mnist"  # Dataset identifier
+data_dir: "data/"  # Data directory path
+download: true  # Auto-download if not present
+
+# DataLoader settings
+batch_size: 128  # Batch size for training
+num_workers: 4  # Number of data loading workers
+pin_memory: true  # Pin memory for faster GPU transfer
+persistent_workers: true  # Keep workers alive between epochs
+prefetch_factor: 2  # Batches to prefetch per worker
+
+# Data splits
+train_val_test_split: [0.8, 0.1, 0.1]  # Split ratios
+shuffle_train: true  # Shuffle training data
+shuffle_val: false  # Don't shuffle validation
+shuffle_test: false  # Don't shuffle test
+
+# Data augmentation (modify based on task)
+augmentation:
+  # Image augmentation
+  random_crop: true
+  crop_size: 224
+  horizontal_flip: true
+  vertical_flip: false
+  color_jitter: true
+  jitter_params:
+    brightness: 0.2
+    contrast: 0.2
+    saturation: 0.2
+    hue: 0.1
+  random_rotation: false
+  rotation_degrees: 15
+  normalize: true
+  mean: [0.485, 0.456, 0.406]  # ImageNet stats
+  std: [0.229, 0.224, 0.225]
+
+  # Advanced augmentation
+  mixup_alpha: 0.0  # Mixup augmentation (0.0 to disable)
+  cutmix_alpha: 0.0  # CutMix augmentation (0.0 to disable)
+  rand_augment: false  # RandAugment
+  auto_augment: false  # AutoAugment
+
+# Preprocessing
+preprocess:
+  resize: true
+  resize_size: 256
+  center_crop: true
+  crop_size: 224
+  to_tensor: true
+
+# Dataset-specific options (uncomment as needed)
+# For text data:
+# max_length: 512
+# truncation: true
+# padding: "max_length"
+
+# For graph data:
+# use_node_features: true
+# use_edge_features: true
+# self_loops: true

@@ -1,0 +1,59 @@
+# GNN Model Configuration Template (PyTorch Geometric)
+# Location: configs/model/gnn/<gnn_type>.yaml
+# Usage: python src/train.py model=gnn/<gnn_type>
+
+_target_: src.models.gnn.GNNModel
+
+# GNN architecture
+conv_type: GCNConv  # GCNConv, GATConv, SAGEConv, GINConv, TransformerConv
+num_layers: 3  # Number of message passing layers
+hidden_channels: 128  # Hidden dimension
+out_channels: 64  # Output embedding dimension
+
+# GNN-specific parameters
+aggr: "add"  # Aggregation function: add, mean, max
+normalize: true  # Normalize node features
+dropout: 0.2  # Dropout rate
+jk_mode: null  # Jumping knowledge: null, cat, max, lstm
+
+# Layer-specific settings (for GAT/Transformer)
+heads: 8  # Number of attention heads (GAT, TransformerConv)
+concat_heads: true  # Concatenate vs average attention heads
+edge_dim: null  # Edge feature dimension (null if no edge features)
+
+# Global pooling (for graph-level tasks)
+global_pool: "mean"  # mean, max, add, attention, set2set
+
+# Task configuration
+task: "node_classification"  # node_classification, graph_classification, link_prediction
+num_classes: 7  # Number of output classes
+
+# Batch normalization / Layer normalization
+use_batch_norm: false
+use_layer_norm: true
+
+# Skip connections
+use_residual: true  # Add skip connections
+
+# Optimizer
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 0.01
+  weight_decay: 5e-4  # Higher weight decay for GNNs
+
+# Scheduler
+scheduler:
+  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  mode: max  # Maximize accuracy
+  factor: 0.5
+  patience: 10
+  min_lr: 1e-6
+
+# Graph-specific data config
+# Corresponding data config at configs/data/graph.yaml:
+# _target_: src.data.graph_datamodule.GraphDataModule
+# dataset_name: "Cora"
+# data_dir: "data/graphs/"
+# batch_size: 32  # For graph-level tasks
+# use_sampling: false  # Enable for large graphs
+# num_neighbors: [15, 10, 5]  # Neighbor sampling strategy

@@ -1,5 +1,7 @@
 ---
-description: Setup development environment with modern Python tooling (uv/pixi), install dependencies, and configure development tools (ruff, ty, pytest)
+name: ml-setup
+description: Setup development environment with modern Python tooling (uv/pixi), install dependencies, and configure development tools (ruff, ty, pytest). Use when setting up new ML projects, configuring environments, or installing dependencies.
+disable-model-invocation: true
 ---
 
 # ML Environment Setup
@@ -221,17 +223,20 @@ Create README.md with setup instructions:
 ## Setup
 
 ### Prerequisites
+
 - Python 3.10+
 - [uv](https://astral.sh/uv) or [pixi](https://pixi.sh)
 
 ### Installation
 
 **With uv:**
+
 \`\`\`bash
 uv sync
 \`\`\`
 
 **With pixi:**
+
 \`\`\`bash
 pixi install
 \`\`\`

@@ -1,5 +1,7 @@
 ---
-description: Initialize a new ML research project using the ML Research template with PyTorch Lightning, Hydra, and modern Python tooling
+name: ml-project-init
+description: Initialize a new ML research project using the ML Research template with PyTorch Lightning, Hydra, and modern Python tooling. Use when starting a new ML project from scratch.
+disable-model-invocation: true
 ---
 
 # ML Project Initialization

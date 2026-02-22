@@ -1,0 +1,116 @@
+# Multi-GPU Single-Node Training Configuration
+# Use this template for training on multiple GPUs on a single machine
+
+# python src/train.py experiment=multi_gpu_training
+
+defaults:
+  - override /model: your_model
+  - override /data: your_dataset
+  - override /trainer: default
+  - override /logger: wandb
+
+# Model configuration
+model:
+  optimizer:
+    _target_: torch.optim.AdamW
+    lr: 5e-4  # Slightly higher LR for multi-GPU
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    mode: min
+    factor: 0.5
+    patience: 5
+    min_lr: 1e-7
+
+# Data configuration
+data:
+  batch_size: 48  # Per-device batch size
+  num_workers: 6  # Per-device workers
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 2
+
+# Trainer configuration
+trainer:
+  accelerator: gpu
+  devices: [0, 1, 2, 3]  # Specify GPU IDs explicitly
+  strategy: ddp  # DDP for multi-GPU on single node
+  precision: 16-mixed
+
+  # Synchronization
+  sync_batchnorm: true
+
+  # Gradient settings
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: norm
+
+  # Training duration
+  max_epochs: 100
+
+  # Validation
+  check_val_every_n_epoch: 1
+  val_check_interval: 0.5  # Validate twice per epoch
+
+  # Logging
+  log_every_n_steps: 20
+
+  # Performance
+  benchmark: true
+  deterministic: false
+
+# Callbacks
+callbacks:
+  model_checkpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${paths.output_dir}/checkpoints
+    filename: 'epoch_{epoch:03d}'
+    monitor: val/loss
+    mode: min
+    save_top_k: 5
+    save_last: true
+    every_n_epochs: 1
+    save_on_train_epoch_end: false  # Save after validation
+
+  early_stopping:
+    _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val/loss
+    mode: min
+    patience: 10
+    min_delta: 0.001
+    check_on_train_epoch_end: false
+
+  learning_rate_monitor:
+    _target_: pytorch_lightning.callbacks.LearningRateMonitor
+    logging_interval: step
+
+  # GPU stats monitoring
+  device_stats_monitor:
+    _target_: pytorch_lightning.callbacks.DeviceStatsMonitor
+    cpu_stats: false
+
+  # Rich progress bar
+  rich_progress_bar:
+    _target_: pytorch_lightning.callbacks.RichProgressBar
+    refresh_rate: 1
+    leave: true
+
+# Logging
+logger:
+  wandb:
+    project: ${oc.env:WANDB_PROJECT,ml-project}
+    name: ${experiment_name}
+    tags: ["multi-gpu", "single-node", "ddp"]
+    log_model: true
+    offline: false
+
+# Experiment settings
+experiment_name: multi_gpu_training
+seed: 42
+
+# Tips for multi-GPU training:
+# 1. Effective batch size = batch_size * num_gpus
+# 2. Scale learning rate with number of GPUs (optional)
+# 3. Use sync_batchnorm for batch normalization layers
+# 4. Monitor GPU memory usage: watch -n 1 nvidia-smi

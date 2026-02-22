@@ -1,0 +1,110 @@
+# Distributed Multi-Node Training Configuration
+# Use this template for training across multiple machines with DDP
+
+# python src/train.py experiment=distributed_training
+
+defaults:
+  - override /model: your_model
+  - override /data: your_dataset
+  - override /trainer: default
+  - override /logger: wandb
+
+# Model configuration
+model:
+  optimizer:
+    _target_: torch.optim.AdamW
+    lr: 1e-3  # Higher LR for distributed training
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+
+  scheduler:
+    _target_: torch.optim.lr_scheduler.OneCycleLR
+    max_lr: ${model.optimizer.lr}
+    total_steps: ${eval:'${trainer.max_epochs} * ${trainer.steps_per_epoch}'}
+    pct_start: 0.1
+    anneal_strategy: cos
+
+# Data configuration
+data:
+  batch_size: 64  # Per-device batch size
+  num_workers: 8  # More workers for distributed
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 2
+
+# Trainer configuration
+trainer:
+  accelerator: gpu
+  devices: 4  # GPUs per node
+  num_nodes: 2  # Number of machines
+  strategy: ddp  # Distributed Data Parallel
+  precision: 16-mixed
+
+  # Synchronization
+  sync_batchnorm: true
+  use_distributed_sampler: true
+
+  # Gradient settings
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: norm
+  accumulate_grad_batches: 1
+
+  # Training duration
+  max_epochs: 50
+
+  # Validation
+  check_val_every_n_epoch: 1
+
+  # Logging
+  log_every_n_steps: 50
+
+  # Performance
+  benchmark: true
+  deterministic: false  # Faster training
+
+# Callbacks
+callbacks:
+  model_checkpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${paths.output_dir}/checkpoints
+    filename: 'epoch_{epoch:03d}'
+    monitor: val/loss
+    mode: min
+    save_top_k: 3
+    save_last: true
+    every_n_epochs: 1
+
+  early_stopping:
+    _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val/loss
+    mode: min
+    patience: 15
+    min_delta: 0.0005
+
+  learning_rate_monitor:
+    _target_: pytorch_lightning.callbacks.LearningRateMonitor
+    logging_interval: step
+
+  # GPU stats monitoring
+  device_stats_monitor:
+    _target_: pytorch_lightning.callbacks.DeviceStatsMonitor
+    cpu_stats: false
+
+# Logging
+logger:
+  wandb:
+    project: ${oc.env:WANDB_PROJECT,ml-project}
+    name: ${experiment_name}
+    tags: ["distributed", "multi-node", "ddp"]
+    log_model: false  # Don't log model from every node
+    offline: false
+    group: ${experiment_name}  # Group runs from different nodes
+
+# Experiment settings
+experiment_name: distributed_training
+seed: 42
+
+# Environment variables (set these before running)
+# export MASTER_ADDR=<main-node-ip>
+# export MASTER_PORT=29500
+# export NODE_RANK=<0-for-main-node-1-for-second-etc>

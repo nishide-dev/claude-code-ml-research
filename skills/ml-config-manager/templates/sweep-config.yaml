@@ -1,0 +1,101 @@
+# Hyperparameter Sweep Configuration Template
+# Location: configs/sweep/<sweep_name>.yaml
+# Usage: python src/train.py --multirun --config-name sweep/<sweep_name>
+
+# Override Hydra sweeper
+defaults:
+  - override hydra/sweeper: optuna  # optuna, ax, or use built-in for grid search
+
+# Hydra multirun configuration
+hydra:
+  sweeper:
+    _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
+
+    # Optimization direction
+    direction: minimize  # minimize or maximize
+
+    # Number of trials
+    n_trials: 50  # Total number of trials to run
+    n_jobs: 1  # Parallel jobs (1 for sequential)
+
+    # Study configuration
+    study_name: "model_optimization"  # Name for the study
+    storage: null  # Database URL (null for in-memory, or sqlite:///optuna.db)
+
+    # Sampler configuration
+    sampler:
+      _target_: optuna.samplers.TPESampler
+      seed: 42
+      n_startup_trials: 10  # Random trials before Bayesian optimization
+      n_ei_candidates: 24
+      multivariate: true
+      warn_independent_sampling: true
+
+    # Parameter search space
+    params:
+      # Model architecture parameters
+      model.hidden_dims:
+        type: categorical
+        choices:
+          - [512, 256]
+          - [1024, 512, 256]
+          - [2048, 1024, 512]
+          - [2048, 1024, 512, 256]
+
+      model.dropout:
+        type: float
+        low: 0.0
+        high: 0.5
+        step: 0.05  # Optional: discretize the space
+
+      # Optimizer parameters
+      model.optimizer.lr:
+        type: float
+        low: 0.0001
+        high: 0.01
+        log: true  # Log scale for learning rate
+
+      model.optimizer.weight_decay:
+        type: float
+        low: 0.00001
+        high: 0.001
+        log: true
+
+      # Data parameters
+      data.batch_size:
+        type: categorical
+        choices: [32, 64, 128, 256]
+
+      # Training parameters
+      trainer.max_epochs:
+        type: int
+        low: 50
+        high: 200
+        step: 10
+
+# Metric to optimize
+optimized_metric: "val/loss"  # Metric name from logger
+
+# Alternative: Grid search (no Optuna needed)
+# Remove the sweeper config above and use:
+# python src/train.py --multirun \
+#   model.hidden_dims="[512,256],[1024,512,256]" \
+#   model.dropout=0.1,0.2,0.3,0.4 \
+#   model.optimizer.lr=0.001,0.01,0.1
+
+# Alternative: Random search
+# sweeper:
+#   sampler:
+#     _target_: optuna.samplers.RandomSampler
+#     seed: 42
+
+# Alternative: Multi-objective optimization
+# direction: [minimize, maximize]  # e.g., minimize loss, maximize accuracy
+# optimized_metric: ["val/loss", "val/acc"]
+
+# Pruning (stop unpromising trials early)
+# pruner:
+#   _target_: optuna.pruners.MedianPruner
+#   n_startup_trials: 5
+#   n_warmup_steps: 10
+#   interval_steps: 1

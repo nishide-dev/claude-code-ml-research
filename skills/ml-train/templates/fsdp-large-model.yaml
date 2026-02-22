@@ -1,0 +1,118 @@
+# FSDP (Fully Sharded Data Parallel) Configuration
+# Use this template for training very large models that don't fit in single GPU memory
+
+# python src/train.py experiment=fsdp_large_model
+
+defaults:
+  - override /model: your_large_model
+  - override /data: your_dataset
+  - override /trainer: default
+  - override /logger: wandb
+
+# Model configuration
+model:
+  optimizer:
+    _target_: torch.optim.AdamW
+    lr: 2e-4
+    weight_decay: 0.1
+    betas: [0.9, 0.95]
+
+  scheduler:
+    _target_: torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
+    T_0: 10
+    T_mult: 2
+    eta_min: 1e-6
+
+# Data configuration
+data:
+  batch_size: 8  # Small batch size per device for large models
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+
+# Trainer configuration
+trainer:
+  accelerator: gpu
+  devices: 8
+  strategy:
+    _target_: pytorch_lightning.strategies.FSDPStrategy
+    # Sharding strategy
+    sharding_strategy: FULL_SHARD  # FULL_SHARD, SHARD_GRAD_OP, NO_SHARD
+    # CPU offloading (use if model still doesn't fit)
+    cpu_offload: false
+    # Mixed precision
+    mixed_precision:
+      param_dtype: float16
+      reduce_dtype: float16
+      buffer_dtype: float32
+    # Activation checkpointing
+    activation_checkpointing_policy: null  # Set to model-specific policy
+    # State dict type for checkpointing
+    state_dict_type: FULL_STATE_DICT
+
+  precision: 16-mixed
+
+  # Gradient settings
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: norm
+  accumulate_grad_batches: 4  # Gradient accumulation for effective larger batch
+
+  # Training duration
+  max_epochs: 50
+
+  # Validation
+  check_val_every_n_epoch: 1
+
+  # Logging
+  log_every_n_steps: 100
+
+  # Performance
+  benchmark: false  # FSDP may not benefit from benchmarking
+
+# Callbacks
+callbacks:
+  model_checkpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${paths.output_dir}/checkpoints
+    filename: 'epoch_{epoch:03d}'
+    monitor: val/loss
+    mode: min
+    save_top_k: 2  # Limited checkpoints due to large model size
+    save_last: true
+    every_n_epochs: 5  # Less frequent saves
+
+  early_stopping:
+    _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val/loss
+    mode: min
+    patience: 20
+    min_delta: 0.0001
+
+  learning_rate_monitor:
+    _target_: pytorch_lightning.callbacks.LearningRateMonitor
+    logging_interval: step
+
+  # Monitor memory usage
+  device_stats_monitor:
+    _target_: pytorch_lightning.callbacks.DeviceStatsMonitor
+    cpu_stats: true
+
+# Logging
+logger:
+  wandb:
+    project: ${oc.env:WANDB_PROJECT,ml-project}
+    name: ${experiment_name}
+    tags: ["fsdp", "large-model", "sharded"]
+    log_model: false  # Don't log large model to W&B
+    offline: false
+
+# Experiment settings
+experiment_name: fsdp_large_model
+seed: 42
+
+# FSDP Tips:
+# 1. Use activation checkpointing for very large models
+# 2. Enable CPU offloading if model still doesn't fit
+# 3. Checkpoint less frequently (large checkpoint size)
+# 4. Consider using SHARD_GRAD_OP instead of FULL_SHARD for faster training
+# 5. Profile memory usage: torch.cuda.memory_summary()

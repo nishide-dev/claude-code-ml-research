@@ -35,31 +35,49 @@ The marketplace.json enables Claude Code's plugin discovery and automatic update
 
 ## Architecture: Four Component Types
 
-### 1. Commands (commands/*.md)
+### 1. Skills and Commands
 
-Each command file must have YAML frontmatter with `description` field. The `name` field is NOT needed—the filename determines the command name.
+**IMPORTANT**: According to [official Claude Code documentation](https://code.claude.com/docs/ja/skills), **custom slash commands have been merged into skills**. Commands (`commands/*.md`) are now **legacy** — skills (`skills/*/SKILL.md`) are the recommended approach.
 
-```markdown
----
-description: Execute training runs with PyTorch Lightning
-argument-hint: [optional-args]
----
+**Migration Status**: ✅ **Complete** - All 12 commands have been successfully migrated to skills with comprehensive supporting files (templates, examples, scripts).
 
-# ML Training Execution
+#### Skills (skills/*/SKILL.md) - Recommended
 
-Content here...
+Skills are directories containing `SKILL.md` plus optional supporting files:
+
+```text
+skills/ml-train/
+├── SKILL.md (main instructions)
+├── templates/
+│   ├── basic-training.yaml
+│   └── distributed-training.yaml
+└── examples/
+    └── image-classification.md
 ```
 
-**Frontmatter fields**:
+**Frontmatter fields** (in SKILL.md):
 
-- `description` (required): Brief description shown in `/help`
-- `argument-hint` (optional): Document expected arguments like `[pr-number] [priority]`
+- `name` (optional): Skill identifier (defaults to directory name)
+- `description` (recommended): What this skill does and when to use it
+- `argument-hint` (optional): Document expected arguments like `[issue-number]`
+- `disable-model-invocation` (optional): Set to `true` to prevent Claude from auto-invoking
+- `user-invocable` (optional): Set to `false` to hide from `/` menu (background knowledge only)
+- `allowed-tools` (optional): Restrict which tools this skill can use
 - `model` (optional): Specify model (sonnet, opus, haiku)
-- `allowed-tools` (optional): Restrict which tools command can use
+- `context` (optional): Set to `fork` to run in subagent
+- `agent` (optional): Subagent type when `context: fork` is set
 
-Commands in `./commands/` are auto-discovered (no need to reference in `plugin.json`).
+Skills in `./skills/` are auto-discovered (no need to reference in `plugin.json`).
 
-**Note on `/project-init`**: This command uses the [ML Research Template](https://github.com/nishide-dev/ml-research-template), maintained as a separate repository. The template is referenced via GitHub URL (`gh:nishide-dev/ml-research-template`) for independent versioning and broader reusability.
+**Skill advantages over commands**:
+
+1. **Supporting files**: Can include templates, examples, scripts in same directory
+2. **Invocation control**: `disable-model-invocation` and `user-invocable` frontmatter fields
+3. **Automatic loading**: Claude can load skills based on task context
+4. **Better organization**: Related files grouped in one directory
+5. **Agent Skills standard**: Part of open standard for cross-tool compatibility
+
+**Note on `/ml-project-init`**: This skill uses the [ML Research Template](https://github.com/nishide-dev/ml-research-template), maintained as a separate repository. The template is referenced via GitHub URL (`gh:nishide-dev/ml-research-template`) for independent versioning and broader reusability.
 
 ### 2. Agents (agents/*.md)
 
@@ -98,32 +116,7 @@ You are an expert ML architect...
 
 Agents are explicitly listed in `plugin.json` under `"agents"`.
 
-### 3. Skills (skills/*/SKILL.md)
-
-Skills are knowledge bases stored in subdirectories. Each skill has a `SKILL.md` file providing comprehensive guides on specific topics:
-
-- `ml-lightning-basics/SKILL.md`: PyTorch Lightning patterns
-- `ml-hydra-config/SKILL.md`: Hydra configuration management
-- `ml-pytorch-geometric/SKILL.md`: Graph Neural Network implementations
-- `ml-wandb-tracking/SKILL.md`: Experiment tracking with W&B
-- `ml-cli-tools/SKILL.md`: Building CLIs with Typer and Rich
-- `ml-transformers/SKILL.md`: Hugging Face Transformers + PyTorch Lightning integration
-- `tool-pixi/SKILL.md`: Pixi package manager for ML projects
-
-**Skill frontmatter** (in SKILL.md):
-
-```markdown
----
-name: ml-lightning-basics
-description: Comprehensive guide for PyTorch Lightning...
----
-```
-
-**Invocation**: Skills can be invoked manually as `/skill-name` (e.g., `/ml-lightning-basics`) or Claude automatically loads them based on task context.
-
-Skills in `./skills/` are auto-discovered (no need to reference in `plugin.json`).
-
-### 4. Rules (rules/ml/*.md)
+### 2. Rules (rules/ml/*.md)
 
 Rules enforce coding standards and workflow constraints automatically. They are organized by category:
 
@@ -202,7 +195,7 @@ All use `uv` for dependency management with `uv.lock` caching.
 - `.claude-plugin/plugin.json`: Plugin manifest
   - Required fields: `name`, plus optional metadata (`version`, `description`, `author`, etc.)
   - `agents` field: Explicitly list agent files (not auto-discovered)
-  - `skills`, `commands`, `hooks` fields: Auto-discovered from standard directories, don't need to be specified
+  - `skills`, `hooks` fields: Auto-discovered from standard directories, don't need to be specified
   - Note: LSP servers removed from manifest (can be configured per-project)
 - `.claude-plugin/marketplace.json`: Marketplace configuration for distribution
 - `hooks/hooks.json`: Event-driven automation (loaded automatically from standard location)
@@ -214,19 +207,24 @@ All use `uv` for dependency management with `uv.lock` caching.
 
 ## Plugin File Naming Conventions
 
-- **Commands**: Use kebab-case (e.g., `model-export.md`, `ml-config.md`)
-- **Agents**: Use kebab-case (e.g., `training-debugger.md`)
-- **Skills**: Directory name is kebab-case with prefix `ml-*` or `tool-*` (e.g., `ml-hydra-config/`, `tool-pixi/`)
+- **Skills**: Directory name is kebab-case with prefix `ml-*` or `tool-*` (e.g., `ml-train/`, `ml-hydra-config/`, `tool-pixi/`)
+- **Agents**: Use kebab-case (e.g., `training-debugger.md`, `ml-architect.md`)
 
 Avoid names that conflict with Claude Code built-ins: `/init`, `/config`, `/export`, `/clear`, `/help`, etc.
 
 ## Component File Frontmatter Requirements
 
-### Commands
+### Skills
 
-- `description` (required): Brief description shown in `/help`
-- `name` field: NOT needed (filename determines command name)
+- `name` (optional): Skill identifier (defaults to directory name)
+- `description` (recommended): What this skill does and when to use it (helps Claude decide when to load)
 - `argument-hint` (optional): Document expected arguments
+- `disable-model-invocation` (optional): Set to `true` to prevent Claude from auto-invoking (user-only invocation)
+- `user-invocable` (optional): Set to `false` to hide from `/` menu (background knowledge only)
+- `allowed-tools` (optional): Restrict which tools this skill can use
+- `model` (optional): Specify model (sonnet, opus, haiku)
+- `context` (optional): Set to `fork` to run in subagent
+- `agent` (optional): Subagent type when `context: fork` is set
 
 ### Agents
 
@@ -235,11 +233,6 @@ Avoid names that conflict with Claude Code built-ins: `/init`, `/config`, `/expo
 - `model` (required): `inherit`, `sonnet`, `opus`, or `haiku`
 - `color` (required): Keyword color (`blue`, `cyan`, `green`, `yellow`, `magenta`, `red`)
 - `tools` (optional): Array of allowed tools
-
-### Skills
-
-- `name` (required): Skill identifier
-- `description` (required): When to use this skill (third-person voice)
 
 The test `test_command_files_have_title` skips frontmatter when checking for title (`# heading`).
 
@@ -297,12 +290,13 @@ Manual-only (slow): `pytest` with `--hook-stage manual`
 
 ## Common Pitfalls
 
-1. **Command naming**: Don't prefix all commands with `ml-`—only rename those that conflict with built-ins
-2. **Command namespacing**: Plugin name is NOT used as namespace. Subdirectories create namespaces (e.g., `commands/ml/foo.md` → `/ml:foo`)
-3. **Auto-discovery**: `./commands/` and `./skills/` are auto-discovered—don't add to plugin.json
-4. **Command frontmatter**: Use `description` (required) and `argument-hint` (optional), NOT `name` or `arguments`
+1. **Use skills for new development**: This plugin uses skills (`skills/*/SKILL.md`) exclusively for slash commands. Skills support supporting files (templates, examples, scripts), invocation control, and automatic loading.
+2. **Skill naming**: Use kebab-case with `ml-` prefix for ML workflow skills (e.g., `ml-train`, `ml-debug`)
+3. **Auto-discovery**: `./skills/` directory is auto-discovered—don't add skills to plugin.json
+4. **Skill frontmatter**: Use `description` (recommended) and `disable-model-invocation` (optional), NOT `name` or `arguments`
 5. **Agent frontmatter**: Use keyword colors (`blue`, `red`, etc.), NOT hex codes (`#4A90E2`)
-6. **Skills auto-discovery**: All skills in `./skills/` are auto-discovered and can be invoked as `/skill-name`
-7. **uv.lock tracking**: Must be committed to Git for CI caching to work
-8. **ty version**: Use `>=0.0.15`, not `>=0.2.0`
-9. **Coverage target**: pytest measures coverage for `scripts/`, not the plugin content itself
+6. **Supporting files organization**: Use `templates/`, `examples/`, `scripts/` subdirectories within skill directories
+7. **SKILL.md size**: Keep SKILL.md concise (<500 lines recommended), split detailed content into support files
+8. **uv.lock tracking**: Must be committed to Git for CI caching to work
+9. **ty version**: Use `>=0.0.15`, not `>=0.2.0`
+10. **Coverage target**: pytest measures coverage for `scripts/`, not the plugin content itself

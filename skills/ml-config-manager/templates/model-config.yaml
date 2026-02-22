@@ -1,0 +1,51 @@
+# Model Configuration Template
+# Location: configs/model/<model_name>.yaml
+# Usage: python src/train.py model=<model_name>
+
+_target_: src.models.<model_name>.Model
+
+# Architecture parameters
+input_dim: 784  # Input feature dimension
+hidden_dims: [512, 256, 128]  # Hidden layer dimensions
+output_dim: 10  # Output dimension (num_classes)
+activation: relu  # relu, gelu, swish, leaky_relu
+dropout: 0.2  # Dropout rate (0.0 to disable)
+batch_norm: true  # Enable batch normalization
+
+# Optimizer configuration
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 0.001  # Learning rate
+  weight_decay: 0.0001  # L2 regularization
+  betas: [0.9, 0.999]  # Adam beta parameters
+  eps: 1e-8
+
+# Learning rate scheduler
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: ${trainer.max_epochs}  # Reference trainer config
+  eta_min: 1e-6  # Minimum learning rate
+
+# Alternative schedulers (uncomment to use):
+
+# # Reduce on plateau
+# scheduler:
+#   _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+#   mode: min
+#   factor: 0.5
+#   patience: 5
+#   min_lr: 1e-7
+
+# # One cycle policy
+# scheduler:
+#   _target_: torch.optim.lr_scheduler.OneCycleLR
+#   max_lr: 0.01
+#   total_steps: ${eval:'${trainer.max_epochs} * ${data.steps_per_epoch}'}
+#   pct_start: 0.1
+#   anneal_strategy: cos
+
+# # Step decay
+# scheduler:
+#   _target_: torch.optim.lr_scheduler.StepLR
+#   step_size: 30
+#   gamma: 0.1

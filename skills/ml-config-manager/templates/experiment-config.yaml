@@ -1,0 +1,68 @@
+# Experiment Configuration Template
+# Location: configs/experiment/<experiment_name>.yaml
+# Usage: python src/train.py experiment=<experiment_name>
+
+# @package _global_
+
+# Experiment metadata
+name: "experiment_name"
+description: "Experiment description - what are you testing?"
+tags: ["tag1", "tag2", "tag3"]
+
+# Compose from existing configs
+defaults:
+  - override /model: model_name  # Model config to use
+  - override /data: dataset_name  # Data config to use
+  - override /trainer: trainer_name  # Trainer config to use
+  - override /logger: wandb  # Logger to use (wandb, tensorboard, mlflow)
+
+# Random seed for reproducibility
+seed: 42
+
+# Model overrides (specific to this experiment)
+model:
+  hidden_dims: [512, 256, 128]
+  dropout: 0.3
+  optimizer:
+    lr: 0.001
+    weight_decay: 0.0001
+
+# Data overrides
+data:
+  batch_size: 128
+  num_workers: 4
+  augmentation:
+    horizontal_flip: true
+    normalize: true
+
+# Trainer overrides
+trainer:
+  max_epochs: 100
+  devices: 1
+  precision: "16-mixed"
+  callbacks:
+    model_checkpoint:
+      monitor: "val/acc"
+      mode: "max"
+    early_stopping:
+      patience: 15
+
+# Logger configuration
+logger:
+  wandb:
+    project: "my-ml-project"
+    tags: ${tags}
+    notes: ${description}
+    log_model: true
+    save_code: true
+
+# Paths (auto-managed by Hydra)
+paths:
+  root_dir: ${oc.env:PROJECT_ROOT,.}
+  data_dir: ${paths.root_dir}/data
+  log_dir: ${paths.root_dir}/logs
+  output_dir: ${hydra:runtime.output_dir}
+  work_dir: ${hydra:runtime.cwd}
+
+# Experiment-specific settings
+experiment_name: ${name}
