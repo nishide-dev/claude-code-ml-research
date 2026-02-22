@@ -499,6 +499,87 @@ Before committing:
 - [ ] Skills invokable via `/skill-name`
 - [ ] Agents listed in plugin.json
 
+## Git Workflow
+
+### Commit Message Format
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/) with Gitmoji prefixes:
+
+```text
+<emoji> <type>: <description>
+
+[optional body]
+
+[optional footer]
+```
+
+**Commit types with emojis:**
+
+- ✨ `feat:` - New feature or enhancement
+- 🐛 `fix:` - Bug fix
+- 📝 `docs:` - Documentation changes
+- 🎨 `style:` - Code style/formatting (no logic change)
+- ♻️ `refactor:` - Code refactoring (no feature change)
+- ⚡ `perf:` - Performance improvements
+- ✅ `test:` - Adding or updating tests
+- 🔧 `chore:` - Maintenance tasks (deps, config, build)
+- 🚀 `ci:` - CI/CD configuration changes
+- 🔥 `remove:` - Remove code or files
+- 🚚 `move:` - Move or rename files
+
+**Examples:**
+
+```bash
+# Feature addition
+git commit -m "✨ feat: add GPU profiling to ml-profile skill"
+
+# Bug fix
+git commit -m "🐛 fix: correct CUDA OOM detection in debug skill"
+
+# Documentation
+git commit -m "📝 docs: update CLAUDE.md with commit conventions"
+
+# Refactoring
+git commit -m "♻️ refactor: simplify config validation logic"
+
+# Breaking change
+git commit -m "✨ feat: migrate all commands to skills
+
+BREAKING CHANGE: Commands directory removed, use skills instead"
+```
+
+**Body and footer guidelines:**
+
+- Body: Explain **why** the change was made (not what, that's in the diff)
+- Footer: Reference issues (`Fixes #123`), breaking changes (`BREAKING CHANGE:`)
+- Always include `Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>` when Claude writes code
+
+**Branch naming:**
+
+- Feature: `feature/add-new-skill`
+- Fix: `fix/cuda-oom-detection`
+- Docs: `docs/update-readme`
+- Refactor: `refactor/config-validation`
+
+### Pull Request Workflow
+
+When creating PRs:
+
+1. Write comprehensive title matching commit format
+2. Analyze full commit history (not just latest commit)
+3. Use `git diff [base-branch]...HEAD` to see all changes
+4. Include detailed summary with context
+5. Add test plan with checkboxes
+6. Reference related issues
+
+**PR title examples:**
+
+```text
+✨ feat: Add transformers fine-tuning skill
+🐛 fix: Resolve NaN loss detection edge cases
+📝 docs: Comprehensive CLAUDE.md overhaul
+```
+
 ## Documentation References
 
 Always refer to official Claude Code documentation for authoritative information:
