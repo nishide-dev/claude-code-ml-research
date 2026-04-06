@@ -27,6 +27,7 @@
     "./agents/training-debugger.md",
     "./agents/pytorch-expert.md",
     "./agents/geometric-specialist.md",
-    "./agents/transformers-specialist.md"
+    "./agents/transformers-specialist.md",
+    "./agents/model-optimizer.md"
   ]
 }
