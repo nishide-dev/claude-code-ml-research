@@ -1,6 +1,6 @@
 {
   "name": "ml-research",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Comprehensive Machine Learning research plugin for Claude Code. Provides project scaffolding, experiment management, training support, and debugging tools for PyTorch Lightning, Hydra, PyTorch Geometric, and Hugging Face Transformers.",
   "author": {
     "name": "nishide-dev"

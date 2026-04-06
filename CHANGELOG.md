@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-04-06
+
+### Added
+
+- New knowledge skill: `tool-uv-monorepo` - Comprehensive guide for building Python monorepos with uv workspaces
+  - Unified dependency resolution with single `uv.lock`
+  - PEP 735 dependency groups for dev tools
+  - Pytest importlib mode for test isolation
+  - Docker multi-stage builds with `uv export`
+  - GitHub Actions global cache strategy
+  - Migration guide from poly-repo to monorepo
+
 ## [0.1.1] - 2026-04-06
 
 ### Fixed
