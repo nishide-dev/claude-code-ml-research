@@ -1,0 +1,528 @@
+# Experiment Templates
+# Common experiment configurations for ML research
+
+# =============================================================================
+# 1. BASELINE EXPERIMENT
+# =============================================================================
+# Purpose: Establish reference performance with default settings
+# When to use: First experiment for any new task/dataset
+
+baseline:
+  name: "baseline"
+  description: "Baseline experiment with default hyperparameters"
+  tags: ["baseline", "reference"]
+
+  # Use defaults from model/data/trainer configs
+  defaults:
+    - override /model: default
+    - override /data: default
+    - override /trainer: default
+    - override /logger: wandb
+
+  seed: 42
+
+  # Minimal overrides - mostly defaults
+  model: {}
+  data: {}
+  trainer:
+    max_epochs: 100
+    log_every_n_steps: 50
+
+  logger:
+    wandb:
+      project: "my-project"
+      tags: ${tags}
+      notes: ${description}
+
+# =============================================================================
+# 2. ABLATION STUDY
+# =============================================================================
+# Purpose: Isolate effect of single component
+# When to use: Understanding contribution of specific features
+
+ablation_dropout:
+  name: "ablation_dropout"
+  description: "Ablation study: Remove dropout regularization"
+  tags: ["ablation", "regularization"]
+
+  defaults:
+    - baseline  # Inherit from baseline
+
+  # Only change: disable dropout
+  model:
+    dropout: 0.0  # vs baseline dropout=0.3
+
+  # Run with multirun to test multiple dropout values:
+  # python src/train.py experiment=ablation_dropout --multirun model.dropout=0.0,0.1,0.2,0.3,0.4,0.5
+
+ablation_batch_norm:
+  name: "ablation_batch_norm"
+  description: "Ablation study: Remove batch normalization"
+  tags: ["ablation", "normalization"]
+
+  defaults:
+    - baseline
+
+  model:
+    use_batch_norm: false
+
+ablation_data_augmentation:
+  name: "ablation_data_augmentation"
+  description: "Ablation study: No data augmentation"
+  tags: ["ablation", "augmentation"]
+
+  defaults:
+    - baseline
+
+  data:
+    augmentation:
+      enabled: false
+
+# =============================================================================
+# 3. HYPERPARAMETER OPTIMIZATION
+# =============================================================================
+# Purpose: Find optimal hyperparameters systematically
+# When to use: After baseline, before final training
+
+hp_optimization_optuna:
+  name: "hp_optimization"
+  description: "Hyperparameter optimization with Optuna"
+  tags: ["optimization", "tuning", "optuna"]
+
+  defaults:
+    - baseline
+    - override hydra/sweeper: optuna
+
+  # Optuna configuration
+  hydra:
+    sweeper:
+      n_trials: 100
+      direction: maximize
+      study_name: "model_hp_optimization"
+
+      # Search space
+      params:
+        # Learning rate (log scale)
+        model.optimizer.lr:
+          type: float
+          low: 0.0001
+          high: 0.01
+          log: true
+
+        # Batch size (categorical)
+        data.batch_size:
+          type: categorical
+          choices: [32, 64, 128, 256]
+
+        # Hidden dimensions (categorical)
+        model.hidden_dims:
+          type: categorical
+          choices: [[256, 128], [512, 256], [1024, 512, 256]]
+
+        # Dropout (uniform)
+        model.dropout:
+          type: float
+          low: 0.0
+          high: 0.5
+
+        # Weight decay (log scale)
+        model.optimizer.weight_decay:
+          type: float
+          low: 0.00001
+          high: 0.001
+          log: true
+
+  # Metric to optimize
+  optimized_metric: "val/acc"
+
+hp_optimization_grid:
+  name: "hp_grid_search"
+  description: "Grid search over key hyperparameters"
+  tags: ["optimization", "grid-search"]
+
+  defaults:
+    - baseline
+
+  # Run with multirun:
+  # python src/train.py experiment=hp_optimization_grid --multirun \
+  #   model.optimizer.lr=0.0001,0.001,0.01 \
+  #   data.batch_size=64,128,256
+
+hp_optimization_bayesian:
+  name: "hp_bayesian"
+  description: "Bayesian optimization with Optuna"
+  tags: ["optimization", "bayesian"]
+
+  defaults:
+    - hp_optimization_optuna
+
+  hydra:
+    sweeper:
+      sampler:
+        _target_: optuna.samplers.TPESampler
+        seed: 42
+        n_startup_trials: 10
+
+# =============================================================================
+# 4. TRANSFER LEARNING
+# =============================================================================
+# Purpose: Fine-tune pretrained model
+# When to use: Limited data, domain adaptation
+
+transfer_learning_frozen:
+  name: "transfer_frozen"
+  description: "Transfer learning with frozen backbone"
+  tags: ["transfer-learning", "pretrained", "frozen"]
+
+  defaults:
+    - baseline
+
+  model:
+    pretrained: true
+    freeze_backbone: true  # Freeze all layers except head
+    pretrained_weights: "imagenet"
+
+  # Use smaller learning rate for fine-tuning
+  model:
+    optimizer:
+      lr: 0.0001  # 10x smaller than baseline
+
+transfer_learning_gradual:
+  name: "transfer_gradual"
+  description: "Transfer learning with gradual unfreezing"
+  tags: ["transfer-learning", "pretrained", "gradual-unfreeze"]
+
+  defaults:
+    - baseline
+
+  model:
+    pretrained: true
+    freeze_backbone: true
+
+  # Gradual unfreezing schedule
+  callbacks:
+    gradual_unfreeze:
+      _target_: src.callbacks.GradualUnfreezeCallback
+      unfreeze_epochs: [0, 5, 10, 15]  # Unfreeze layers progressively
+      lr_multiplier: 0.1  # Lower LR for earlier layers
+
+transfer_learning_discriminative:
+  name: "transfer_discriminative_lr"
+  description: "Transfer learning with discriminative learning rates"
+  tags: ["transfer-learning", "pretrained", "discriminative-lr"]
+
+  defaults:
+    - baseline
+
+  model:
+    pretrained: true
+    freeze_backbone: false
+
+    # Different LR for different layer groups
+    optimizer:
+      lr: 0.001  # Head LR
+      layer_lr_decay: 0.95  # Each layer gets 0.95x LR of previous
+
+# =============================================================================
+# 5. DISTRIBUTED TRAINING
+# =============================================================================
+# Purpose: Scale training to multiple GPUs/nodes
+# When to use: Large models, large datasets
+
+distributed_ddp:
+  name: "distributed_ddp"
+  description: "Distributed training with DDP"
+  tags: ["distributed", "ddp", "multi-gpu"]
+
+  defaults:
+    - baseline
+
+  trainer:
+    devices: 4  # 4 GPUs
+    strategy: "ddp"
+    precision: "16-mixed"
+
+  # Scale batch size and LR linearly with GPUs
+  data:
+    batch_size: 512  # 128 per GPU * 4 GPUs
+
+  model:
+    optimizer:
+      lr: 0.004  # 0.001 * 4 GPUs (linear scaling rule)
+
+distributed_fsdp:
+  name: "distributed_fsdp"
+  description: "Distributed training with FSDP for large models"
+  tags: ["distributed", "fsdp", "large-model"]
+
+  defaults:
+    - baseline
+
+  trainer:
+    devices: 8
+    strategy:
+      _target_: lightning.pytorch.strategies.FSDPStrategy
+      sharding_strategy: "FULL_SHARD"
+      cpu_offload: false
+    precision: "bf16-mixed"
+
+  data:
+    batch_size: 1024  # 128 per GPU * 8 GPUs
+
+distributed_deepspeed:
+  name: "distributed_deepspeed"
+  description: "Distributed training with DeepSpeed ZeRO-3"
+  tags: ["distributed", "deepspeed", "zero"]
+
+  defaults:
+    - baseline
+
+  trainer:
+    devices: 8
+    strategy:
+      _target_: lightning.pytorch.strategies.DeepSpeedStrategy
+      stage: 3
+      offload_optimizer: true
+      offload_parameters: true
+    precision: "16-mixed"
+
+# =============================================================================
+# 6. ARCHITECTURE SEARCH
+# =============================================================================
+# Purpose: Compare different model architectures
+# When to use: Initial exploration, architecture selection
+
+architecture_search:
+  name: "architecture_search"
+  description: "Compare multiple model architectures"
+  tags: ["architecture", "comparison"]
+
+  defaults:
+    - baseline
+
+  # Run with multirun to test multiple architectures:
+  # python src/train.py experiment=architecture_search --multirun \
+  #   model=resnet18,resnet50,vit_base,efficientnet_b0
+
+# =============================================================================
+# 7. REGULARIZATION EXPERIMENTS
+# =============================================================================
+# Purpose: Test different regularization techniques
+# When to use: Addressing overfitting
+
+regularization_dropout:
+  name: "regularization_dropout"
+  description: "Test dropout regularization"
+  tags: ["regularization", "dropout"]
+
+  defaults:
+    - baseline
+
+  model:
+    dropout: 0.3
+    dropout_type: "standard"  # or "spatial", "variational"
+
+regularization_weight_decay:
+  name: "regularization_l2"
+  description: "Test L2 regularization (weight decay)"
+  tags: ["regularization", "weight-decay"]
+
+  defaults:
+    - baseline
+
+  model:
+    optimizer:
+      weight_decay: 0.0001
+
+regularization_mixup:
+  name: "regularization_mixup"
+  description: "Test Mixup data augmentation"
+  tags: ["regularization", "mixup", "augmentation"]
+
+  defaults:
+    - baseline
+
+  data:
+    augmentation:
+      mixup:
+        enabled: true
+        alpha: 0.2
+
+regularization_label_smoothing:
+  name: "regularization_label_smoothing"
+  description: "Test label smoothing"
+  tags: ["regularization", "label-smoothing"]
+
+  defaults:
+    - baseline
+
+  model:
+    loss:
+      _target_: torch.nn.CrossEntropyLoss
+      label_smoothing: 0.1
+
+# =============================================================================
+# 8. DATA EXPERIMENTS
+# =============================================================================
+# Purpose: Test data-related variations
+# When to use: Data preprocessing, augmentation studies
+
+data_augmentation_strong:
+  name: "data_augmentation_strong"
+  description: "Strong data augmentation"
+  tags: ["augmentation", "data"]
+
+  defaults:
+    - baseline
+
+  data:
+    augmentation:
+      enabled: true
+      random_crop: true
+      random_flip: true
+      color_jitter: true
+      random_rotation: 15
+      cutout: true
+      autoaugment: "imagenet"
+
+data_subset_experiment:
+  name: "data_subset"
+  description: "Train on data subset to test sample efficiency"
+  tags: ["data", "sample-efficiency"]
+
+  defaults:
+    - baseline
+
+  data:
+    train_subset_fraction: 0.1  # Use only 10% of training data
+
+  # Run with multirun to test different subset sizes:
+  # python src/train.py experiment=data_subset --multirun \
+  #   data.train_subset_fraction=0.01,0.05,0.1,0.25,0.5,1.0
+
+# =============================================================================
+# 9. LEARNING RATE EXPERIMENTS
+# =============================================================================
+# Purpose: Test learning rate schedules
+# When to use: Optimization tuning
+
+lr_scheduler_cosine:
+  name: "lr_cosine"
+  description: "Cosine annealing LR schedule"
+  tags: ["lr-schedule", "cosine"]
+
+  defaults:
+    - baseline
+
+  model:
+    lr_scheduler:
+      _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+      T_max: ${trainer.max_epochs}
+      eta_min: 0.00001
+
+lr_scheduler_onecycle:
+  name: "lr_onecycle"
+  description: "One-cycle LR schedule"
+  tags: ["lr-schedule", "onecycle"]
+
+  defaults:
+    - baseline
+
+  model:
+    lr_scheduler:
+      _target_: torch.optim.lr_scheduler.OneCycleLR
+      max_lr: 0.01
+      total_steps: ${trainer.max_epochs}
+      pct_start: 0.3
+
+lr_warmup:
+  name: "lr_warmup"
+  description: "Learning rate warmup"
+  tags: ["lr-schedule", "warmup"]
+
+  defaults:
+    - baseline
+
+  model:
+    lr_scheduler:
+      _target_: src.lr_schedulers.WarmupScheduler
+      warmup_epochs: 5
+      base_scheduler: "cosine"
+
+# =============================================================================
+# 10. DEBUGGING / FAST EXPERIMENTS
+# =============================================================================
+# Purpose: Quick iteration for debugging
+# When to use: Development, testing changes
+
+debug_fast:
+  name: "debug_fast"
+  description: "Fast debugging experiment"
+  tags: ["debug", "fast"]
+
+  defaults:
+    - baseline
+
+  # Reduce everything for fast iteration
+  data:
+    train_subset_fraction: 0.01  # 1% of data
+    val_subset_fraction: 0.1     # 10% of validation
+    num_workers: 2
+
+  trainer:
+    max_epochs: 3
+    log_every_n_steps: 10
+    limit_train_batches: 0.1  # Only 10% of batches per epoch
+    limit_val_batches: 0.2
+
+  # Disable expensive operations
+  callbacks:
+    model_checkpoint:
+      save_top_k: 1
+    early_stopping:
+      patience: 2
+
+debug_overfit:
+  name: "debug_overfit"
+  description: "Overfit on small batch to verify implementation"
+  tags: ["debug", "overfit"]
+
+  defaults:
+    - baseline
+
+  data:
+    train_subset_fraction: 0.001  # Tiny subset
+    num_workers: 0
+
+  trainer:
+    max_epochs: 100
+    overfit_batches: 1  # Overfit on single batch
+
+  model:
+    optimizer:
+      lr: 0.01  # Higher LR for fast overfitting
+
+# =============================================================================
+# USAGE EXAMPLES
+# =============================================================================
+
+# 1. Run single experiment:
+#    python src/train.py experiment=baseline
+
+# 2. Run hyperparameter sweep:
+#    python src/train.py experiment=hp_optimization_optuna
+
+# 3. Run architecture comparison:
+#    python src/train.py experiment=architecture_search --multirun model=resnet18,resnet50,vit_base
+
+# 4. Run ablation study:
+#    python src/train.py experiment=ablation_dropout --multirun model.dropout=0.0,0.1,0.2,0.3,0.4,0.5
+
+# 5. Quick debug:
+#    python src/train.py experiment=debug_fast
+
+# 6. Transfer learning:
+#    python src/train.py experiment=transfer_learning_frozen
+
+# 7. Distributed training:
+#    python src/train.py experiment=distributed_ddp
